@@ -1,0 +1,41 @@
+{
+  "mode": "sit",
+  "debug": false,
+  "scripts": [
+    "https://gw.alipayobjects.com/os/lib/react/16.13.0/umd/react.production.min.js",
+    "https://gw.alipayobjects.com/os/lib/react-dom/16.13.0/umd/react-dom.production.min.js"
+  ],
+  "authsdk": "//oss.suosi.atuniversity.cn/sit/jssdk.js",
+  "sittool": "nosources-source-map",
+  "url": {
+    "auth": "//front.sit.suosihulian.com/gateway/auth",
+    "collect": "//front.sit.suosihulian.com/gateway/collect-form",
+    "receipt": "//front.sit.suosihulian.com/gateway/receipt",
+    "wish": "//front.sit.suosihulian.com/gateway/micro-wish",
+    "usercenter": "//front.sit.suosihulian.com/gateway/user-center",
+    "permission": "//front.sit.suosihulian.com/gateway/permission-center",
+    "homework": "//front.sit.suosihulian.com/gateway/game",
+    "operation": "//front.sit.suosihulian.com/gateway/operation",
+    "equipment": "//front.sit.suosihulian.com/gateway/equipment",
+    "game": "//funlowcodeplat.community-sit.easyj.top",
+    "cms": "//front.sit.suosihulian.com/gateway/cms",
+    "mock": "//yapi.sitops.suosihulian.com/mock/54",
+    "file": "//front.sit.suosihulian.com/gateway/file-center",
+    "workflow": "//front.sit.suosihulian.com/gateway/workflow",
+    "activity": "//front.sit.suosihulian.com/gateway/activity",
+    "publicity": "//front.sit.suosihulian.com/gateway/publicity",
+    "workflow-mobile": "//front.sit.suosihulian.com/gateway/workflow/mobile",
+    "group": "//front.sit.suosihulian.com/gateway/group",
+    "workbench": "//front.sit.suosihulian.com/gateway/workbench",
+    "external": "//front.sit.suosihulian.com/gateway/external-service",
+    "notice": "//front.sit.suosihulian.com/gateway/notice",
+    "circles": "//front.sit.suosihulian.com/gateway/circles",
+    "worknews": "//front.sit.suosihulian.com/gateway/work-news",
+    "task": "//front.sit.suosihulian.com/gateway/task",
+    "hsk": "//front.sit.suosihulian.com/gateway/hsk",
+    "tag": "//front.sit.suosihulian.com/gateway/crm",
+    "crm": "//front.sit.suosihulian.com/gateway/crm",
+    "interaction": "//front.sit.suosihulian.com/gateway/interaction",
+    "zhuomenApiUrl": "//pt-qa.lbian.cn/"
+  }
+}

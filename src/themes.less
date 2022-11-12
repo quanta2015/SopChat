@@ -1,0 +1,92 @@
+:root {
+
+  --sys-wid: 1750px;
+  
+  --clr-main:  #3e7af7;
+
+  --menu-height: 45px;
+}
+
+// 页面背景色
+@background-color: #fff;
+// 输入框边框颜色
+@input-border-color: #d9d9d9;
+
+// tab-dot
+@tab-dot-color: #e22219;
+
+// form表单 标题颜色和字体大小
+@form-title-color-primary: #000;
+@form-title-font-size: 16px;
+// 校验不同过时颜色
+@form-error-color: #e64340;
+
+// 控件标题的样式
+.form-title {
+  font-size: @form-title-font-size;
+  color: @form-title-color-primary;
+  // margin-top: 20px;
+  margin-bottom: 7px !important;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+// 标题必填时统一样式
+.required {
+  &::before {
+    display: inline-block;
+    margin-right: 2px;
+    color: @form-error-color;
+    font-size: 16px;
+    font-family: SimSun, sans-serif;
+    line-height: 1;
+    content: '*';
+  }
+}
+
+.form-desc {
+  font-size: 12px;
+  line-height: 1.4;
+  margin-bottom: 7px;
+  color: #aaa;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+// form表单 显示控件中的值的样式
+.form-value {
+  background-color: #f4f4f4;
+  font-size: 15px;
+  color: #4a4a4a;
+  padding: 10px;
+  word-break: break-all;
+  white-space: pre-wrap;
+}
+
+// input样式
+.form-input {
+  font-size: 15px;
+  color: #111;
+
+  &::placeholder {
+    color: #999;
+  }
+}
+
+.am-icon-right {
+  color: #d9d9d9;
+}
+
+.form-error {
+  color: @form-error-color;
+}
+// 控件正常时border
+.widget-border {
+  border-radius: 2px;
+  border: 1px solid @input-border-color;
+  font-size: 15px;
+}
+
+.error-form-title {
+  color: @form-error-color;
+}

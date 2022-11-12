@@ -1,0 +1,189 @@
+.textOverflow() {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  word-break: break-all;
+}
+
+.textOverflowMulti(@line: 3, @bg: #fff) {
+  position: relative;
+  max-height: @line * 1.5em;
+  margin-right: -1em;
+  padding-right: 1em;
+  overflow: hidden;
+  line-height: 1.5em;
+  text-align: justify;
+  &::before {
+    position: absolute;
+    right: 14px;
+    bottom: 0;
+    padding: 0 1px;
+    background: @bg;
+    content: '...';
+  }
+  &::after {
+    position: absolute;
+    right: 14px;
+    width: 1em;
+    height: 1em;
+    margin-top: 0.2em;
+    background: white;
+    content: '';
+  }
+}
+
+// mixins for clearfix
+// ------------------------
+.clearfix() {
+  zoom: 1;
+  &::before,
+  &::after {
+    content: ' ';
+    display: table;
+  }
+  &::after {
+    clear: both;
+    height: 0;
+    font-size: 0;
+    visibility: hidden;
+  }
+}
+
+// 搜索表单公共样式
+.baseSearchForm() {
+  .ant-form-item {
+    display: flex;
+    margin-right: 0;
+    margin-bottom: 16px;
+    > .ant-form-item-label {
+      width: auto;
+      padding-right: 8px;
+      line-height: 32px;
+
+      .question-label {
+        margin-right: 8px;
+      }
+    }
+
+    .ant-form-item-control-wrapper {
+      flex: 1;
+
+      .ant-form-item-control {
+        line-height: 32px;
+
+        .ant-calendar-picker {
+          width: 100%;
+        }
+      }
+    }
+  }
+
+  .simple-operation-buttons {
+    overflow: hidden;
+
+    .buttons-wrap {
+      float: right;
+      margin-bottom: 16px;
+
+      button {
+        margin-left: 8px;
+      }
+
+      button:first-child {
+        margin-left: inherit;
+      }
+    }
+  }
+}
+
+// 表格公共样式
+.baseTable() {
+  .table-operation-buttons-wraps {
+    margin-bottom: 16px;
+
+    button {
+      margin-left: 8px;
+    }
+
+    button:first-child {
+      margin-left: inherit;
+    }
+  }
+}
+
+// 表单公共样式
+.baseBasicForm() {
+  .ant-form-item-children {
+    .ant-calendar-picker,
+    .ant-time-picker,
+    .ant-input-number {
+      width: 100%;
+    }
+  }
+
+  .operation-button-wrap {
+    margin-top: 32px;
+    margin-bottom: inherit;
+    text-align: center;
+
+    button {
+      margin-left: 8px;
+    }
+
+    button:first-child {
+      margin-left: inherit;
+    }
+  }
+}
+
+// 模态框公共样式
+.baseDetailModal() {
+  .ant-calendar-picker {
+    width: 100%;
+  }
+
+  .ant-card-body {
+    padding: inherit;
+  }
+
+  .line {
+    display: flex;
+
+    .label {
+      flex: none;
+    }
+
+    .text {
+      flex: 1;
+    }
+  }
+
+  .label {
+    display: inline-block;
+    width: 100px;
+    margin-right: 35px;
+    text-align: right;
+  }
+
+  .timeline {
+    display: flex;
+    margin-bottom: 1em;
+
+    .ant-timeline {
+      margin-top: 7px;
+
+      .time-line-label {
+        display: inline-block;
+        width: 100px;
+      }
+
+      .ant-timeline-item-last {
+        padding-bottom: inherit;
+      }
+
+      .ant-timeline-item-last .ant-timeline-item-content {
+        min-height: inherit;
+      }
+    }
+  }
+}

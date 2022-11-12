@@ -1,0 +1,86 @@
+@import '~antd/lib/style/themes/default.less';
+@import './themes.less';
+
+html,
+body,
+#root,
+#root-slave {
+  height: 100%;
+}
+
+i {
+  font-style: normal;
+}
+
+.colorWeak {
+  filter: invert(80%);
+}
+
+.ant-picker {
+  width: 100% !important;
+}
+.attributedom {
+  padding-left: 67px;
+  color: #777;
+}
+
+.ant-layout {
+  height: 100%;
+}
+
+canvas {
+  display: block;
+}
+
+body {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.globalSpin {
+  width: 100%;
+  margin: 40px 0 !important;
+}
+
+li,
+ul,
+ol {
+  list-style: none;
+}
+
+p {
+  margin-bottom: 0 !important;
+}
+
+
+
+/* *******************全局icon配置*********************** */
+:global {
+  @font-face {
+    font-family: 'iconfont';
+
+    /* project id 1324746 */
+    src: url('//at.alicdn.com/t/font_1324746_04gi8yhm49u7.eot');
+    src: url('//at.alicdn.com/t/font_1324746_04gi8yhm49u7.eot?#iefix') format('embedded-opentype'),
+      url('//at.alicdn.com/t/font_1324746_04gi8yhm49u7.woff2') format('woff2'),
+      url('//at.alicdn.com/t/font_1324746_04gi8yhm49u7.woff') format('woff'),
+      url('//at.alicdn.com/t/font_1324746_04gi8yhm49u7.ttf') format('truetype'),
+      url('//at.alicdn.com/t/font_1324746_04gi8yhm49u7.svg#iconfont') format('svg');
+  }
+
+  .anticon::after {
+    font-family: 'iconfont', serif !important;
+    font-size: 14px;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-stroke-width: 0.2px;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .ant-btn {
+    box-shadow: 0 0 0;
+    text-shadow: 0 0 0;
+  }
+}
+

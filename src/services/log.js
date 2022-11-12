@@ -1,0 +1,43 @@
+const json = [
+  { key: '/wisdom', value: 'disabled-home' },
+  { key: '/operation', value: 'operation-adhibition' },
+  { key: '/contacts', value: 'contacts' },
+  { key: '/game', value: 'educationGame' },
+  { key: '/content-model/scstudy', value: 'sc-study' },
+  { key: '/content-model/sctrain', value: 'sc-train' },
+  { key: '/content-model/scopus', value: 'sc-opus' },
+  { key: '/content-model/scdisabledActivity', value: 'sc-disabledActivity' },
+  { key: '/content-model/scvoluntaryActivity', value: 'sc-voluntaryActivity' },
+  { key: '/content-model/scwish', value: 'sc-wish' },
+  { key: '/content-model/scstyle', value: 'sc-style' },
+  { key: '/content-model/schome', value: 'sc-home' },
+  { key: '/content-model/scjd', value: 'sc-jd' },
+  { key: '/content-model/scspreadLove', value: 'sc-spreadLove' },
+  { key: '/content-model/kfjg', value: 'sc-kfjg' },
+  { key: '/microsite/official', value: 'gzh-matrice' },
+  { key: '/microsite', value: 'mico-site' },
+  { key: '/notice', value: 'notice-simple' },
+  { key: '/community', value: 'community' },
+  { key: '/workstyle', value: 'workNews' },
+  { key: '/sq-activity', value: 'm_activity' },
+  { key: '/property', value: 'equipment' },
+  { key: '/task', value: 'rwgl' },
+  { key: '/setting', value: 'setting' },
+  { key: '/receipt', value: 'xxtz' },
+  { key: '/notification', value: 'notification' },
+  { key: '/collect', value: 'sjsj' },
+  { key: '/speechcraft', value: 'hsk' },
+  { key: '/policy', value: 'zcqd' },
+  { key: '/group', value: 'group' },
+  { key: '/alarm', value: 'spgj' },
+  { key: '/tag', value: 'bqgl' },
+  { key: '/sop-tool/speechcraft', value: 'hsk' },
+  { key: '/sop-tool', value: 'comchat' },
+  { key: '/soptag', value: 'bqgl' },
+  { key: '/sop-manage', value: 'yxgl' },
+];
+export const getLogInfo = () => {
+  return json.find(item => window.location.pathname.includes(item.key))?.value;
+};
+
+export const getCode = key => json.find(item => item.key === key).value;
