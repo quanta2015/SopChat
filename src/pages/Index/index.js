@@ -21,6 +21,7 @@ const Sop = ({ index }) => {
   const [show,setShow] = useState(true) 
   const [selTab,setSelTab]     = useState(0)
   const [selWeUsr,setSelWeUsr] = useState(-1) 
+  const [selCtUsr,setSelCtUsr] = useState(-1) 
   const [userList,setUserList] = useState([]) 
   const [roomList,setRoomList] = useState([]) 
   const [contList,setContList] = useState([]) 
@@ -91,6 +92,12 @@ const Sop = ({ index }) => {
     return (filter==='')?d:d.filter((o,i)=>o[key].includes(filter))
   }
 
+
+  const doSelCtUsr=(item,i)=>{
+    console.log(i,item)
+    setSelCtUsr(i)
+  }
+
   console.log('userList',userList);
   
 
@@ -115,8 +122,8 @@ const Sop = ({ index }) => {
         <div className="list">
           {list.map((item,i)=>
             <React.Fragment key={i}>
-              {(tabIndex === 1) &&
-              <div className="list-item">
+              {(tabIndex === 1) && 
+              <div className={(selCtUsr===i)?"list-item sel":"list-item"} onClick={()=>doSelCtUsr(item,i)}>
                 <img src={icon_user} />
                 <div className="info">
                   <div className="hd">
@@ -128,7 +135,7 @@ const Sop = ({ index }) => {
               </div>}
 
               {(tabIndex === 2) &&
-              <div className="list-item" key={i}>
+              <div className="list-item" onClick={()=>doSelCtUsr(item,i)}>
                 <img src={item?.OssAvatar} />
                 <div className="info">
                   <div className="hd">
@@ -164,6 +171,7 @@ const Sop = ({ index }) => {
               <label>{item.UserName}</label>
               <span>{item.CorpName}</span>
             </div>
+            {item.LoginType === 2 && <i className="login-type">云机托管</i>}
           </div>
         )}
       </div>

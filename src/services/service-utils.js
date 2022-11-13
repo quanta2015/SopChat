@@ -1,5 +1,6 @@
-import { base } from '../base';
 import request from '@/services/withCodeRequest';
+import conf from '../conf';
+const { base } = conf;
 
 async function fetchEnv() {
   return request('/rhyysshl/pc/conf.json', {

@@ -1,9 +1,8 @@
-import pageRoutes from './router.config';
 import { defineConfig } from 'umi';
-import defaultSettings from '../src/defaultSettings';
-import { base } from '../src/base';
+import pageRoutes from './router.config';
+import conf from '../src/conf';
+const { primaryColor,base } = conf;
 const { BUILD_ENV } = process.env;
-const { primaryColor } = defaultSettings;
 const PUBLIC_PATH = `${base}/`;
 
 export default defineConfig({

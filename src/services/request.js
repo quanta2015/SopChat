@@ -1,3 +1,31 @@
+
+import { message } from 'antd';
+
+export async function request(url, opt = {}) {
+  return new Promise((resolve, reject) => {
+    return fetch(url, {
+      headers: {
+        Accept: "application/json",
+        Authorization: window.token,
+        "Content-Type": "application/json;charset=UTF-8",
+      },
+      ...opt,
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      switch(data.code) {
+        case 401: 
+          message.error(data.msg);
+          reject(data);
+          break;
+        default: 
+          resolve(data); 
+      }
+    });
+  })
+}
+
+
 // import axios from 'axios';
 // import { message } from 'antd';
 // import { stringify } from 'qs';
@@ -63,21 +91,4 @@
 //   });
 // }
 
-
-export async function request(url, opt = {}) {
-  return new Promise((resolve, reject) => {
-    return fetch(url, {
-      headers: {
-        Accept: "application/json",
-        Authorization: window.token,
-        "Content-Type": "application/json;charset=UTF-8",
-      },
-      ...opt,
-    })
-    .then((response) => response.json())
-    .then((data) => {
-      resolve(data)
-    });
-  })
-}
 
