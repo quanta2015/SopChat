@@ -1,10 +1,10 @@
 /* eslint-disable no-param-reassign */
 import { observable, action } from 'mobx';
-import { message } from 'antd';
-import { request } from '@/services/request';
+import { message }  from 'antd';
+import { request }  from '@/services/request';
+import { procData } from '@/utils/procData';
 
 const HEAD = `https://pt-prod.lbian.cn`
-
 
 
 export class Index {
@@ -56,10 +56,11 @@ export class Index {
     const s = await request(this.URL_ROOM_CONTACT_LIST,params);
     const t = await request(this.URL_CONTACT_ALL_LIST, params);
     const u = await request(this.URL_CONTACT_USR_LIST, params);
+    const read = [0,0,0]
+    procData(s,t,u,read)
 
     console.log(s,t,u)
-    t.map((o,i)=> o.msg = JSON.parse(o.LatestMsg)?.data)
-    return { room:s, cont:t, proc: u}
+    return { room:s, cont:t, proc: u, read: read}
   }
 
 
@@ -84,9 +85,10 @@ export class Index {
     const s = await request(this.URL_ROOM_CONTACT_LIST,params);
     const t = await request(this.URL_CONTACT_ALL_LIST,params);
     const u = await request(this.URL_CONTACT_USR_LIST,params);
-    console.log('t',t)
-    t.map((o,i)=> o.msg = JSON.parse(o.LatestMsg)?.data)
-    return {user:r, room:s, cont:t, proc: u}
 
+    const read = [0,0,0]
+    procData(s,t,u,read)
+
+    return {user:r, room:s, cont:t, proc: u, read:read}
   }
 }

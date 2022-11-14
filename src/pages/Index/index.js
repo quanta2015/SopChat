@@ -47,6 +47,7 @@ const Sop = ({ index }) => {
   const [roomList,setRoomList] = useState([]) 
   const [contList,setContList] = useState([]) 
   const [procList,setProcList] = useState([])
+  const [readList,setReadList] = useState([0,0,0])
   const [filter,  setFilter]   = useState('')
 
 
@@ -56,6 +57,7 @@ const Sop = ({ index }) => {
       setProcList(r.proc)
       setRoomList(r.room)
       setContList(r.cont)
+      setReadList(r.read)
     });
   }, []);
 
@@ -81,6 +83,7 @@ const Sop = ({ index }) => {
       setProcList(r.proc)
       setRoomList(r.room)
       setContList(r.cont)
+      setReadList(r.read)
     });
   }
 
@@ -132,7 +135,6 @@ const Sop = ({ index }) => {
       case 1: list = doFilter(roomList,'NickName'); break;
       case 2: list = contList; break;
     }
-    
 
     return (
       <div className="contact">
@@ -155,15 +157,13 @@ const Sop = ({ index }) => {
                 </div>
               </div>}
 
-              {(tabIndex === 2) &&
+              {((tabIndex === 2)||(tabIndex === 0)) &&
               <div className="list-item" onClick={()=>doSelCtUsr(item,i)}>
                 <img src={item?.OssAvatar} />
                 <div className="info">
                   <div className="hd">
                     <span>{item?.UserName}</span>
-                    {item?.msg   &&
-                    <span>{dayjs().to(dayjs.unix(parseInt(item?.msg?.send_time)))}</span>}
-                    
+                    <span>{item?.send_time}</span>
                   </div>
                   <div className="bd">
                     <span>{item?.msg?.content}</span>
@@ -210,7 +210,8 @@ const Sop = ({ index }) => {
             <div className="tab">
               {tabList.map((item,i)=> 
                 <span key={i} className={(i===selTab)?"sel":""} onClick={()=>setSelTab(i)}>
-                  {item}
+                  {item}  
+                  {(readList[i]>0) && <i className="unread">{readList[i]}</i>}
                 </span>
               )}
             </div>
