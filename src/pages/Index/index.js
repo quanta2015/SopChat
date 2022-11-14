@@ -140,6 +140,7 @@ const Sop = ({ index }) => {
                 <div className="info">
                   <div className="hd">
                     <span>{item?.UserName}</span>
+                    <span>{item?.send_time}</span>
                     {(item?.IsExternal===1)&&<i>外部</i>}
                     {(item?.IsManager===2)&&<i>群主</i>}
                   </div>

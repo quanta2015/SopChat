@@ -205,10 +205,20 @@
                   display: flex;
 
                   span {
-                    flex: 1;
                     text-overflow: ellipsis;
                     overflow: hidden;
                     white-space: nowrap;
+
+                    &:nth-child(1){
+                      flex: 1;
+                    }
+
+                    &:nth-child(2){
+                      font-size: 12px;
+                      font-family: Source Han Sans CN;
+                      font-weight: 400;
+                      color: #666;
+                    }
                   }
 
                   &>i {

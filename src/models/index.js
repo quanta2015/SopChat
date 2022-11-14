@@ -2,6 +2,7 @@
 import { observable, action } from 'mobx';
 import { message } from 'antd';
 import { request } from '@/services/request';
+import { procData } from '@/utils/procData';
 
 const HEAD = `https://pt-prod.lbian.cn`
 
@@ -57,6 +58,8 @@ export class Index {
     const t = await request(this.URL_CONTACT_ALL_LIST, params);
     const u = await request(this.URL_CONTACT_USR_LIST, params);
 
+    procData(t);
+
     console.log(s,t,u)
     return { room:s, cont:t, proc: u}
   }
@@ -83,6 +86,9 @@ export class Index {
     const s = await request(this.URL_ROOM_CONTACT_LIST,params);
     const t = await request(this.URL_CONTACT_ALL_LIST,params);
     const u = await request(this.URL_CONTACT_USR_LIST,params);
+
+    procData(t);
+
     return {user:r, room:s, cont:t, proc: u}
 
   }
