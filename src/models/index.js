@@ -58,6 +58,7 @@ export class Index {
     const u = await request(this.URL_CONTACT_USR_LIST, params);
 
     console.log(s,t,u)
+    t.map((o,i)=> o.msg = JSON.parse(o.LatestMsg)?.data)
     return { room:s, cont:t, proc: u}
   }
 
@@ -66,7 +67,7 @@ export class Index {
   async getOnlineWxUserList() {
     let WxIds = []
     let r = await request(this.URL_ONLINE_WX_USR_LIST,{ method: 'POST', });
-    console.log('r',r)
+    // console.log('r',r)
     r.map((o,i)=>WxIds.push(o.WxId))
     let params = { 
       method: 'POST',
@@ -83,6 +84,8 @@ export class Index {
     const s = await request(this.URL_ROOM_CONTACT_LIST,params);
     const t = await request(this.URL_CONTACT_ALL_LIST,params);
     const u = await request(this.URL_CONTACT_USR_LIST,params);
+    console.log('t',t)
+    t.map((o,i)=> o.msg = JSON.parse(o.LatestMsg)?.data)
     return {user:r, room:s, cont:t, proc: u}
 
   }
