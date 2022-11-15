@@ -2,27 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { observer, inject, history,connect } from 'umi';
 import { Switch,Input } from 'antd';
 
-import dayjs from 'dayjs'
-import calendar from 'dayjs/plugin/calendar' 
-import relativeTime from 'dayjs/plugin/relativeTime'
-import 'dayjs/locale/zh-cn'
-dayjs.locale('zh-cn') 
-dayjs.extend(calendar)
-dayjs.extend(relativeTime)
-
-// dayjs().calendar(null, {
-//   sameDay: 'h:mm A', // The same day ( Today at 2:30 AM )
-//   nextDay: '[Tomorrow]', // The next day ( Tomorrow at 2:30 AM )
-//   nextWeek: 'dddd', // The next week ( Sunday at 2:30 AM )
-//   lastDay: '[Yesterday]', // The day before ( Yesterday at 2:30 AM )
-//   lastWeek: '[Last] dddd', // Last week ( Last Monday at 2:30 AM )
-//   sameElse: 'DD/MM/YYYY' // Everything else ( 7/10/2011 )
-// })
-
-
-console.log('lang',dayjs.locale())
-
-
 
 import './index.less';
 
@@ -90,13 +69,6 @@ const Sop = ({ index }) => {
 
   const onChange =()=>{
 
-  }
-
-  
-
-  const doSelTab=(e)=>{
-    console.log(e)
-    
   }
 
 
