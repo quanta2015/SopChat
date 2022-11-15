@@ -17,21 +17,24 @@ export class Index {
     this.proc = proc;
   };
  
-  URL_SIGNALR_HUB_IMG    = `${HEAD}/imghub`
-  URL_SIGNALR_HUB_MSG    = `${HEAD}/msgimghub`
+  URL_SIGNALR_HUB_IMG     = `${HEAD}/imghub`
+  URL_SIGNALR_HUB_MSG     = `${HEAD}/msgimghub`
+ 
+   
+  URL_ONLINE_WX_USR_LIST  = `${HEAD}/WxUser/OnlineWxUserList`
+ 
+  URL_ROOM_CONTACT_LIST   = `${HEAD}/Room/RoomContactList`
+  URL_CONTACT_USR_LIST    = `${HEAD}/Contact/GetUserContactList`
+  URL_CONTACT_ALL_LIST    = `${HEAD}/Contact/AllContactListWithstatus`
+ 
+  URL_CHAT_HISTORY_LIST   = `${HEAD}/ChatHistory/ChatHistorys`
+  URL_CHAT_HISTORY_SEARCH = `${HEAD}/ChatHistory/SearchChatHistorys`
 
-  
-  URL_ONLINE_WX_USR_LIST = `${HEAD}/WxUser/OnlineWxUserList`
-
-  URL_ROOM_CONTACT_LIST  = `${HEAD}/Room/RoomContactList`
-  URL_CONTACT_USR_LIST   = `${HEAD}/Contact/GetUserContactList`
-  URL_CONTACT_ALL_LIST   = `${HEAD}/Contact/AllContactListWithstatus`
-  
 
   @action
-  async getRoomContactList(data) {
+  async getChatHistory(data) {
     console.log(data)
-    const r = await request(this.URL_ROOM_CONTACT_LIST,{ 
+    const r = await request(this.URL_CHAT_HISTORY_LIST,{ 
       method: 'POST',
       body: JSON.stringify(data) 
     });

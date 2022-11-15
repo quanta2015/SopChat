@@ -18,7 +18,9 @@ const KEY_BLANK = ''
 const Sop = ({ index }) => {
   const store = index;
 
-  const [show,setShow] = useState(true) 
+  const [collapse,setCollapse] = useState(true) 
+  const [showChat,setShowChat] = useState(false) 
+
   const [selTab,setSelTab]     = useState(0)
   const [selWeUsr,setSelWeUsr] = useState(-1) 
   const [selCtUsr,setSelCtUsr] = useState(-1) 
@@ -43,7 +45,7 @@ const Sop = ({ index }) => {
 
   // 折叠用户菜单
   const doCollapse =()=>{
-    setShow(!show)
+    setCollapse(!collapse)
   }
 
   // 选择企微对象
@@ -92,6 +94,7 @@ const Sop = ({ index }) => {
   const doSelCtUsr=(item,i)=>{
     console.log(i,item)
     setSelCtUsr(i)
+    setShowChat(true)
   }
 
   console.log('userList',userList);
@@ -103,9 +106,9 @@ const Sop = ({ index }) => {
     let type = ''
 
     switch(tabIndex) {
-      case 0: list = procList; break;
+      case 0: list = doFilter(procList,'NickName'); break;
       case 1: list = doFilter(roomList,'NickName'); break;
-      case 2: list = contList; break;
+      case 2: list = doFilter(contList,'UserName'); break;
     }
 
     return (
@@ -130,7 +133,7 @@ const Sop = ({ index }) => {
               </div>}
 
               {((tabIndex === 2)||(tabIndex === 0)) &&
-              <div className="list-item" onClick={()=>doSelCtUsr(item,i)}>
+              <div className={(selCtUsr===i)?"list-item sel":"list-item"} onClick={()=>doSelCtUsr(item,i)}>
                 <img src={item?.OssAvatar} />
                 <div className="info">
                   <div className="hd">
@@ -152,7 +155,7 @@ const Sop = ({ index }) => {
 
   return (
     <div className='g-sop'>
-      <div className={show?"menu":"menu sm"}>
+      <div className={collapse?"menu":"menu sm"}>
         <i onClick={doCollapse}></i>
         <div className="title">
           <img src={icon_wechat} />
@@ -189,8 +192,18 @@ const Sop = ({ index }) => {
             </div>
             {RenderItemList(selTab)}
           </div>
+
           <div className="chat-cnt">
-            
+            {showChat && 
+            <React.Fragment key={i}>
+              <div className="chat-hd">
+                <div className="info">
+                  <span className="userinfo"></span>
+                  <span className="from"></span>
+                </div>
+                <div className="comp"></div>
+              </div>
+            </React.Fragment>}
           </div>
         </div>
       </div>
