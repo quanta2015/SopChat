@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { observer, inject, history,connect } from 'umi';
 import { Switch,Input } from 'antd';
+import { formatTime } from '@/utils/common'
+import dayjs from 'dayjs'
+
 
 
 import './index.less';
@@ -14,6 +17,9 @@ const tabList   = ["处理中","群聊","客户"]
 const typeList  = ["联系人","群","联系人"]
 const KEY_ENTER = 'Enter'
 const KEY_BLANK = ''
+const MSG = {
+  txt: 11041, app:11066, link: 11047, img: 11042, gif: 11048, video: 11043, audio: 11044, file: 11045 
+}
 
 const Sop = ({ index }) => {
   const store = index;
@@ -31,6 +37,9 @@ const Sop = ({ index }) => {
   const [procList,setProcList] = useState([])
   const [readList,setReadList] = useState([0,0,0])
   const [filter,  setFilter]   = useState('')
+  const [curUser, setCurUser]  = useState(null)
+  const [chatHis, setChatHis]  = useState([])
+  const [chatInf, setChatInf]  = useState(null)
 
 
   useEffect(() => {
@@ -93,11 +102,24 @@ const Sop = ({ index }) => {
 
   // 选择当前聊天对象
   const doSelCtUsr=(item,i)=>{
-    // console.log(i,item)
-    setSelCtUsr(i)
-    setShowChat(true)
-    setSelCtMenu(-1);
+    let params = {
+      WxId: item.WxId,
+      ContactUserId:item.ContactUserId,
+      ConversationIds: [item.ConversationId],
+    }
+
+    store.getChatInfo(params).then((r) => {
+      console.log(r)
+      
+      setSelCtUsr(i)
+      setSelCtMenu(-1)
+      setChatHis(r.his)
+      setChatInf(r.inf)
+      setCurUser(item)
+      setShowChat(true)
+    })
   }
+
 
   // 显示置顶菜单
   const doShowMenu = (e,i) =>{
@@ -116,6 +138,9 @@ const Sop = ({ index }) => {
       case 1: list = doFilter(roomList,'NickName'); break;
       case 2: list = doFilter(contList,'UserName'); break;
     }
+
+    // console.log(list)
+    // console.log(userList)
 
     return (
       <div className="contact">
@@ -171,6 +196,28 @@ const Sop = ({ index }) => {
     )
   }
 
+  const RenderTxt =(msg)=> (<span className="mg-txt">{msg.content}</span>)
+  const RenderApp =(msg)=> (
+    <div className="mg-app">
+      <div className="info">
+        <img src={msg.internalPath} alt={msg.programName} />
+        <span className="name one-txt-cut">{msg.programName}</span>
+      </div>
+      <div className="content">{msg.title}</div>
+      <div className="mark">小程序</div>
+    </div>
+  )
+
+  
+
+  const RenderMsgDetail = (msg)=>{
+    switch(msg.type) {
+      case MSG.txt: return RenderTxt(msg.data);
+      case MSG.app: return RenderApp(msg.data);
+    }
+    
+  }
+
   return (
     <div className='g-sop'>
       <div className={collapse?"menu":"menu sm"}>
@@ -216,11 +263,41 @@ const Sop = ({ index }) => {
             <React.Fragment>
               <div className="chat-hd">
                 <div className="info">
-                  <span className="userinfo"></span>
-                  <span className="from"></span>
+                  <span className="userinfo">{curUser.UserName}</span>
+                  <span className="from">@微信</span>
+                  {(curUser.IsDelete === 0) && <span className="del">已流失</span>}
                 </div>
-                <div className="comp"></div>
+                <div className="comp">{curUser.WeUserName} - {curUser.CorpName}</div>
               </div>
+
+              <div className="chat-bd">
+                <div className="chat-content">
+                  <div className="more">暂无更多聊天记录</div>
+                  {chatHis.map((item,i)=>
+                    <div className={(curUser.WxId===item.Msg.data.receiver)?"msg my":"msg rec"} key={i}>
+                      <div className="msg-line">
+
+                        <div className="avatar">
+                          <img src={(curUser.WxId===item.Msg.data.receiver)?curUser.Avatar:curUser.WeAvatar} />
+                        </div>
+                        <div className="msg-detail">
+                          <div className="msg-info">
+                            {item.UserName} {item.Timestamp}
+                          </div>
+                          <div className="msg-wrap">
+                            {RenderMsgDetail(item.Msg)}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                  )}
+                </div>
+                <div className="sendbox">
+                  
+                </div>
+              </div>
+
             </React.Fragment>}
           </div>
         </div>

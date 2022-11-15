@@ -3,19 +3,20 @@ import { observable, action } from 'mobx';
 import { message }  from 'antd';
 import { request }  from '@/services/request';
 import { procData } from '@/utils/procData';
+import { clone }    from '@/utils/common';
+import { formatTime } from '@/utils/common'
+
 
 const HEAD = `https://pt-prod.lbian.cn`
 
 
 export class Index {
   @observable proc = null;
+  weList = []
 
   orgId  = "3301001000005"
   userId = "1522203551195275350"
 
-  setProc = proc => {
-    this.proc = proc;
-  };
  
   URL_SIGNALR_HUB_IMG     = `${HEAD}/imghub`
   URL_SIGNALR_HUB_MSG     = `${HEAD}/msgimghub`
@@ -26,19 +27,47 @@ export class Index {
   URL_ROOM_CONTACT_LIST   = `${HEAD}/Room/RoomContactList`
   URL_CONTACT_USR_LIST    = `${HEAD}/Contact/GetUserContactList`
   URL_CONTACT_ALL_LIST    = `${HEAD}/Contact/AllContactListWithstatus`
- 
+  URL_CONTACT_RELATION    = `${HEAD}/Contact/GetContactRelation`
+
+  URL_CONTACT_SET_TOP     = `${HEAD}/Contact/ConactTopRequest`
+
+
+
+
   URL_CHAT_HISTORY_LIST   = `${HEAD}/ChatHistory/ChatHistorys`
   URL_CHAT_HISTORY_SEARCH = `${HEAD}/ChatHistory/SearchChatHistorys`
 
 
+  
   @action
-  async getChatHistory(data) {
-    console.log(data)
-    const r = await request(this.URL_CHAT_HISTORY_LIST,{ 
+  async setTop(data) {
+    let params = { 
       method: 'POST',
       body: JSON.stringify(data) 
-    });
-    return r
+    };
+    const r = await request(this.URL_CONTACT_SET_TOP, params);
+  }
+
+  @action
+  async getChatInfo(data) {
+    let params = { 
+      method: 'POST',
+      body: JSON.stringify({
+        ...data,
+        Type: 0,
+        pageIndex: 1,
+        pageSize: 100,
+      }) 
+    };
+    const r = await request(this.URL_CHAT_HISTORY_LIST, params);
+    const s = await request(this.URL_CONTACT_RELATION, params);
+
+
+    r.reverse().map((item,i)=>{
+      item.Timestamp = formatTime(item.Timestamp)
+      item.Msg = JSON.parse(item.Msg)
+    })
+    return { his: r, inf: s}
   }
 
   @action
@@ -60,7 +89,7 @@ export class Index {
     const t = await request(this.URL_CONTACT_ALL_LIST, params);
     const u = await request(this.URL_CONTACT_USR_LIST, params);
     const read = [0,0,0]
-    procData(s,t,u,read)
+    procData(this.weList,s,t,u,read)
 
     console.log(s,t,u)
     return { room:s, cont:t, proc: u, read: read}
@@ -72,6 +101,8 @@ export class Index {
     let WxIds = []
     let r = await request(this.URL_ONLINE_WX_USR_LIST,{ method: 'POST', });
     // console.log('r',r)
+
+    this.weList = clone(r)
     r.map((o,i)=>WxIds.push(o.WxId))
     let params = { 
       method: 'POST',
@@ -90,7 +121,7 @@ export class Index {
     const u = await request(this.URL_CONTACT_USR_LIST,params);
 
     const read = [0,0,0]
-    procData(s,t,u,read)
+    procData(this.weList,s,t,u,read)
 
     return {user:r, room:s, cont:t, proc: u, read:read}
   }

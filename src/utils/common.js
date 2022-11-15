@@ -5,7 +5,18 @@ import React from 'react';
 import nzh from 'nzh/cn';
 import store from 'store2';
 import { parse, stringify } from 'qs';
-import { base } from '@/base';
+import { base } from '@/conf';
+import dayjs from 'dayjs'
+import 'dayjs/locale/zh-cn'
+dayjs.locale('zh-cn') 
+
+export function formatTime(e) {
+  return dayjs(e).format('YYYY-MM-DD HH:mm')
+}
+
+export function clone(v) {
+  return JSON.parse(JSON.stringify(v))
+}
 
 export function fixedZero(val) {
   return val * 1 < 10 ? `0${val}` : val;

@@ -11,7 +11,10 @@ export async function request(url, opt = {}) {
       },
       ...opt,
     })
-    .then((response) => response.json())
+    .then(async(response) => {
+      const string = await response.text();
+      return string === "" ? {} : JSON.parse(string)
+    })
     .then((data) => {
       switch(data.code) {
         case 401: 
