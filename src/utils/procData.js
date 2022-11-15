@@ -28,8 +28,18 @@ const initUnRead =(r,list)=>{
   })
 }
 
+export const sortList = (list)=>{
+  list.sort((a,b) => {
+    return a.isOnTop ==  b.isOnTop?
+    b.msg?.send_time - a.msg?.send_time:
+    a.isOnTop - b.isOnTop
+  })
+}
+
 export const procData = (s,t,u,read)=>{
   formatMsg(t)
   formatMsg(u)
+  sortList(t);
+  sortList(u)
   initUnRead(read, [s,t,u])
 }
