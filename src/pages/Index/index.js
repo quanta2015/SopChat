@@ -5,8 +5,9 @@ import { formatTime } from '@/utils/common'
 import dayjs from 'dayjs'
 
 
-
 import './index.less';
+import './msg.less';
+
 
 import icon_wechat from '@/imgs/icon-wechat.png'
 import icon_user   from '@/imgs/icon-user.svg'
@@ -196,7 +197,9 @@ const Sop = ({ index }) => {
     )
   }
 
-  const RenderTxt =(msg)=> (<span className="mg-txt">{msg.content}</span>)
+  const RenderTxt =(msg)=> <span className="mg-txt">{msg.content}</span>
+  const RenderImg =(msg)=> <span className="mg-img"><img src={msg.file_path} /></span>
+  const RenderGif =(msg)=> <span className="mg-gif"><img src={msg.file_path} /></span>
   const RenderApp =(msg)=> (
     <div className="mg-app">
       <div className="info">
@@ -207,13 +210,27 @@ const Sop = ({ index }) => {
       <div className="mark">小程序</div>
     </div>
   )
+  const RenderCard=(msg)=>(
+    <a className="mg-card" href={msg.url} target="_blank">
+      <span className="link-title">{msg.title || ''}</span>
+      <span className="link-bd">
+        <span className="desc">{msg.desc}</span>
+        <span className="pic">
+          <img src={msg.image_url} />
+        </span>
+      </span>
+    </a>
 
-  
+  )
+ 
 
   const RenderMsgDetail = (msg)=>{
     switch(msg.type) {
       case MSG.txt: return RenderTxt(msg.data);
       case MSG.app: return RenderApp(msg.data);
+      case MSG.img: return RenderImg(msg.data);
+      case MSG.gif: return RenderGif(msg.data);
+      case MSG.link:return RenderCard(msg.data);
     }
     
   }
