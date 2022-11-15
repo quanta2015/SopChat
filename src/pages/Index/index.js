@@ -43,6 +43,7 @@ const Sop = ({ index }) => {
   const [selTab,setSelTab]     = useState(0)
   const [selWeUsr,setSelWeUsr] = useState(-1) 
   const [selCtUsr,setSelCtUsr] = useState(-1) 
+  const [selCtMenu,setSelCtMenu] = useState(-1)
   const [userList,setUserList] = useState([]) 
   const [roomList,setRoomList] = useState([]) 
   const [contList,setContList] = useState([]) 
@@ -120,9 +121,15 @@ const Sop = ({ index }) => {
   const doSelCtUsr=(item,i)=>{
     console.log(i,item)
     setSelCtUsr(i)
+    i==selCtMenu? '':setSelCtMenu(-1);
   }
 
   console.log('userList',userList);
+
+  const doShowMenu = (e,i) =>{
+    e.preventDefault();
+    setSelCtMenu(i);
+  }
   
 
   // 渲染用户列表
@@ -158,7 +165,7 @@ const Sop = ({ index }) => {
               </div>}
 
               {((tabIndex === 2)||(tabIndex === 0)) &&
-              <div className="list-item" onClick={()=>doSelCtUsr(item,i)}>
+              <div className="list-item" onClick={()=>doSelCtUsr(item,i)} onContextMenu={(e)=>doShowMenu(e,i)}>
                 <img src={item?.OssAvatar} />
                 <div className="info">
                   <div className="hd">
@@ -169,6 +176,15 @@ const Sop = ({ index }) => {
                     <span>{item?.msg?.content}</span>
                   </div>
                 </div>
+                { (selCtMenu == i) &&  
+                  <div className='pop'>
+                    <div>
+                      <h4>请选择你要进行的操作</h4>
+                      <button>{item.isOnTop? '置顶':'取消置顶'}</button>
+                    </div>
+                    <span></span>
+                  </div>
+                }
               </div>}
 
             </React.Fragment>
