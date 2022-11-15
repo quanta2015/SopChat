@@ -14,7 +14,7 @@ const RenderImg =(msg)=> <span className="mg-img"><img src={msg.file_path} /></s
 const RenderGif =(msg)=> <span className="mg-gif"><img src={msg.file_path} /></span>
 const RenderVideo =(msg)=><video className="mg-mp4" src={msg.content} muted controls preload="true" />
 const RenderAudio =(msg)=><audio className="mg-mp3" src={msg.content} muted controls preload="true" />
-const RenderFile  =(msg)=><span className="mg-file" src={msg.content} >文件:{item.content}</span>
+const RenderFile  =(msg)=><span className="mg-file" src={msg.content} >文件:{msg.content}</span>
 
 const RenderApp =(msg)=> (
   <div className="mg-app">
