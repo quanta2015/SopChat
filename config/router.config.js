@@ -2,10 +2,8 @@
 const basics = [
   {
     path: '/',
-    // component: '../layouts/BasicLayout',
-    // Routes: ['src/pages/Authorized'],
-
-    routes: [{path: `/`, component: '@/pages/Index/index'} ],
+    routes: [{path:`/sop`,  component:'@/pages/Index/index'},
+             {path:`/auth`, component:'@/pages/Auth/index'} ],
   },
 ]
 

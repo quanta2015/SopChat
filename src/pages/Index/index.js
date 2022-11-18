@@ -24,6 +24,11 @@ import { getContactTopList,getCancelContactTopRequest } from '@/services/api';
 import { sortList } from '@/utils/procData';
 
 
+
+
+
+
+
 const Sop = ({ index }) => {
   const store = index;
 
@@ -43,8 +48,6 @@ const Sop = ({ index }) => {
   const [curUser, setCurUser]  = useState(null)
   const [chatHis, setChatHis]  = useState([])
   const [chatInf, setChatInf]  = useState(null)
-
-
 
 
   useEffect(() => {

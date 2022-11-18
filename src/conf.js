@@ -11,5 +11,5 @@ module.exports = {
   },
   pwa: true,
   collapse: true,
-  base: '/rhyysshl/pc/child-manager/sop',
+  base: '/rhyysshl/pc/child-manager/',
 };

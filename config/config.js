@@ -35,9 +35,6 @@ export default defineConfig({
     antd: true,
     baseNavigator: true,
   },
-  dynamicImport: {
-    loading: '@/antd-pro-components/PageLoading/index',
-  },
   chainWebpack: function(config, { webpack }) {
     if (BUILD_ENV === 'production') {
       config.merge({

@@ -1,33 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { observer, inject, history,connect,Navigate } from 'umi';
+import React, { useEffect } from 'react';
 import { stringify } from 'qs';
+import { history } from 'umi';
 import axios from 'axios'
 
+const params = {
+  client_id: "pre",
+  client_secret: "pre",
+  from: "normal",
+  username: "13657086451",
+  password: "4af29b04aba82d265b7a0a5cf14eb657",
+}
+const SERVER = `https://rhyy.pre.suosishequ.com`
+const LOGIN  = `${SERVER}/gateway/auth/oauth/token?${stringify(params)}`
 
 const Auth = () => {
-  
   useEffect(() => {
-    let params = {
-      client_id: "pre",
-      client_secret: "pre",
-      from: "normal",
-      username: "13657086451",
-      password: "4af29b04aba82d265b7a0a5cf14eb657",
-    }
-    let URL_LOGIN = `https://rhyy.pre.suosishequ.com/gateway/auth/oauth/token?${stringify(params)}`
-    axios(URL_LOGIN,{ method: 'GET' }).then((ret)=>{
-      let {accessToken, tokenHead} = ret.data.data
-      let token = `${tokenHead}${accessToken}`
+    axios(LOGIN,{ method: 'GET' }).then((ret)=>{
+      let token = `${ret.data.data.tokenHead}${ret.data.data.accessToken}`
+      // console.log(token)
       window.token = window.token || token;
-      console.log(token)
+      history.push('/sop')
     })
-    
-  }, []);
+  })
 
-
-  return (
-    <Navigate to="/index" />
-  );
+  return null
 };
 
 export default Auth
