@@ -3,8 +3,9 @@ const basics = [
   {
     path: '/',
     // component: '../layouts/BasicLayout',
-    Routes: ['src/pages/Authorized'],
-    routes: [{ path: `/`, component: '@/pages/Index/index' },],
+    // Routes: ['src/pages/Authorized'],
+
+    routes: [{path: `/`, component: '@/pages/Index/index'} ],
   },
 ]
 

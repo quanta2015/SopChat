@@ -12,9 +12,9 @@ const MSG = {
 const RenderTxt   =(msg)=> <span  className="mg-txt">{msg.content}</span>
 const RenderImg   =(msg)=> <span  className="mg-img"><img src={msg.file_path} /></span>
 const RenderGif   =(msg)=> <span  className="mg-gif"><img src={msg.file_path} /></span>
-const RenderVideo =(msg)=> <video className="mg-mp4" src={msg.file_path} muted controls preload="true" />
-const RenderAudio =(msg)=> <audio className="mg-mp3" src={msg.file_path} muted controls preload="true" />
-const RenderFile  =(msg)=> <span  className="mg-file" src={msg.file_path} >文件:{msg.content}</span>
+const RenderVideo =(msg)=> <video className="mg-mp4" src={msg.content} muted controls preload="true" />
+const RenderAudio =(msg)=> <audio className="mg-mp3" src={msg.content} muted controls preload="true" />
+const RenderFile  =(msg)=> <span  className="mg-file" src={msg.content} >文件:{msg.content}</span>
 
 const RenderApp =(msg)=> (
   <div className="mg-app">

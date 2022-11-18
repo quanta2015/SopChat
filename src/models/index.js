@@ -7,6 +7,12 @@ import { clone }    from '@/utils/common';
 import { formatTime } from '@/utils/common'
 
 
+const MSG = {
+  proc:  0,
+  group: 1, 
+  user:  2,
+  len:  16,
+}
 const HEAD = `https://pt-prod.lbian.cn`
 
 
@@ -25,14 +31,13 @@ export class Index {
   URL_ONLINE_WX_USR_LIST  = `${HEAD}/WxUser/OnlineWxUserList`
  
   URL_ROOM_CONTACT_LIST   = `${HEAD}/Room/RoomContactList`
+  URL_ROOM_MEMBER_LIST    = `${HEAD}/Room/RoomMemberList`
+
   URL_CONTACT_USR_LIST    = `${HEAD}/Contact/GetUserContactList`
   URL_CONTACT_ALL_LIST    = `${HEAD}/Contact/AllContactListWithstatus`
   URL_CONTACT_RELATION    = `${HEAD}/Contact/GetContactRelation`
 
   URL_CONTACT_SET_TOP     = `${HEAD}/Contact/ConactTopRequest`
-
-
-
 
   URL_CHAT_HISTORY_LIST   = `${HEAD}/ChatHistory/ChatHistorys`
   URL_CHAT_HISTORY_SEARCH = `${HEAD}/ChatHistory/SearchChatHistorys`
@@ -49,8 +54,8 @@ export class Index {
   }
 
   @action
-  async getChatInfo(data) {
-    let params = { 
+  async getChatInfo(data,type,we) {
+    let params = {
       method: 'POST',
       body: JSON.stringify({
         ...data,
@@ -59,14 +64,30 @@ export class Index {
         pageSize: 100,
       }) 
     };
-    const r = await request(this.URL_CHAT_HISTORY_LIST, params);
-    const s = await request(this.URL_CONTACT_RELATION, params);
-
+    let r = await request(this.URL_CHAT_HISTORY_LIST, params);
+    let s = await request(this.URL_CONTACT_RELATION, params);
+    
 
     r.reverse().map((item,i)=>{
       item.Timestamp = formatTime(item.Timestamp)
       item.Msg = JSON.parse(item.Msg)
     })
+
+    if (type===MSG.group) {
+      let t = await request(this.URL_ROOM_MEMBER_LIST, params);
+
+      r = r.filter(o=> o.WxId.length === MSG.len)
+      r.map(o=>{
+        t.map(p=>{
+          if (o.Msg.data.sender === p.UserId) {
+            o.WeAvatar = p.OssAvatar
+          }
+        })
+      })
+    }else{
+      r.map(o=>o.WeAvatar = (o.WxId===o.Msg.data.sender)?we.WeAvatar:we.Avatar)
+    }
+
     return { his: r, inf: s}
   }
 

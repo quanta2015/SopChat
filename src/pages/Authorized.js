@@ -5,6 +5,7 @@ import { connect } from 'umi';
 import Authorized from '@/utils/Authorized';
 
 function AuthComponent({ children, location, routerData, status }) {
+
   const isLogin = status === 'ok';
   const getRouteAuthority = (path, routeData) => {
     let authorities;
@@ -30,6 +31,7 @@ function AuthComponent({ children, location, routerData, status }) {
     </Authorized>
   );
 }
+
 export default connect(({ menu: menuModel, login: loginModel }) => ({
   routerData: menuModel.routerData,
   status: loginModel.status,

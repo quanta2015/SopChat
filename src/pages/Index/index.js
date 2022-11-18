@@ -19,6 +19,9 @@ const KEY_ENTER = 'Enter'
 const KEY_BLANK = ''
 
 
+import {autoAuth} from '@/utils/common'
+
+
 const Sop = ({ index }) => {
   const store = index;
 
@@ -38,6 +41,8 @@ const Sop = ({ index }) => {
   const [curUser, setCurUser]  = useState(null)
   const [chatHis, setChatHis]  = useState([])
   const [chatInf, setChatInf]  = useState(null)
+
+
 
 
   useEffect(() => {
@@ -100,20 +105,22 @@ const Sop = ({ index }) => {
 
   // 选择当前聊天对象
   const doSelCtUsr=(item,i)=>{
+    console.log(item)
     let params = {
       WxId: item.WxId,
       ContactUserId:item.ContactUserId,
+      ConversationId:item.ConversationId,
       ConversationIds: [item.ConversationId],
     }
 
-    store.getChatInfo(params).then((r) => {
+    setSelCtUsr(i)
+    setSelCtMenu(-1)
+    setCurUser(item)
+
+    store.getChatInfo(params,selTab,item).then((r) => {
       console.log(r)
-      
-      setSelCtUsr(i)
-      setSelCtMenu(-1)
       setChatHis(r.his)
       setChatInf(r.inf)
-      setCurUser(item)
       setShowChat(true)
     })
   }
@@ -236,46 +243,46 @@ const Sop = ({ index }) => {
           </div>
 
           <div className="chat-cnt">
-            {showChat && 
-            <React.Fragment>
-              <div className="chat-hd">
-                <div className="info">
-                  <span className="userinfo">{curUser.UserName}</span>
-                  <span className="from">@微信</span>
-                  {(curUser.IsDelete === 0) && <span className="del">已流失</span>}
-                </div>
-                <div className="comp">{curUser.WeUserName} - {curUser.CorpName}</div>
+
+            {curUser &&
+            <div className="chat-hd">
+              <div className="info">
+                <span className="userinfo">{curUser.UserName}</span>
+                <span className="from">@微信</span>
+                {(curUser.IsDelete === 0) && <span className="del">已流失</span>}
               </div>
+              <div className="comp">{curUser.WeUserName} - {curUser.CorpName}</div>
+            </div>}
 
-              <div className="chat-bd">
-                <div className="chat-content">
-                  <div className="more">暂无更多聊天记录</div>
-                  {chatHis.map((item,i)=>
-                    <div className={(curUser.WxId===item.Msg.data.receiver)?"msg my":"msg rec"} key={i}>
-                      <div className="msg-line">
+            <div className="chat-bd">
+              {showChat && 
+              <div className="chat-content">
+                <div className="more">暂无更多聊天记录</div>
+                {chatHis.map((item,i)=>
+                  <div className={(item.WxId===item.Msg.data.sender)?"msg rec":"msg my"} key={i}>
+                    <div className="msg-line">
 
-                        <div className="avatar">
-                          <img src={(curUser.WxId===item.Msg.data.receiver)?curUser.Avatar:curUser.WeAvatar} />
+                      <div className="avatar">
+                        <img src={item.WeAvatar} />
+                        
+                      </div>
+                      <div className="msg-detail">
+                        <div className="msg-info">
+                          {item.Msg.data.sender_name || item.UserName} {item.Timestamp}
                         </div>
-                        <div className="msg-detail">
-                          <div className="msg-info">
-                            {item.UserName} {item.Timestamp}
-                          </div>
-                          <div className="msg-wrap">
-                            {RenderMsgDetail(item.Msg)}
-                          </div>
+                        <div className="msg-wrap">
+                          {RenderMsgDetail(item.Msg)}
                         </div>
                       </div>
                     </div>
+                  </div>
 
-                  )}
-                </div>
-                <div className="sendbox">
-                  
-                </div>
+                )}
+              </div>}
+              <div className="sendbox">
+                
               </div>
-
-            </React.Fragment>}
+            </div>
           </div>
         </div>
       </div>
