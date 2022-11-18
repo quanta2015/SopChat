@@ -27,8 +27,6 @@ import { sortList } from '@/utils/procData';
 
 
 
-
-
 const Sop = ({ index }) => {
   const store = index;
 
