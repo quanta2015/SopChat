@@ -28,6 +28,15 @@ const initUnRead =(r,list)=>{
   })
 }
 
+
+export const sortList = (list)=>{
+  list.sort((a,b) => {
+    return a.isOnTop ==  b.isOnTop?
+    b.msg?.send_time - a.msg?.send_time:
+    a.isOnTop - b.isOnTop
+  })
+}
+
 // 将虚拟客户的名称和公司添加到聊天对象
 const formatInfo =(weList,list)=>{
   list.map((o,i)=>{
@@ -48,6 +57,8 @@ export const procData = (weList,s,t,u,read)=>{
   // 格式化聊天消息和时间
   formatMsg(t)
   formatMsg(u)
+  sortList(t)
+  sortList(u)
 
   // 计算未读消息
   initUnRead(read, [s,t,u])

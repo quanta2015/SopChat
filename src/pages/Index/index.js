@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { observer, inject, history,connect } from 'umi';
 import { Switch,Input } from 'antd';
+import cls from 'classnames';
 import { formatTime } from '@/utils/common'
 import {RenderMsgDetail} from './msg'
 
@@ -19,7 +20,8 @@ const KEY_ENTER = 'Enter'
 const KEY_BLANK = ''
 
 
-import {autoAuth} from '@/utils/common'
+import { getContactTopList,getCancelContactTopRequest } from '@/services/api';
+import { sortList } from '@/utils/procData';
 
 
 const Sop = ({ index }) => {
@@ -103,7 +105,16 @@ const Sop = ({ index }) => {
     return (filter==='')?d:d.filter((o,i)=>o[key].includes(filter))
   }
 
-  // 选择当前聊天对象
+
+  //更改对象数组的value,会改变原数组
+  const doChgArrObjValue=(arr,equalKey,equalV,key,newV)=>{
+    arr.map((o,j)=>{
+        if(o[equalKey]==equalV) {
+          o[key]=newV;
+        }
+    })
+  }
+
   const doSelCtUsr=(item,i)=>{
     console.log(item)
     let params = {
@@ -123,15 +134,41 @@ const Sop = ({ index }) => {
       setChatInf(r.inf)
       setShowChat(true)
     })
+    i==selCtMenu? '' : doCloseMenu()
   }
 
 
   // 显示置顶菜单
   const doShowMenu = (e,i) =>{
-    e.preventDefault();
-    setSelCtMenu(i);
+    e.preventDefault()
+    setSelCtMenu(i)
   }
-  
+
+  const doCloseMenu = () =>{
+    setSelCtMenu(-1)
+  }
+
+  const doTopUsr = async(e,item,tab) =>{
+    //阻止item点击事件触发
+    e.stopPropagation() 
+    let newIsOntTop = (item.isOnTop)? 0:1; 
+    let params = { 
+      WxId: `${item.WxId}`,
+      ContactUserId: `${item.ContactUserId}`
+    }
+    newIsOntTop? 
+      await getCancelContactTopRequest(params):
+      await getContactTopList(params)
+    //更新处理中列表以及客户列表中的item.isOntTop值
+    item.isOnTop = newIsOntTop
+    tab==0? doChgArrObjValue(contList,"ConversationId",item.ConversationId,"isOnTop",newIsOntTop):
+            doChgArrObjValue(procList,"ConversationId",item.ConversationId,"isOnTop",newIsOntTop)
+    //更新list排序
+    sortList(contList)
+    sortList(procList)
+    //关闭弹出框
+    doCloseMenu()
+  }
 
   // 渲染用户列表
   const RenderItemList = (tabIndex)=>{
@@ -153,11 +190,13 @@ const Sop = ({ index }) => {
           <input placeholder={`搜索${typeList[tabIndex]}`} onKeyUp={doChgFilter} />
           <img src={icon_search} />
         </div>
-        <div className="list" onScroll ={()=>setSelCtMenu(-1)}>
+        <div className="list" onScroll={doCloseMenu}>
           {list.map((item,i)=>
             <React.Fragment key={i}>
               {(tabIndex === 1) && 
-              <div className={(selCtUsr===i)?"list-item sel":"list-item"} onClick={()=>doSelCtUsr(item,i)}>
+              <div className={(selCtUsr===i)?"list-item sel":"list-item"} 
+                   onClick={()=>doSelCtUsr(item,i)}
+                >
                 <img src={icon_user} />
                 <div className="info">
                   <div className="hd">
@@ -169,7 +208,7 @@ const Sop = ({ index }) => {
               </div>}
 
               {((tabIndex === 2)||(tabIndex === 0)) &&
-              <div className={(selCtUsr===i)?"list-item sel":"list-item"} 
+              <div className={cls('list-item',{top:!item.isOnTop, sel:selCtUsr===i})} 
                    onClick={()=>doSelCtUsr(item,i)}
                    onContextMenu={(e)=>doShowMenu(e,i)}
                 >
@@ -187,7 +226,7 @@ const Sop = ({ index }) => {
                   <div className='pop'>
                     <div>
                       <h4>请选择你要进行的操作</h4>
-                      <button>{item.isOnTop? '置顶':'取消置顶'}</button>
+                      <button onClick={(e)=>doTopUsr(e,item,tabIndex)}>{item.isOnTop? '置顶':'取消置顶'}</button>
                     </div>
                     <span></span>
                   </div>
