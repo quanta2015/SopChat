@@ -1,0 +1,42 @@
+.tooltip {
+    position: absolute;
+    z-index: 2005;
+    width: 166px;
+    border: 1px solid #e4e7ed;
+    background-color: #fff;
+    box-shadow: 0px 0px 12px rgb(0 0 0 / 12%);
+    border-radius: 15px;
+}
+
+.tooltip>div{
+    padding: 10px;
+}
+
+.tooltip>span{
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    transform: translateX(78px);
+    bottom: -4px;
+}
+
+.tooltip>span::before{
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    z-index: -1;
+    content: " ";
+    transform: rotate(45deg);
+    box-shadow: 0.5px 0.5px 0 rgba(0, 0, 0, 0.12);
+    border-left: none;
+    border-top: none;
+    background-color: #fff;
+}
+
+.bottom>span{
+    bottom: unset;
+    top: -5px;
+}
+.bottom>span::before{
+    box-shadow: -0.5px -0.5px 0 rgba(0,0,0,0.12);
+}

@@ -13,6 +13,7 @@ import icon_wechat from '@/imgs/icon-wechat.png'
 import icon_user   from '@/imgs/icon-user.svg'
 import icon_edit   from '@/imgs/icon-edit.png'
 import icon_search from '@/imgs/icon-search.svg'
+import { Tooltip } from '@/components/Tooltip';
 
 const tabList   = ["处理中","群聊","客户"]
 const typeList  = ["联系人","群","联系人"]
@@ -171,6 +172,14 @@ const Sop = ({ index }) => {
     doCloseMenu()
   }
 
+  const content = (item,tabIndex) =>{
+    return (
+      <div className='pop'>
+        <h4>请选择你要进行的操作</h4>
+        <button onClick={(e)=>doTopUsr(e,item,tabIndex)}>{item.isOnTop? '置顶':'取消置顶'}</button>
+      </div>
+  )}
+
   // 渲染用户列表
   const RenderItemList = (tabIndex)=>{
     let list = []
@@ -209,30 +218,25 @@ const Sop = ({ index }) => {
               </div>}
 
               {((tabIndex === 2)||(tabIndex === 0)) &&
-              <div className={cls('list-item',{top:!item.isOnTop, sel:selCtUsr===i})} 
-                   onClick={()=>doSelCtUsr(item,i)}
-                   onContextMenu={(e)=>doShowMenu(e,i)}
-                >
-                <img src={item?.OssAvatar} />
-                <div className="info">
-                  <div className="hd">
-                    <span>{item?.UserName}</span>
-                    <span>{item?.send_time}</span>
-                  </div>
-                  <div className="bd">
-                    <span>{item?.msg?.content}</span>
+              <Tooltip position={(i==0 || i==1)? "bottom":"top"} pid=".list" 
+                  content={content(item,tabIndex)} open={selCtMenu==i} setOpen={()=>setSelCtMenu(i)}>
+                <div className={cls('list-item',{top:!item.isOnTop, sel:selCtUsr===i})} 
+                    onClick={()=>doSelCtUsr(item,i)}
+                    onContextMenu={(e)=>doShowMenu(e,i)}
+                  >
+                  <img src={item?.OssAvatar} />
+                  <div className="info">
+                    <div className="hd">
+                      <span>{item?.UserName}</span>
+                      <span>{item?.send_time}</span>
+                    </div>
+                    <div className="bd">
+                      <span>{item?.msg?.content}</span>
+                    </div>
                   </div>
                 </div>
-                { (selCtMenu === i) &&  
-                  <div className='pop'>
-                    <div>
-                      <h4>请选择你要进行的操作</h4>
-                      <button onClick={(e)=>doTopUsr(e,item,tabIndex)}>{item.isOnTop? '置顶':'取消置顶'}</button>
-                    </div>
-                    <span></span>
-                  </div>
-                }
-              </div>}
+              </Tooltip>}
+        
 
             </React.Fragment>
           )}
