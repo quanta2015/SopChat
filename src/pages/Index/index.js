@@ -158,21 +158,9 @@ const Sop = ({ index }) => {
   const doTopUsr = async(e,item,tab) =>{
     //阻止item点击事件触发
     e.stopPropagation() 
-    let newIsOntTop = (item.isOnTop)? 0:1; 
-    let params = { 
-      WxId: `${item.WxId}`,
-      ContactUserId: `${item.ContactUserId}`
-    }
-    newIsOntTop? 
-      await getCancelContactTopRequest(params):
-      await getContactTopList(params)
-    //更新处理中列表以及客户列表中的item.isOntTop值
-    item.isOnTop = newIsOntTop
-    tab==0? doChgArrObjValue(contList,"ConversationId",item.ConversationId,"isOnTop",newIsOntTop):
-            doChgArrObjValue(procList,"ConversationId",item.ConversationId,"isOnTop",newIsOntTop)
-    //更新list排序
-    sortList(contList)
-    sortList(procList)
+    item.isOnTop = !item.isOnTop
+    await setTop(item)
+    doChgArrObjValue(item)
     //关闭弹出框
     doCloseMenu()
   }
