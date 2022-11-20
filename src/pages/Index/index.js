@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import cls from 'classnames';
 import { observer, inject, history,connect } from 'umi';
 import { Switch,Input } from 'antd';
-import cls from 'classnames';
 import { formatTime } from '@/utils/common'
-import {RenderMsgDetail} from './msg'
+import { Tooltip } from '@/components/Tooltip';
+import { RenderMsgDetail } from './msg'
 
 import './index.less';
 import './msg.less';
@@ -13,7 +14,7 @@ import icon_wechat from '@/imgs/icon-wechat.png'
 import icon_user   from '@/imgs/icon-user.svg'
 import icon_edit   from '@/imgs/icon-edit.png'
 import icon_search from '@/imgs/icon-search.svg'
-import { Tooltip } from '@/components/Tooltip';
+
 
 const tabList   = ["处理中","群聊","客户"]
 const typeList  = ["联系人","群","联系人"]
@@ -48,17 +49,21 @@ const Sop = ({ index }) => {
   const [chatHis, setChatHis]  = useState([])
   const [chatInf, setChatInf]  = useState(null)
 
+  if (!window.token)  {
+    history.push('/auth')
+  }else {
+    useEffect(() => {
+      store.getOnlineWxUserList().then((r) => {
+        setUserList(r.user)
+        setProcList(r.proc)
+        setRoomList(r.room)
+        setContList(r.cont)
+        setReadList(r.read)
+      });
+    }, []);
+  }
 
-  useEffect(() => {
-    store.getOnlineWxUserList().then((r) => {
-      setUserList(r.user)
-      setProcList(r.proc)
-      setRoomList(r.room)
-      setContList(r.cont)
-      setReadList(r.read)
-    });
-  }, []);
-
+  
 
   // 折叠用户菜单
   const doCollapse =()=>{
@@ -218,8 +223,13 @@ const Sop = ({ index }) => {
               </div>}
 
               {((tabIndex === 2)||(tabIndex === 0)) &&
-              <Tooltip position={(i==0 || i==1)? "bottom":"top"} pid=".list" 
-                  content={content(item,tabIndex)} open={selCtMenu==i} setOpen={()=>setSelCtMenu(i)}>
+              <Tooltip 
+                  pid=".list" 
+                  open={selCtMenu==i}
+                  position={(i==0 || i==1)? "bottom":"top"} 
+                  content={content(item,tabIndex)}
+                  setOpen={()=>setSelCtMenu(i)}
+                >
                 <div className={cls('list-item',{top:!item.isOnTop, sel:selCtUsr===i})} 
                     onClick={()=>doSelCtUsr(item,i)}
                     onContextMenu={(e)=>doShowMenu(e,i)}

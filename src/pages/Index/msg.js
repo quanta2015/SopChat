@@ -1,4 +1,8 @@
-const MSG = {
+export const MSG = {
+  proc:  0,
+  group: 1, 
+  user:  2,
+  len:   16,
   txt:   11041, 
   img:   11042, 
   video: 11043, 
@@ -7,7 +11,10 @@ const MSG = {
   link:  11047, 
   gif:   11048,
   app:   11066, 
+  mem:   11072,
 }
+
+
 
 const RenderTxt   =(msg)=> <span  className="mg-txt">{msg.content}</span>
 const RenderImg   =(msg)=> <span  className="mg-img"><img src={msg.file_path} /></span>

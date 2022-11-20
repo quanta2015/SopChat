@@ -5,14 +5,9 @@ import { request }  from '@/services/request';
 import { procData } from '@/utils/procData';
 import { clone }    from '@/utils/common';
 import { formatTime } from '@/utils/common'
+import { MSG } from '@/pages/Index/msg'
 
 
-const MSG = {
-  proc:  0,
-  group: 1, 
-  user:  2,
-  len:  16,
-}
 const HEAD = `https://pt-prod.lbian.cn`
 
 
@@ -27,7 +22,6 @@ export class Index {
   URL_SIGNALR_HUB_IMG     = `${HEAD}/imghub`
   URL_SIGNALR_HUB_MSG     = `${HEAD}/msgimghub`
  
-   
   URL_ONLINE_WX_USR_LIST  = `${HEAD}/WxUser/OnlineWxUserList`
  
   URL_ROOM_CONTACT_LIST   = `${HEAD}/Room/RoomContactList`
@@ -36,7 +30,6 @@ export class Index {
   URL_CONTACT_USR_LIST    = `${HEAD}/Contact/GetUserContactList`
   URL_CONTACT_ALL_LIST    = `${HEAD}/Contact/AllContactListWithstatus`
   URL_CONTACT_RELATION    = `${HEAD}/Contact/GetContactRelation`
-
   URL_CONTACT_SET_TOP     = `${HEAD}/Contact/ConactTopRequest`
 
   URL_CHAT_HISTORY_LIST   = `${HEAD}/ChatHistory/ChatHistorys`
@@ -67,16 +60,21 @@ export class Index {
     let r = await request(this.URL_CHAT_HISTORY_LIST, params);
     let s = await request(this.URL_CONTACT_RELATION, params);
     
-
+    // 格式化聊天顺序和时间
     r.reverse().map((item,i)=>{
       item.Timestamp = formatTime(item.Timestamp)
       item.Msg = JSON.parse(item.Msg)
     })
 
+    // 群聊要过滤消息内容 添加聊天头像
     if (type===MSG.group) {
       let t = await request(this.URL_ROOM_MEMBER_LIST, params);
 
+
+      // 过滤群聊消息
       r = r.filter(o=> o.WxId.length === MSG.len)
+           .filter(o=> o.Msg.type !== MSG.mem)
+
       r.map(o=>{
         t.map(p=>{
           if (o.Msg.data.sender === p.UserId) {
@@ -85,6 +83,7 @@ export class Index {
         })
       })
     }else{
+      // 私聊设置聊天头像
       r.map(o=>o.WeAvatar = (o.WxId===o.Msg.data.sender)?we.WeAvatar:we.Avatar)
     }
 
