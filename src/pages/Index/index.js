@@ -21,8 +21,6 @@ const typeList  = ["联系人","群","联系人"]
 const KEY_ENTER = 'Enter'
 const KEY_BLANK = ''
 
-
-import { getContactTopList,getCancelContactTopRequest } from '@/services/api';
 import { sortList } from '@/utils/procData';
 
 
@@ -114,12 +112,15 @@ const Sop = ({ index }) => {
 
 
   //更改对象数组的value,会改变原数组
-  const doChgArrObjValue=(arr,equalKey,equalV,key,newV)=>{
+  const doChgArrObjValue=(item)=>{
+    let arr = (selTab == 0)? contList:procList
     arr.map((o,j)=>{
-        if(o[equalKey]==equalV) {
-          o[key]=newV;
+        if(o.ConversationId == item.ConversationId) {
+          o.isOnTop = item.isOnTop;
         }
     })
+    sortList(contList)
+    sortList(procList)
   }
 
   const doSelCtUsr=(item,i)=>{
@@ -155,24 +156,12 @@ const Sop = ({ index }) => {
     setSelCtMenu(-1)
   }
 
-  const doTopUsr = async(e,item,tab) =>{
+  const doTopUsr = async(e,item) =>{
     //阻止item点击事件触发
     e.stopPropagation() 
-    let newIsOntTop = (item.isOnTop)? 0:1; 
-    let params = { 
-      WxId: `${item.WxId}`,
-      ContactUserId: `${item.ContactUserId}`
-    }
-    newIsOntTop? 
-      await getCancelContactTopRequest(params):
-      await getContactTopList(params)
-    //更新处理中列表以及客户列表中的item.isOntTop值
-    item.isOnTop = newIsOntTop
-    tab==0? doChgArrObjValue(contList,"ConversationId",item.ConversationId,"isOnTop",newIsOntTop):
-            doChgArrObjValue(procList,"ConversationId",item.ConversationId,"isOnTop",newIsOntTop)
-    //更新list排序
-    sortList(contList)
-    sortList(procList)
+    await store.setTop(item)
+    item.isOnTop = !item.isOnTop;
+    doChgArrObjValue(item)
     //关闭弹出框
     doCloseMenu()
   }
