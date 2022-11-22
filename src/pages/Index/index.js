@@ -16,6 +16,10 @@ import icon_edit   from '@/imgs/icon-edit.png'
 import icon_search from '@/imgs/icon-search.svg'
 import icon_load   from '@/imgs/icon-loading.svg'
 import icon_error  from '@/imgs/icon-error.svg'
+import icon_face   from '@/imgs/icon-face.png'
+import icon_img    from '@/imgs/icon-img.png'
+import icon_file   from '@/imgs/icon-file.png'
+import icon_side   from '@/imgs/icon-side.svg'
 
 const tabList   = ["处理中","群聊","客户"]
 const typeList  = ["联系人","群","联系人"]
@@ -33,6 +37,7 @@ const Sop = ({ index }) => {
 
   const [collapse,setCollapse] = useState(true) 
   const [showChat,setShowChat] = useState(false) 
+  const [showSide,setShowSide] = useState(false)
 
   const [selTab,setSelTab]     = useState(0)
   const [selWeUsr,setSelWeUsr] = useState(-1) 
@@ -178,6 +183,7 @@ const Sop = ({ index }) => {
     setSelCtMenu(-1)
   }
 
+
   // 置顶逻辑
   const doTopUsr = async(e,item) =>{
     //阻止item点击事件触发
@@ -208,9 +214,6 @@ const Sop = ({ index }) => {
       case 1: list = doFilter(roomList,'NickName'); break;
       case 2: list = doFilter(contList,'UserName'); break;
     }
-
-    // console.log(list)
-    // console.log(userList)
 
     return (
       <div className="contact">
@@ -260,7 +263,6 @@ const Sop = ({ index }) => {
                 </div>
               </Tooltip>}
         
-
             </React.Fragment>
           )}
         </div>
@@ -322,43 +324,77 @@ const Sop = ({ index }) => {
             </div>}
 
             <div className="chat-bd">
-              {showChat && 
-              <div className="chat-content">
 
-                {chatInf.more ? 
-                  <div className="more act" onClick={doMoreHistory}>更多聊天记录</div>
-                  : 
-                  <div className="more">暂无更多聊天记录</div>}
-                
+              <div className="chat-wrap">
+                {showChat && 
+                <React.Fragment>
+                  <div className="chat-content">
 
-                {chatHis.map((item,i)=>
-                  <div className={(item.WxId===item.Msg.data.sender)?"msg rec":"msg my"} key={i}>
-                    <div className="msg-line">
+                    {chatInf.more ? 
+                      <div className="more act" onClick={doMoreHistory}>更多聊天记录</div>
+                      : 
+                      <div className="more">暂无更多聊天记录</div>}
+                    
 
-                      <div className="avatar">
-                        <img src={item.WeAvatar} />
-                        
+                    {chatHis.map((item,i)=>
+                      <div className={(item.WxId===item.Msg.data.sender)?"msg rec":"msg my"} key={i}>
+                        <div className="msg-line">
+
+                          <div className="avatar">
+                            <img src={item.WeAvatar} />
+                            
+                          </div>
+                          <div className="msg-detail">
+                            <div className="msg-info">
+                              {item.Msg.data.sender_name || item.UserName} {item.Timestamp}
+                            </div>
+                            <div className="msg-wrap">
+                              {(item.Send_Status === 0) && <div className="msg-status r"><img src={icon_load} /></div>}
+                              {(item.Send_Status ===-1) && <div className="msg-status"  ><img src={icon_error} /></div>}
+
+
+                              {RenderMsgDetail(item.Msg)}
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="msg-detail">
-                        <div className="msg-info">
-                          {item.Msg.data.sender_name || item.UserName} {item.Timestamp}
-                        </div>
-                        <div className="msg-wrap">
-                          {(item.Send_Status === 0) && <div className="msg-status r"><img src={icon_load} /></div>}
-                          {(item.Send_Status ===-1) && <div className="msg-status"  ><img src={icon_error} /></div>}
 
-
-                          {RenderMsgDetail(item.Msg)}
-                        </div>
+                    )}
+                  </div>
+                  <div className="sendbox">
+                    <div className="send-menu">
+                      <div className="menu-item">
+                        <img src={icon_face} />
+                      </div>
+                      <div className="menu-item">
+                        <img src={icon_img} />
+                        <input class="el-upload__input" name="file" accept=".jpg,.jpeg,.png" type="file" />
+                      </div>
+                      <div className="menu-item">
+                        <img src={icon_file} />
+                        <input class="el-upload__input" name="file" accept="" type="file" />
+                      </div>
+                      <div className="sp"></div>
+                      <div className="menu-item">
+                        <input id="closeRobot" type="checkbox" />
+                        <label for="closeRobot"> 临时关闭该机器人</label>
+                        <span class="finish">处理完成</span>
+                      </div>
+                      <div className="menu-item" onClick={()=>setShowSide(!showSide)}>
+                        <img src={icon_side} />
                       </div>
                     </div>
+                    <div className="send-area">
+                      <textarea maxlength="1000" autocomplete="off" placeholder="输入聊天内容"></textarea>
+                      <span className="el-input__count">0 / 1000</span>
+                    </div>
+                    <div className="send-desc"> Enter发送；Ctrl+Enter换行 </div>
                   </div>
-
-                )}
-              </div>}
-              <div className="sendbox">
-                
+                </React.Fragment>}
               </div>
+
+              {showSide && 
+              <div className="chat-side"></div>}
             </div>
           </div>
         </div>
