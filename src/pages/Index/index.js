@@ -150,7 +150,7 @@ const Sop = ({ index }) => {
     i==selCtMenu? '' : doCloseMenu()
   }
 
-  // 
+  // 显示更多聊天记录
   const doMoreHistory = ()=>{
     let params = {
       WxId: curUser.WxId,
@@ -160,7 +160,6 @@ const Sop = ({ index }) => {
       ConversationIds: [curUser.ConversationId],
     }
     store.getChatInfo(params,selTab,curUser).then((r) => {
-      // let his = r.his.concat(chatHis)
       setChatHis(r.his.concat(chatHis))
       setChatInf(clone(r.inf))
       setPageIndex(pageIndex+1)
