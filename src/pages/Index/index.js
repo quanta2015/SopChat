@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import cls from 'classnames';
 import { observer, inject, history,connect } from 'umi';
 import { Switch,Input } from 'antd';
-import { formatTime } from '@/utils/common'
+import { formatTime,clone } from '@/utils/common'
 import { Tooltip } from '@/components/Tooltip';
 import { RenderMsgDetail } from './msg'
 
@@ -14,15 +14,14 @@ import icon_wechat from '@/imgs/icon-wechat.png'
 import icon_user   from '@/imgs/icon-user.svg'
 import icon_edit   from '@/imgs/icon-edit.png'
 import icon_search from '@/imgs/icon-search.svg'
-
+import icon_load   from '@/imgs/icon-loading.svg'
+import icon_error  from '@/imgs/icon-error.svg'
 
 const tabList   = ["处理中","群聊","客户"]
 const typeList  = ["联系人","群","联系人"]
 const KEY_ENTER = 'Enter'
 const KEY_BLANK = ''
 
-
-import { getContactTopList,getCancelContactTopRequest } from '@/services/api';
 import { sortList } from '@/utils/procData';
 
 
@@ -47,7 +46,9 @@ const Sop = ({ index }) => {
   const [filter,  setFilter]   = useState('')
   const [curUser, setCurUser]  = useState(null)
   const [chatHis, setChatHis]  = useState([])
-  const [chatInf, setChatInf]  = useState(null)
+  const [chatInf, setChatInf]  = useState({})
+  const [pageIndex, setPageIndex]  = useState(1)
+
 
   if (!window.token)  {
     history.push('/auth')
@@ -114,18 +115,23 @@ const Sop = ({ index }) => {
 
 
   //更改对象数组的value,会改变原数组
-  const doChgArrObjValue=(arr,equalKey,equalV,key,newV)=>{
+  const doChgArrObjValue=(item)=>{
+    let arr = (selTab == 0)? contList:procList
     arr.map((o,j)=>{
-        if(o[equalKey]==equalV) {
-          o[key]=newV;
-        }
+      if(o.ConversationId == item.ConversationId) {
+        o.isOnTop = item.isOnTop;
+      }
     })
+    sortList(contList)
+    sortList(procList)
   }
 
+  // 选择聊天对象
   const doSelCtUsr=(item,i)=>{
     console.log(item)
     let params = {
       WxId: item.WxId,
+      pageIndex: 1,
       ContactUserId:item.ContactUserId,
       ConversationId:item.ConversationId,
       ConversationIds: [item.ConversationId],
@@ -137,11 +143,28 @@ const Sop = ({ index }) => {
 
     store.getChatInfo(params,selTab,item).then((r) => {
       console.log(r)
-      setChatHis(r.his)
-      setChatInf(r.inf)
+      setChatHis(clone(r.his))
+      setChatInf(clone(r.inf))
       setShowChat(true)
     })
     i==selCtMenu? '' : doCloseMenu()
+  }
+
+  // 
+  const doMoreHistory = ()=>{
+    let params = {
+      WxId: curUser.WxId,
+      pageIndex: pageIndex+1,
+      ContactUserId:curUser.ContactUserId,
+      ConversationId:curUser.ConversationId,
+      ConversationIds: [curUser.ConversationId],
+    }
+    store.getChatInfo(params,selTab,curUser).then((r) => {
+      // let his = r.his.concat(chatHis)
+      setChatHis(r.his.concat(chatHis))
+      setChatInf(clone(r.inf))
+      setPageIndex(pageIndex+1)
+    })
   }
 
 
@@ -151,20 +174,23 @@ const Sop = ({ index }) => {
     setSelCtMenu(i)
   }
 
+  // 关闭置顶菜单
   const doCloseMenu = () =>{
     setSelCtMenu(-1)
   }
 
-  const doTopUsr = async(e,item,tab) =>{
+  // 置顶逻辑
+  const doTopUsr = async(e,item) =>{
     //阻止item点击事件触发
     e.stopPropagation() 
-    item.isOnTop = !item.isOnTop
-    await setTop(item)
+    await store.setTop(item)
+    item.isOnTop = !item.isOnTop;
     doChgArrObjValue(item)
     //关闭弹出框
     doCloseMenu()
   }
 
+  // 置顶对话框
   const content = (item,tabIndex) =>{
     return (
       <div className='pop'>
@@ -299,7 +325,13 @@ const Sop = ({ index }) => {
             <div className="chat-bd">
               {showChat && 
               <div className="chat-content">
-                <div className="more">暂无更多聊天记录</div>
+
+                {chatInf.more ? 
+                  <div className="more act" onClick={doMoreHistory}>更多聊天记录</div>
+                  : 
+                  <div className="more">暂无更多聊天记录</div>}
+                
+
                 {chatHis.map((item,i)=>
                   <div className={(item.WxId===item.Msg.data.sender)?"msg rec":"msg my"} key={i}>
                     <div className="msg-line">
@@ -313,6 +345,10 @@ const Sop = ({ index }) => {
                           {item.Msg.data.sender_name || item.UserName} {item.Timestamp}
                         </div>
                         <div className="msg-wrap">
+                          {(item.Send_Status === 0) && <div className="msg-status r"><img src={icon_load} /></div>}
+                          {(item.Send_Status ===-1) && <div className="msg-status"  ><img src={icon_error} /></div>}
+
+
                           {RenderMsgDetail(item.Msg)}
                         </div>
                       </div>

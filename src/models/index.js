@@ -31,6 +31,7 @@ export class Index {
   URL_CONTACT_ALL_LIST    = `${HEAD}/Contact/AllContactListWithstatus`
   URL_CONTACT_RELATION    = `${HEAD}/Contact/GetContactRelation`
   URL_CONTACT_SET_TOP     = `${HEAD}/Contact/ConactTopRequest`
+  URL_CONTACT_CANCEL_TOP  = `${HEAD}/Contact/CancelContactTopRequest`
 
   URL_CHAT_HISTORY_LIST   = `${HEAD}/ChatHistory/ChatHistorys`
   URL_CHAT_HISTORY_SEARCH = `${HEAD}/ChatHistory/SearchChatHistorys`
@@ -39,11 +40,12 @@ export class Index {
   
   @action
   async setTop(data) {
+    let url = data.isOnTop? this.URL_CONTACT_SET_TOP:this.URL_CONTACT_CANCEL_TOP;
     let params = { 
       method: 'POST',
       body: JSON.stringify(data) 
     };
-    const r = await request(this.URL_CONTACT_SET_TOP, params);
+    const r = await request(url, params);
   }
 
   @action
@@ -53,13 +55,15 @@ export class Index {
       body: JSON.stringify({
         ...data,
         Type: 0,
-        pageIndex: 1,
         pageSize: 100,
       }) 
     };
-    let r = await request(this.URL_CHAT_HISTORY_LIST, params);
-    let s = await request(this.URL_CONTACT_RELATION, params);
-    
+    let r = await request(this.URL_CHAT_HISTORY_LIST, params)
+    let s = await request(this.URL_CONTACT_RELATION, params)
+
+    // 是否有更多消息
+    s.more = (r.length=== 100)? true:false
+
     // 格式化聊天顺序和时间
     r.reverse().map((item,i)=>{
       item.Timestamp = formatTime(item.Timestamp)

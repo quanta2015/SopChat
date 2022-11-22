@@ -15,6 +15,9 @@
       &>.title>span {
         display: none;
       }
+      &>.item>i {
+        display: none;
+      }
     }
 
     &>.title {
@@ -46,6 +49,11 @@
 
         .info {
           color: #fff!important;
+        }
+
+        .login-type {
+          color: #fff!important;
+          border: 1px solid #fff;
         }
       }
 
@@ -362,6 +370,21 @@
             max-height: calc(100% - 200px);
             overflow-y: scroll;
 
+            &>.more {
+              margin: 5px;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              color: #999;
+              font-size: 12px;  
+              cursor: pointer;
+              font-weight: bold;
+
+              &.act {
+                color: #409eff;
+              }
+            }
+
 
             &>.msg {
               display: flex;
@@ -407,6 +430,8 @@
                 .avatar {
                   width: 35px;
                   height: 35px;
+                  min-width: 35px;
+                  min-height: 35px;
                   margin: 3px 10px;
                   border-radius: 3px;
                   overflow: hidden;
@@ -431,6 +456,19 @@
                     position: relative;
                     align-items: center;
 
+                    .msg-status {
+                      display: inline-flex;
+                      margin: 0 10px;
+
+                      &.r {
+                        animation: rotating 2s linear infinite;
+                      }
+
+                      img {
+                        width: 14px;
+                        height: 14px;
+                      }
+                    }
                     
                   }
                 }
@@ -447,5 +485,15 @@
         }
       }
     }
+  }
+}
+
+
+@keyframes rotating{
+  from{
+    transform:rotate(0deg);
+  }
+  to{
+    transform:rotate(360deg);
   }
 }
