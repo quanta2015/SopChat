@@ -9,15 +9,16 @@
 }
 
 .tooltip>div{
-    padding: 10px;
+    padding: 0 10px;
 }
 
 .tooltip>span{
     position: absolute;
     width: 10px;
     height: 10px;
-    transform: translateX(78px);
-    bottom: -4px;
+    top: 100%;
+    left: 50%;
+    transform: translate(-50%,-50%);
 }
 
 .tooltip>span::before{
@@ -30,13 +31,29 @@
     box-shadow: 0.5px 0.5px 0 rgba(0, 0, 0, 0.12);
     border-left: none;
     border-top: none;
-    background-color: #fff;
+    background-color: #fff
 }
 
-.bottom>span{
-    bottom: unset;
-    top: -5px;
+
+.tooltip_bottom>span{
+    top: 0;
 }
-.bottom>span::before{
-    box-shadow: -0.5px -0.5px 0 rgba(0,0,0,0.12);
+.tooltip_bottom>span::before{
+    transform: rotate(-135deg);
+}
+
+.tooltip_left>span{
+    top: 50%;
+    left: 100%;
+}
+.tooltip_left>span::before{
+    transform: rotate(-45deg);
+}
+
+.tooltip_right>span{
+    left: 0;
+    top: 50%;
+}
+.tooltip_right>span::before{
+    transform: rotate(135deg);
 }
