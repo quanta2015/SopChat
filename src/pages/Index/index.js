@@ -205,13 +205,16 @@ const Sop = ({ index }) => {
   )}
 
   // 聊天记录对话框
-  const msgContent = (
-    <div className='pop'>
-      <div className='item'>撤回</div>
-      <div className='item dis'>保存此小程序</div>
-      <div className='item'>转发</div>
-    </div>
-  )
+  const list = [{content:'撤回',status:1},{content:'保存此小程序',status:0},{content:'转发',status:1}]
+  const msgContent = (list)=>{
+    return (
+      <div className='pop'>
+       {list.map((item,i)=>
+         <div className={item?.status? "item":"item dis"} key={i}>{item?.content}</div>
+       )}
+      </div>
+    )
+  }
 
   // 渲染用户列表
   const RenderItemList = (tabIndex)=>{
@@ -364,8 +367,8 @@ const Sop = ({ index }) => {
                               {item.WxId===item.Msg.data.sender && 
                                 <Tooltip 
                                   position='left' 
-                                  content={msgContent} 
-                                  trigger='mouseenter' 
+                                  content={msgContent(list)}
+                                  trigger='click' 
                                   closeEvent='mouseleave'
                                   enterable={true}
                                   timeout={300}
