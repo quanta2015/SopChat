@@ -7,10 +7,12 @@ import './index.css'
  * children: 将 带有提示 的元素
  * position: top, right, bottom, left
  * gap: 间距
- * tooltipContent: 提示的样式组件
+ * content: 提示的样式组件
  * pid :父元素
  * trigger: 触发事件 click、mouseenter、contextmenu...
  * closeEvent: 关闭触发事件 click、mouseenter、contextmenu...
+ * timeout: 关闭tooltip的延迟时间毫秒数
+ * enterable：鼠标是否能够进入content内,content的mouseenter|mouseleave事件也能控制tooltip的显隐
  * open: 外部一同控制
  * setOpen: 控制open
  */
@@ -21,7 +23,9 @@ export const Tooltip = ({
     content="Text",
     trigger="contextmenu",
     closeEvent="click",
-    pid = 'body',
+    pid='body',
+    timeout=0,
+    enterable=false,
     open = false,
     setOpen = ()=>{}
 }) =>{
@@ -49,10 +53,20 @@ export const Tooltip = ({
         const {left,top} = getTooltipPosition(el,tooltip,document.querySelector(pid),position,gap)
         tooltip.style.left = `${left}px`
         tooltip.style.top = `${top}px`
+
+        if(enterable){
+            tooltip.addEventListener('mouseenter',()=>tooltip.enterable=1);
+            tooltip.addEventListener('mouseleave',()=>{
+                tooltip.enterable=0;
+                closeTooltip()
+            })
+        }
     }
 
     const closeTooltip = () =>{
-        setIsVisible(false);
+        if(tooltipRef.current && !tooltipRef.current.enterable){
+            setTimeout(()=>setIsVisible(false),timeout);
+        }
     }
 
     useEffect(()=>{
@@ -60,11 +74,11 @@ export const Tooltip = ({
         if(!el) return;
 
         el.addEventListener(trigger,e=>showTooltip(e,el));
-        el.addEventListener(closeEvent,closeTooltip);
+        el.addEventListener(closeEvent,()=>setTimeout(()=>closeTooltip(),0));
 
         return () =>{
             el.removeEventListener(trigger,e=>showTooltip(e,el));
-            el.removeEventListener(closeEvent,closeTooltip);
+            el.removeEventListener(closeEvent,()=>setTimeout(()=>closeTooltip()));
         }
     },[childRef.current,tooltipRef.current,position,gap])
 

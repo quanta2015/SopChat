@@ -190,13 +190,22 @@ const Sop = ({ index }) => {
   }
 
   // 置顶对话框
-  const content = (item,tabIndex) =>{
+  const topContent = (item,tabIndex) =>{
     return (
       <div className='pop'>
         <h4>请选择你要进行的操作</h4>
         <button onClick={(e)=>doTopUsr(e,item,tabIndex)}>{item.isOnTop? '置顶':'取消置顶'}</button>
       </div>
   )}
+
+  // 聊天记录对话框
+  const msgContent = (
+      <div className='pop'>
+        <div className='item'>撤回</div>
+        <div className='item dis'>保存此小程序</div>
+        <div className='item'>转发</div>
+      </div>
+  )
 
   // 渲染用户列表
   const RenderItemList = (tabIndex)=>{
@@ -240,7 +249,7 @@ const Sop = ({ index }) => {
                   pid=".list" 
                   open={selCtMenu==i}
                   position={(i==0 || i==1)? "bottom":"top"} 
-                  content={content(item,tabIndex)}
+                  content={topContent(item,tabIndex)}
                   setOpen={()=>setSelCtMenu(i)}
                 >
                 <div className={cls('list-item',{top:!item.isOnTop, sel:selCtUsr===i})} 
@@ -347,7 +356,18 @@ const Sop = ({ index }) => {
                           {(item.Send_Status === 0) && <div className="msg-status r"><img src={icon_load} /></div>}
                           {(item.Send_Status ===-1) && <div className="msg-status"  ><img src={icon_error} /></div>}
 
-
+                           {item.WxId===item.Msg.data.sender && 
+                           <Tooltip 
+                              position='left' 
+                              content={msgContent} 
+                              trigger='mouseenter' 
+                              closeEvent='mouseleave'
+                              enterable={true}
+                              timeout={300}
+                            >
+                              <i className='msg-menu'>···</i>
+                            </Tooltip>
+                           } 
                           {RenderMsgDetail(item.Msg)}
                         </div>
                       </div>
