@@ -103,4 +103,46 @@ import './global.less'
 // };
 
 // // dispatchState();
+// const signalR = require("@microsoft/signalr");
 
+// window.token = 'Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2luZm8iOiIlN0IlMjJhdmF0YXIlMjIlM0ElMjJodHRwcyUzQSUyRiUyRndld29yay5xcGljLmNuJTJGd3dwaWMlMkYyNTA2MTJfZmdmN3NpUTFUVGlCbGxzXzE2NjkxOTY3ODUlMkYwJTIyJTJDJTIyaW5kdXN0cnlUeXBlJTIyJTNBJTIybXl0eGwlMjIlMkMlMjJsb2dpblR5cGUlMjIlM0ElMjJub3JtYWwlMjIlMkMlMjJtZW1iZXJJZCUyMiUzQTE1MjIyMDM1NTExOTUyNzUzNTAlMkMlMjJtZW1iZXJOYW1lJTIyJTNBJTIyJUU2JTlEJThFJUU1JUJCJUJBJUU1JUJEJUFDJTIyJTJDJTIybW9iaWxlJTIyJTNBJTIyMTM2NTcwODY0NTElMjIlMkMlMjJvcmdJZCUyMiUzQTMzMDEwMDEwMDAwMDUlMkMlMjJvcmdOYW1lJTIyJTNBJTIyJUU2JTlEJUFEJUU1JUI3JTlFJUU2JTg5JTgwJUU2JTgwJTlEJUU0JUJBJTkyJUU4JUJGJTlFJUU3JUE3JTkxJUU2JThBJTgwJUU2JTlDJTg5JUU5JTk5JTkwJUU1JTg1JUFDJUU1JThGJUI4JTIyJTJDJTIyb3JnVHlwZSUyMiUzQSUyMmdlbmVyYWwlMjIlMkMlMjJyZWdpb25Db2RlJTIyJTNBJTIyMzMwMTAwMDAwMDAwMDAwMDAwJTIyJTJDJTIyc2hvcnROYW1lJTIyJTNBJTIyJUU5JUEyJTg0JUU1JThGJTkxJUU3JThFJUFGJUU1JUEyJTgzJTIyJTJDJTIyc291cmNlJTIyJTNBJTIyaW50ZXJuYWwlMjIlMkMlMjJ1c2VySWQlMjIlM0ExNTIyMjAzNTUxMTk1Mjc1MzUwJTJDJTIydXNlck5hbWUlMjIlM0ElMjIlRTYlOUQlOEUlRTUlQkIlQkElRTUlQkQlQUMlMjIlMkMlMjJ1c2VyVHlwZSUyMiUzQSUyMmVtcGxveWVlJTIyJTdEIiwidXNlcl9uYW1lIjoiMTM2NTcwODY0NTE7O25vcm1hbCIsIm9yZ19pZCI6MzMwMTAwMTAwMDAwNSwic2NvcGUiOlsiYWxsIl0sImV4cCI6MTY2OTY0NDkxOSwianRpIjoiOTQyMTVmYzctOGU3MS00MWVlLWJiMjQtN2I3ZjVhNjM2Zjk5IiwiY2xpZW50X2lkIjoicHJlIn0.h_lhHZrFoT534MXRE1E1flnZt66-AG4bN7axV3Kt3Og_85TKYxtUzwgadjmj4oyfAr1otyagHxiSe1yKcmX8UZWhlz8Tj6eqz81lT_B0jhKej3pbtL26CX0oMKB19HRtX0LfWwD4zgYV3-HXaOyDpiB7J_M3rLLh6M8ydxoXIrA'
+
+// const HEAD = `https://pt-prod.lbian.cn`
+// const URL_SIGNALR_HUB_IMG = `${HEAD}/chathub`
+
+
+// const receiveMsgHub = new signalR.HubConnectionBuilder()
+//   .withUrl(URL_SIGNALR_HUB_IMG, {
+//     accessTokenFactory: () => window.token
+//   })
+//   .configureLogging(signalR.LogLevel.Information)
+//   .withAutomaticReconnect([0, 5000, 10000, 20000, 50000, 100000, 150000, 200000])
+//   .build()
+
+// console.log('hub succ...')
+
+// receiveMsgHub.on('ReceiveChatMessage',res => {
+//   res = JSON.parse(res)
+//   res.data = JSON.parse(res.data)
+//   console.log('chat msg', res)
+// })
+
+// receiveMsgHub.on('UpdateExternalUsers', res => {
+//   console.log('update user msg', JSON.parse(res))
+// })
+// receiveMsgHub.on('UpdateRoomMsg', res => {
+//   console.log('room msg', JSON.parse(res))
+// })
+// receiveMsgHub.on('NewExternalUsers',res => {
+//   console.log('new user msg', JSON.parse(res))
+// })
+
+
+// receiveMsgHub.onclose((err) => {
+//    console.log('连接断开了：', err)
+// })
+// receiveMsgHub.start().then(res => {
+//      console.log('消息接收连接成功：', res)
+// }).catch(err => {
+//      console.log('消息接收连接失败：', err)
+// })

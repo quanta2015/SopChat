@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useCallback } from 'react';
 import cls from 'classnames';
-import { observer, inject, history,connect } from 'umi';
+import { observer, inject, history,connect,userMobxStore } from 'umi';
+import { toJS } from 'mobx'
 import { Switch,Input } from 'antd';
-import { formatTime,clone } from '@/utils/common'
+import { formatTime,clone,scrollToBottom } from '@/utils/common'
+import { sortList } from '@/utils/procData';
 import { Tooltip } from '@/components/Tooltip';
 import { RenderMsgDetail } from './msg'
+import { initHub,replaceUrl } from './hub'
 
 import './index.less';
 import './msg.less';
@@ -26,50 +29,122 @@ const typeList  = ["联系人","群","联系人"]
 const KEY_ENTER = 'Enter'
 const KEY_BLANK = ''
 
-import { sortList } from '@/utils/procData';
-
-
 
 
 
 const Sop = ({ index }) => {
   const store = index;
 
+
+  // const [roomList,setRoomList] = useState([]) 
+  // const [contList,setContList] = useState([]) 
+  // const [procList,setProcList] = useState([])
+  // const [chatHis, setChatHis]  = useState([])
   const [collapse,setCollapse] = useState(true) 
   const [showChat,setShowChat] = useState(false) 
   const [showSide,setShowSide] = useState(false)
-
   const [selTab,setSelTab]     = useState(0)
   const [selWeUsr,setSelWeUsr] = useState(-1) 
   const [selCtUsr,setSelCtUsr] = useState(-1) 
   const [selCtMenu,setSelCtMenu] = useState(-1)
   const [userList,setUserList] = useState([]) 
-  const [roomList,setRoomList] = useState([]) 
-  const [contList,setContList] = useState([]) 
-  const [procList,setProcList] = useState([])
   const [readList,setReadList] = useState([0,0,0])
   const [filter,  setFilter]   = useState('')
   const [curUser, setCurUser]  = useState(null)
-  const [chatHis, setChatHis]  = useState([])
   const [chatInf, setChatInf]  = useState({})
   const [pageIndex, setPageIndex]  = useState(1)
 
+
+  const updateLastMsg =(list,msg)=> {
+    list.map((item,i)=>{
+      if (item.ConversationId === msg.data.data.conversation_id) {
+        item.msg = msg.data.data
+      }
+    })
+  }
+
+  const initMsg =(msg,usr)=>{
+    const { data, wxid, ...oth } = msg
+    const _data = data.data
+    const ret = { 
+      id: _data.sender,
+      WxId: wxid,
+      name: msg.UserName == 'api' || !msg.UserName ? _data.sender_name : msg.UserName,
+      content: _data.content || replaceUrl(_data.file_path) || replaceUrl(_data.url),
+      sendTime: _data.send_time,
+      hitNode: _data.hit_node || '',
+      WeAvatar: (msg.wxid===_data.sender)?usr?.WeAvatar:usr?.Avatar,
+      Msg: data,  
+      ...oth 
+    }
+    return ret
+  }
+
+  const procHisMsg = (msg)=>{
+    let _msg
+    let _chatHis  = toJS(store.chatHis)
+    let _curUser  = toJS(store.curUser)
+    let _contList = toJS(store.contList)
+    let _procList = toJS(store.procList)
+    let _cid = _curUser?.ConversationId
+    let cid  = msg.data.data.conversation_id
+
+    switch(msg.data.type) {
+      case 11051: break; // 企微账号登录
+      case 11074: break; // 创建群
+      case 11072: break; // 添加群成员
+      case 11073: break; // 删除群成员
+      case 11047: break; // 图文链接
+      case 11066: break; // 小程序
+      case 11041:        // 文本消息
+      case 11042:        // 图片消息
+      case 11043:        // 视频消息
+      case 11044:        // 语音消息
+      case 11045:        // 文件消息
+      case 11048: _msg = initMsg(msg,_curUser);break; // 表情消息
+      default: 
+    }
+    // console.log('_msg',_msg,msg)
+
+    if (cid === _cid) {
+      _chatHis.push(_msg)
+      store.setChatHis(clone(_chatHis))
+      // setChatHis(clone(_chatHis))
+      scrollToBottom()
+    }
+    
+    updateLastMsg(_contList,msg)
+    updateLastMsg(_procList,msg)
+
+    store.setContList(clone(_contList))
+    store.setProcList(clone(_procList))
+    setContList(clone(_contList))
+    setProcList(clone(_procList))
+  } 
 
   if (!window.token)  {
     history.push('/auth')
   }else {
     useEffect(() => {
       store.getOnlineWxUserList().then((r) => {
-        setUserList(r.user)
-        setProcList(r.proc)
-        setRoomList(r.room)
-        setContList(r.cont)
+        // setUserList(r.user)
+        // setProcList(r.proc)
+        // setRoomList(r.room)
+        // setContList(r.cont)
         setReadList(r.read)
+
+
+        store.setUserList(r.user)
+        store.setProcList(r.proc)
+        store.setRoomList(r.room)
+        store.setContList(r.cont)
+        
+
+        initHub(procHisMsg)
       });
     }, []);
   }
 
-  
 
   // 折叠用户菜单
   const doCollapse =()=>{
@@ -81,17 +156,17 @@ const Sop = ({ index }) => {
     let WxIds = []
     if (e===selWeUsr) {
       setSelWeUsr(-1)
-      userList.map((o,i)=>WxIds.push(o.WxId))
+      store.userList.map((o,i)=>WxIds.push(o.WxId))
     }else{
       setSelWeUsr(e)
-      WxIds.push(userList[e].WxId)
+      WxIds.push(store.userList[e].WxId)
     }
 
     store.getDataList(WxIds).then((r) => {
-      console.log(r)
-      setProcList(r.proc)
-      setRoomList(r.room)
-      setContList(r.cont)
+      // console.log(r)
+      store.setProcList(r.proc)
+      store.setRoomList(r.room)
+      store.setContList(r.cont)
       setReadList(r.read)
     });
   }
@@ -121,19 +196,24 @@ const Sop = ({ index }) => {
 
   //更改对象数组的value,会改变原数组
   const doChgArrObjValue=(item)=>{
-    let arr = (selTab == 0)? contList:procList
+    let arr = (selTab == 0)? store.contList:store.procList
     arr.map((o,j)=>{
       if(o.ConversationId == item.ConversationId) {
         o.isOnTop = item.isOnTop;
       }
     })
-    sortList(contList)
-    sortList(procList)
+
+    let _contList = toJS(store.contList)
+    let _procList = toJS(store.procList)
+    sortList(_contList)
+    sortList(_procList)
+    store.setContList(_contList)
+    store.setProcList(_procList)
   }
 
   // 选择聊天对象
   const doSelCtUsr=(item,i)=>{
-    console.log(item)
+    // console.log(item)
     let params = {
       WxId: item.WxId,
       pageIndex: 1,
@@ -145,12 +225,15 @@ const Sop = ({ index }) => {
     setSelCtUsr(i)
     setSelCtMenu(-1)
     setCurUser(item)
+    store.setCurUser(item)
 
     store.getChatInfo(params,selTab,item).then((r) => {
-      console.log(r)
-      setChatHis(clone(r.his))
+      // console.log(r.his)
+      // setChatHis(clone(r.his))
       setChatInf(clone(r.inf))
       setShowChat(true)
+      store.setChatHis(clone(r.his))
+      scrollToBottom()
     })
     i==selCtMenu? '' : doCloseMenu()
   }
@@ -165,9 +248,10 @@ const Sop = ({ index }) => {
       ConversationIds: [curUser.ConversationId],
     }
     store.getChatInfo(params,selTab,curUser).then((r) => {
-      setChatHis(r.his.concat(chatHis))
+      // setChatHis(r.his.concat(chatHis))
       setChatInf(clone(r.inf))
       setPageIndex(pageIndex+1)
+      store.setChatHis(r.his.concat(chatHis))
     })
   }
 
@@ -222,9 +306,9 @@ const Sop = ({ index }) => {
     let type = ''
 
     switch(tabIndex) {
-      case 0: list = doFilter(procList,'NickName'); break;
-      case 1: list = doFilter(roomList,'NickName'); break;
-      case 2: list = doFilter(contList,'UserName'); break;
+      case 0: list = doFilter(store.procList,'NickName'); break;
+      case 1: list = doFilter(store.roomList,'NickName'); break;
+      case 2: list = doFilter(store.contList,'UserName'); break;
     }
 
     return (
@@ -289,9 +373,9 @@ const Sop = ({ index }) => {
         <i onClick={doCollapse}></i>
         <div className="title">
           <img src={icon_wechat} />
-          <span>企业微信账号({userList.length})</span>
+          <span>企业微信账号({store.userList.length})</span>
         </div>
-        {userList.map((item,i)=>
+        {store.userList.map((item,i)=>
           <div className={(selWeUsr===i)?"item sel":"item"} key={i} onClick={()=>doSelWeUsr(i)}>
             <img src={item.OssAvatar} />
             <div className="info">
@@ -340,7 +424,7 @@ const Sop = ({ index }) => {
               <div className="chat-wrap">
                 {showChat && 
                 <React.Fragment>
-                  <div className="chat-content">
+                  <div className="chat-content" id="chatContent">
 
                     {chatInf.more ? 
                       <div className="more act" onClick={doMoreHistory}>更多聊天记录</div>
@@ -348,7 +432,7 @@ const Sop = ({ index }) => {
                       <div className="more">暂无更多聊天记录</div>}
                     
 
-                    {chatHis.map((item,i)=>
+                    {store.chatHis.map((item,i)=>
                       <div className={(item.WxId===item.Msg.data.sender)?"msg rec":"msg my"} key={i}>
                         <div className="msg-line">
 
@@ -390,24 +474,24 @@ const Sop = ({ index }) => {
                       </div>
                       <div className="menu-item">
                         <img src={icon_img} />
-                        <input class="el-upload__input" name="file" accept=".jpg,.jpeg,.png" type="file" />
+                        <input className="el-upload__input" name="file" accept=".jpg,.jpeg,.png" type="file" />
                       </div>
                       <div className="menu-item">
                         <img src={icon_file} />
-                        <input class="el-upload__input" name="file" accept="" type="file" />
+                        <input className="el-upload__input" name="file" accept="" type="file" />
                       </div>
                       <div className="sp"></div>
                       <div className="menu-item">
                         <input id="closeRobot" type="checkbox" />
-                        <label for="closeRobot"> 临时关闭该机器人</label>
-                        <span class="finish">处理完成</span>
+                        <label> 临时关闭该机器人</label>
+                        <span className="finish">处理完成</span>
                       </div>
                       <div className="menu-item" onClick={()=>setShowSide(!showSide)}>
                         <img src={icon_side} />
                       </div>
                     </div>
                     <div className="send-area">
-                      <textarea maxlength="1000" autocomplete="off" placeholder="输入聊天内容"></textarea>
+                      <textarea maxLength="1000" autoComplete="off" placeholder="输入聊天内容"></textarea>
                       <span className="el-input__count">0 / 1000</span>
                     </div>
                     <div className="send-desc"> Enter发送；Ctrl+Enter换行 </div>

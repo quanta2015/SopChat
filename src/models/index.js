@@ -11,33 +11,42 @@ import { MSG } from '@/pages/Index/msg'
 const HEAD = `https://pt-prod.lbian.cn`
 
 
+console.log('window.token',window.token)
+
+
 export class Index {
-  @observable proc = null;
+  @observable curUser = null;
+  @observable chatHis = [];
+  @observable userList = [];
+  @observable roomList = [];
+  @observable contList = [];
+  @observable procList = [];
+
   weList = []
 
   orgId  = "3301001000005"
   userId = "1522203551195275350"
-
- 
-  URL_SIGNALR_HUB_IMG     = `${HEAD}/imghub`
-  URL_SIGNALR_HUB_MSG     = `${HEAD}/msgimghub`
  
   URL_ONLINE_WX_USR_LIST  = `${HEAD}/WxUser/OnlineWxUserList`
- 
   URL_ROOM_CONTACT_LIST   = `${HEAD}/Room/RoomContactList`
   URL_ROOM_MEMBER_LIST    = `${HEAD}/Room/RoomMemberList`
-
   URL_CONTACT_USR_LIST    = `${HEAD}/Contact/GetUserContactList`
   URL_CONTACT_ALL_LIST    = `${HEAD}/Contact/AllContactListWithstatus`
   URL_CONTACT_RELATION    = `${HEAD}/Contact/GetContactRelation`
   URL_CONTACT_SET_TOP     = `${HEAD}/Contact/ConactTopRequest`
   URL_CONTACT_CANCEL_TOP  = `${HEAD}/Contact/CancelContactTopRequest`
-
   URL_CHAT_HISTORY_LIST   = `${HEAD}/ChatHistory/ChatHistorys`
   URL_CHAT_HISTORY_SEARCH = `${HEAD}/ChatHistory/SearchChatHistorys`
 
 
-  
+  @action setCurUser(e)  { this.curUser = e }
+  @action setChatHis(e)  { this.chatHis = e }
+  @action setUserList(e) { this.userList = e }
+  @action setRoomList(e) { this.roomList = e }
+  @action setContList(e) { this.contList = e }
+  @action setProcList(e) { this.procList = e }
+
+
   @action
   async setTop(data) {
     let url = data.isOnTop? this.URL_CONTACT_SET_TOP:this.URL_CONTACT_CANCEL_TOP;

@@ -44,9 +44,9 @@ export const Tooltip = ({
 
     const showTooltip = async(e,el) =>{
       e.preventDefault();
-      console.log('el_1',el.getBoundingClientRect())
+      // console.log('el_1',el.getBoundingClientRect())
       await setIsVisible(true)
-      console.log('el_2',el.getBoundingClientRect())
+      // console.log('el_2',el.getBoundingClientRect())
       setOpen();
 
       const tooltip = tooltipRef.current

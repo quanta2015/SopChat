@@ -10,7 +10,14 @@ import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
 dayjs.locale('zh-cn') 
 
-
+export const scrollToBottom =(direction)=> {
+  setTimeout(() =>{
+    const el = document.getElementById("chatContent")
+    if(el) {
+      el.scrollTop = el.scrollHeight;
+    }
+  }, 100)
+}
 
 export const autoAuth = async()=>{
   let params = {
