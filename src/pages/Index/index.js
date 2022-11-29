@@ -49,7 +49,6 @@ const Sop = ({ index }) => {
   const [pageIndex, setPageIndex]  = useState(1)
 
 
-  
 
   if (!window.token)  {
     history.push('/auth')
@@ -95,15 +94,16 @@ const Sop = ({ index }) => {
     }
     // console.log('_msg',_msg,msg)
 
+    // 更新聊天记录
     if (cid === _cid) {
       _chatHis.push(_msg)
       store.setChatHis(clone(_chatHis))
       scrollToBottom()
     }
     
+    // 更新列表的 LastMsg
     updateLastMsg(_contList,msg)
     updateLastMsg(_procList,msg)
-
     store.setContList(clone(_contList))
     store.setProcList(clone(_procList))
   } 
