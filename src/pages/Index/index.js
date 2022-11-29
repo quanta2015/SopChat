@@ -6,7 +6,7 @@ import { Switch,Input } from 'antd';
 import { formatTime,clone,scrollToBottom } from '@/utils/common'
 import { sortList } from '@/utils/procData';
 import { Tooltip } from '@/components/Tooltip';
-import { RenderMsgDetail } from './msg'
+import { MSG,RenderMsgDetail,updateLastMsg,initMsg,initLink,initApp } from './msg'
 import { initHub,replaceUrl } from './hub'
 
 import './index.less';
@@ -30,16 +30,10 @@ const KEY_ENTER = 'Enter'
 const KEY_BLANK = ''
 
 
-
-
 const Sop = ({ index }) => {
   const store = index;
 
 
-  // const [roomList,setRoomList] = useState([]) 
-  // const [contList,setContList] = useState([]) 
-  // const [procList,setProcList] = useState([])
-  // const [chatHis, setChatHis]  = useState([])
   const [collapse,setCollapse] = useState(true) 
   const [showChat,setShowChat] = useState(false) 
   const [showSide,setShowSide] = useState(false)
@@ -55,107 +49,7 @@ const Sop = ({ index }) => {
   const [pageIndex, setPageIndex]  = useState(1)
 
 
-  const updateLastMsg =(list,msg)=> {
-    list.map((item,i)=>{
-      if (item.ConversationId === msg.data.data.conversation_id) {
-        item.msg = msg.data.data
-      }
-    })
-  }
-
-  const initMsg =(msg,usr)=>{
-    const { data, wxid, ...oth } = msg
-    const _data = data.data
-    const ret = { 
-      id: _data.sender,
-      WxId: wxid,
-      type: data.type,
-      msgId: msg.msgId,
-      sendTime: _data.send_time,
-      hitNode: _data.hit_node || '',
-      sendStatus: msg.Send_Status,
-      name: msg.UserName == 'api' || !msg.UserName ? _data.sender_name : msg.UserName,
-      content: _data.content || replaceUrl(_data.file_path) || replaceUrl(_data.url),
-      WeAvatar: (msg.wxid===_data.sender)?usr?.WeAvatar:usr?.Avatar,
-      Msg: data,  
-      ...oth 
-    }
-    return ret
-  }
-
-  const initLink =(msg,usr)=>{
-    const { data } = msg
-    let _msg = initMsg(msg,usr)
-    _msg = {
-      url: data.data.url,
-      desc: data.data.desc,
-      title: data.data.title,
-      image_url: replaceUrl(data.data.image_url),
-      ..._msg
-    }
-  }
-
-  const initApp =(msg,usr)=>{
-    const { data } = msg
-    let _msg = initMsg(msg,usr)
-    _msg = {
-      ghid: data.data.ghid,
-      title: data.data.title,
-      headImg: data.data.headimg,
-      programName: msg.data.name,
-      serverId: data.data.server_id,
-      internalPath: data.data.internalPath,
-      enterPoint: data.data.enterpoint,
-      image_key1: data.data.image_key1,
-      image_key2: data.data.image_key2,
-      image_key3: data.data.image_key3,
-      image_size: data.data.image_size,
-      ..._msg
-    }
-  }
-
-
-  const procHisMsg = (msg)=>{
-    let _msg
-    let _chatHis  = toJS(store.chatHis)
-    let _curUser  = toJS(store.curUser)
-    let _contList = toJS(store.contList)
-    let _procList = toJS(store.procList)
-    let _cid = _curUser?.ConversationId
-    let cid  = msg.data.data.conversation_id
-
-    switch(msg.data.type) {
-      case 11051: break; // 企微账号登录
-      case 11074: break; // 创建群
-      case 11072: break; // 添加群成员
-      case 11073: break; // 删除群成员
-      case 11047: _msg=initLink(msg,_curUser);break; // 图文链接
-      case 11066: _msg=initApp(msg,_curUser);break;  // 小程序
-      case 11041:                                    // 文本消息
-      case 11042:                                    // 图片消息
-      case 11043:                                    // 视频消息
-      case 11044:                                    // 语音消息
-      case 11045:                                    // 文件消息
-      case 11048: _msg=initMsg(msg,_curUser); break; // 表情消息
-      default:    _msg=initMsg(msg,_curUser);
-    }
-    // console.log('_msg',_msg,msg)
-
-    if (cid === _cid) {
-      _chatHis.push(_msg)
-      store.setChatHis(clone(_chatHis))
-      // setChatHis(clone(_chatHis))
-      scrollToBottom()
-    }
-    
-    updateLastMsg(_contList,msg)
-    updateLastMsg(_procList,msg)
-
-    store.setContList(clone(_contList))
-    store.setProcList(clone(_procList))
-    setContList(clone(_contList))
-    setProcList(clone(_procList))
-  } 
+  
 
   if (!window.token)  {
     history.push('/auth')
@@ -173,6 +67,46 @@ const Sop = ({ index }) => {
       });
     }, []);
   }
+
+  // 处理实时消息回调
+  const procHisMsg = (msg)=>{
+    let _msg
+    let _chatHis  = toJS(store.chatHis)
+    let _curUser  = toJS(store.curUser)
+    let _contList = toJS(store.contList)
+    let _procList = toJS(store.procList)
+    let _cid = _curUser?.ConversationId
+    let cid  = msg.data.data.conversation_id
+
+    switch(msg.data.type) {
+      case MSG.login:  break; // 企微账号登录
+      case MSG.iniGrp: break; // 创建群
+      case MSG.addUsr: break; // 添加群成员
+      case MSG.delUsr: break; // 删除群成员
+      case MSG.link:  _msg=initLink(msg,_curUser);break; // 图文链接
+      case MSG.app:   _msg=initApp(msg,_curUser);break;  // 小程序
+      case MSG.txt:                                      // 文本消息
+      case MSG.img:                                      // 图片消息
+      case MSG.video:                                    // 视频消息
+      case MSG.audio:                                    // 语音消息
+      case MSG.file:                                     // 文件消息
+      case MSG.gif:   _msg=initMsg(msg,_curUser); break; // 表情消息
+      default:        _msg=initMsg(msg,_curUser);
+    }
+    // console.log('_msg',_msg,msg)
+
+    if (cid === _cid) {
+      _chatHis.push(_msg)
+      store.setChatHis(clone(_chatHis))
+      scrollToBottom()
+    }
+    
+    updateLastMsg(_contList,msg)
+    updateLastMsg(_procList,msg)
+
+    store.setContList(clone(_contList))
+    store.setProcList(clone(_procList))
+  } 
 
 
   // 折叠用户菜单
@@ -282,6 +216,7 @@ const Sop = ({ index }) => {
       store.setChatHis(r.his.concat(_chatHis))
     })
   }
+
 
   // 显示置顶菜单
   const doShowMenu = (e,i) =>{

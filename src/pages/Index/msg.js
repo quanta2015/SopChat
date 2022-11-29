@@ -1,8 +1,14 @@
+import { clone } from '@/utils/common'
+
 export const MSG = {
   proc:  0,
   group: 1, 
   user:  2,
   len:   16,
+  login: 11051,
+  iniGrp:11074,
+  addUsr:11072,
+  delUsr:11073,
   txt:   11041, 
   img:   11042, 
   video: 11043, 
@@ -15,6 +21,68 @@ export const MSG = {
 }
 
 
+export const updateLastMsg =(list,msg)=> {
+  list.map((item,i)=>{
+    if (item.ConversationId === msg.data.data.conversation_id) {
+      item.msg = clone(msg.data.data)
+      switch(msg.data.type) {
+        case MSG.img: item.msg.content = "【图片】";break;
+        case MSG.file: item.msg.content = "【文件】";break;
+      }
+    }
+  })
+}
+
+export const initMsg =(msg,usr)=>{
+  const { data, wxid, ...oth } = msg
+  const _data = data.data
+  const ret = { 
+    id: _data.sender,
+    WxId: wxid,
+    type: data.type,
+    msgId: msg.msgId,
+    sendTime: _data.send_time,
+    hitNode: _data.hit_node || '',
+    sendStatus: msg.Send_Status,
+    name: msg.UserName == 'api' || !msg.UserName ? _data.sender_name : msg.UserName,
+    content: _data.content || replaceUrl(_data.file_path) || replaceUrl(_data.url),
+    WeAvatar: (msg.wxid===_data.sender)?usr?.WeAvatar:usr?.Avatar,
+    Msg: data,  
+    ...oth 
+  }
+  return ret
+}
+
+export const initLink =(msg,usr)=>{
+  const { data } = msg
+  let _msg = initMsg(msg,usr)
+  _msg = {
+    url: data.data.url,
+    desc: data.data.desc,
+    title: data.data.title,
+    image_url: replaceUrl(data.data.image_url),
+    ..._msg
+  }
+}
+
+export const initApp =(msg,usr)=>{
+  const { data } = msg
+  let _msg = initMsg(msg,usr)
+  _msg = {
+    ghid: data.data.ghid,
+    title: data.data.title,
+    headImg: data.data.headimg,
+    programName: msg.data.name,
+    serverId: data.data.server_id,
+    internalPath: data.data.internalPath,
+    enterPoint: data.data.enterpoint,
+    image_key1: data.data.image_key1,
+    image_key2: data.data.image_key2,
+    image_key3: data.data.image_key3,
+    image_size: data.data.image_size,
+    ..._msg
+  }
+}
 
 const RenderTxt   =(msg)=> <span  className="mg-txt">{msg.content}</span>
 const RenderImg   =(msg)=> <span  className="mg-img"><img src={msg.file_path} /></span>
@@ -57,4 +125,20 @@ export const RenderMsgDetail = (msg)=>{
     case MSG.video:return RenderVideo(msg.data);
     case MSG.audio:return RenderAudio(msg.data);
   }
+}
+
+const ossUrlList = ["https://smkgl-privateoss.oss-cn-hangzhou.aliyuncs.com", 
+           "https://smkgl-privateoss.oss-cn-hangzhou-internal.aliyuncs.com",
+           "https://rhyy-oss.96225.com"]
+const realIp = "http://10.101.251.167/rhyysshl/oss"
+
+export const replaceUrl =(url)=>{
+  if(!url) {
+    return ''
+  }
+  let newUrl = url;
+  ossUrlList.forEach(item => {
+    newUrl = url.replace(item, realIp)
+  })
+  return newUrl;
 }

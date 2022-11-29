@@ -3,22 +3,9 @@ const URL_CHAT = `https://pt-prod.lbian.cn/chathub`
 
 var receiveMsgHub = null
 
-const ossUrlList = ["https://smkgl-privateoss.oss-cn-hangzhou.aliyuncs.com", 
-           "https://smkgl-privateoss.oss-cn-hangzhou-internal.aliyuncs.com",
-           "https://rhyy-oss.96225.com"]
 
-export const replaceUrl =(url)=>{
-  if(!url) {
-    return ''
-  }
-  let newUrl = url;
-  if(window.location.href.indexOf(serve.ipHost) > -1) {
-    ossUrlList.forEach(item => {
-      newUrl = url.replace(item, serve.ipUrlForReplace)
-    })
-  }
-  return newUrl;
-}
+
+
 
 
 export const initHub =(cb1,cb2,cb3,cb4)=>{
