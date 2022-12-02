@@ -7,7 +7,7 @@ import { formatTime,clone,scrollToBottom } from '@/utils/common'
 import { sortList } from '@/utils/procData';
 import { Tooltip } from '@/components/Tooltip';
 import { MSG,RenderMsgDetail,updateLastMsg,initMsg,initLink,initApp } from './msg'
-import { initHub,replaceUrl } from './hub'
+import { initHub } from './hub'
 
 import './index.less';
 import './msg.less';
@@ -28,6 +28,8 @@ const tabList   = ["处理中","群聊","客户"]
 const typeList  = ["联系人","群","联系人"]
 const KEY_ENTER = 'Enter'
 const KEY_BLANK = ''
+
+
 
 
 const Sop = ({ index }) => {
@@ -241,6 +243,19 @@ const Sop = ({ index }) => {
     doCloseMenu()
   }
 
+
+  const sendImg =(e)=>{
+    console.log(e.target.files)
+    // if (e.target.files.length > 0) {
+    //   let file = e.target.files[0]
+    //   const blob = await fileToBlobScaled(file, 1370, 1000, 0.7)
+    //   let formData = new FormData()
+    //   formData.append('file', blob)
+      
+    // }
+
+  }
+
   // 置顶对话框
   const topContent = (item,tabIndex) =>{
     return (
@@ -436,11 +451,11 @@ const Sop = ({ index }) => {
                       </div>
                       <div className="menu-item">
                         <img src={icon_img} />
-                        <input className="el-upload__input" name="file" accept=".jpg,.jpeg,.png" type="file" />
+                        <input className="upload-img" name="file" accept=".jpg,.jpeg,.png" type="file" onChange={sendImg}/>
                       </div>
                       <div className="menu-item">
                         <img src={icon_file} />
-                        <input className="el-upload__input" name="file" accept="" type="file" />
+                        <input className="upload-file" name="file" accept="" type="file" />
                       </div>
                       <div className="sp"></div>
                       <div className="menu-item">

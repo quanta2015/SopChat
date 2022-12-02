@@ -5,6 +5,7 @@ export const MSG = {
   group: 1, 
   user:  2,
   len:   16,
+  err_logout: 11027,
   login: 11051,
   iniGrp:11074,
   addUsr:11072,

@@ -21,7 +21,7 @@ export const initHub =(cb1,cb2,cb3,cb4)=>{
     res = JSON.parse(res)
     res.data = JSON.parse(res.data)
     cb1(res)
-    // console.log('chat msg', res)
+    console.log('chat msg', res)
   })
 
   receiveMsgHub.on('UpdateExternalUsers', res => {
