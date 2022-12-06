@@ -1,4 +1,5 @@
 import './global.less'
+
 // import { getDvaApp } from 'umi';
 // // import './public-path';
 // import store from 'store2';

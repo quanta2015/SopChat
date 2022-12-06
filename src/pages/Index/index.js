@@ -3,7 +3,7 @@ import cls from 'classnames';
 import { observer, inject, history,connect,userMobxStore } from 'umi';
 import { toJS } from 'mobx'
 import { Switch,Input } from 'antd';
-import { formatTime,clone,scrollToBottom } from '@/utils/common'
+import { formatTime,clone,scrollToBottom,fileToBlob } from '@/utils/common'
 import { sortList } from '@/utils/procData';
 import { Tooltip } from '@/components/Tooltip';
 import { MSG,RenderMsgDetail,updateLastMsg,initMsg,initLink,initApp } from './msg'
@@ -47,7 +47,6 @@ const Sop = ({ index }) => {
   const [readList,setReadList] = useState([0,0,0])
   const [filter,  setFilter]   = useState('')
   const [curUser, setCurUser]  = useState(null)
-  const [chatInf, setChatInf]  = useState({})
   const [pageIndex, setPageIndex]  = useState(1)
 
 
@@ -194,9 +193,9 @@ const Sop = ({ index }) => {
 
     store.getChatInfo(params,selTab,item).then((r) => {
       // console.log(r.his)
-      setChatInf(clone(r.inf))
       setShowChat(true)
       store.setChatHis(clone(r.his))
+      store.setChatRel(clone(r.rel))
       scrollToBottom()
     })
     i==selCtMenu? '' : doCloseMenu()
@@ -213,9 +212,9 @@ const Sop = ({ index }) => {
     }
     store.getChatInfo(params,selTab,curUser).then((r) => {
       let _chatHis = toJS(store.chatHis)
-      setChatInf(clone(r.inf))
       setPageIndex(pageIndex+1)
       store.setChatHis(r.his.concat(_chatHis))
+      store.setChatRel(clone(r.rel))
     })
   }
 
@@ -244,15 +243,14 @@ const Sop = ({ index }) => {
   }
 
 
-  const sendImg =(e)=>{
-    console.log(e.target.files)
-    // if (e.target.files.length > 0) {
-    //   let file = e.target.files[0]
-    //   const blob = await fileToBlobScaled(file, 1370, 1000, 0.7)
-    //   let formData = new FormData()
-    //   formData.append('file', blob)
+  const sendFile =async(e)=>{
+    if (e.target.files.length > 0) {
+      let file = e.target.files[0]
+      store.sendFile(file).then((r) => {
+        
+      })
       
-    // }
+    }
 
   }
 
@@ -403,7 +401,7 @@ const Sop = ({ index }) => {
                 <React.Fragment>
                   <div className="chat-content" id="chatContent">
 
-                    {chatInf.more ? 
+                    {store.chatRel.more ? 
                       <div className="more act" onClick={doMoreHistory}>更多聊天记录</div>
                       : 
                       <div className="more">暂无更多聊天记录</div>}
@@ -451,11 +449,11 @@ const Sop = ({ index }) => {
                       </div>
                       <div className="menu-item">
                         <img src={icon_img} />
-                        <input className="upload-img" name="file" accept=".jpg,.jpeg,.png" type="file" onChange={sendImg}/>
+                        <input className="upload-img" name="file" accept=".jpg,.jpeg,.png" type="file" value="" onChange={sendFile}/>
                       </div>
                       <div className="menu-item">
                         <img src={icon_file} />
-                        <input className="upload-file" name="file" accept="" type="file" />
+                        <input className="upload-file" name="file" type="file" onChange={sendFile} value=""/>
                       </div>
                       <div className="sp"></div>
                       <div className="menu-item">

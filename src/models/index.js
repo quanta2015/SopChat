@@ -1,15 +1,14 @@
 /* eslint-disable no-param-reassign */
-import { observable, action } from 'mobx';
+import { observable, action,toJS } from 'mobx';
 import { message }  from 'antd';
-import { request }  from '@/services/request';
+import { request,upload }  from '@/services/request';
 import { procData } from '@/utils/procData';
 import { clone }    from '@/utils/common';
 import { formatTime } from '@/utils/common'
 import { MSG } from '@/pages/Index/msg'
-
+import { fileToBlob } from '@/utils/common'
 
 const HEAD = `https://pt-prod.lbian.cn`
-
 
 console.log('window.token',window.token)
 
@@ -17,6 +16,7 @@ console.log('window.token',window.token)
 export class Index {
   @observable curUser = null;
   @observable chatHis = [];
+  @observable chatRel = {};
   @observable userList = [];
   @observable roomList = [];
   @observable contList = [];
@@ -39,12 +39,64 @@ export class Index {
   URL_CHAT_HISTORY_SEARCH = `${HEAD}/ChatHistory/SearchChatHistorys`
 
 
+  URL_UPLOAD              = `${HEAD}/File/UploadFile`
+  URL_CHAT_MSG_IMAGE      = `${HEAD}/api/msg/image`
+  URL_CHAT_MSG_VIDEO      = `${HEAD}/api/msg/video`
+  URL_CHAT_MSG_FILE       = `${HEAD}/api/msg/file`
+
+
+
+
   @action setCurUser(e)  { this.curUser = e }
   @action setChatHis(e)  { this.chatHis = e }
+  @action setChatRel(e)  { this.chatRel = e }
   @action setUserList(e) { this.userList = e }
   @action setRoomList(e) { this.roomList = e }
   @action setContList(e) { this.contList = e }
   @action setProcList(e) { this.procList = e }
+
+
+
+  @action
+  async sendFile(file) {
+    let url 
+    let formData = new FormData()
+    let type  = file.type.split('/')[0]
+    // console.log(type)
+    switch(type) {
+      case 'image': 
+        const blob = await fileToBlob(file);
+        formData.append('file', blob, file.name);
+        url = this.URL_CHAT_MSG_IMAGE;
+        break;
+      case 'video':
+        formData.append('file', file, file.name);
+        url = this.URL_CHAT_MSG_VIDEO;
+        break;
+      default:
+        formData.append('file', file, file.name);
+        url = this.URL_CHAT_MSG_FILE;
+    }
+    const r = await upload(this.URL_UPLOAD, formData)
+    const { WxId,ConversationId,WeUserName,chatId } = toJS(this.curUser)
+    const { ExternalUserId,CorpId } = toJS(this.chatRel)
+
+    const params = {
+      method: 'POST',
+      body: JSON.stringify({
+        FileUrl: r,
+        WxId: WxId,
+        CorpId: CorpId,
+        senderName: WeUserName,
+        ConversationId: ConversationId,
+        msgSource: 'api_artificial_input',
+        unionIdOrChatId: ConversationId.includes('R') ? chatId : ExternalUserId,
+      })
+    }
+    const s = await request(url, params)
+  }
+
+
 
 
   @action
@@ -83,7 +135,6 @@ export class Index {
     if (type===MSG.group) {
       let t = await request(this.URL_ROOM_MEMBER_LIST, params);
 
-
       // 过滤群聊消息
       r = r.filter(o=> o.WxId.length === MSG.len)
            .filter(o=> o.Msg.type !== MSG.mem)
@@ -100,7 +151,7 @@ export class Index {
       r.map(o=>o.WeAvatar = (o.WxId===o.Msg.data.sender)?we.WeAvatar:we.Avatar)
     }
 
-    return { his: r, inf: s}
+    return { his: r, rel: s}
   }
 
   @action

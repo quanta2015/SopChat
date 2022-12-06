@@ -10,6 +10,23 @@ import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
 dayjs.locale('zh-cn') 
 
+
+export async function fileToBlob(file) {
+    let drawable = await createImageBitmap(file)
+    let  sw = drawable.width
+    let  sh = drawable.height
+    const canvas = document.createElement('canvas');
+    canvas.width = sw;
+    canvas.height = sh;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Could not create canvas context');
+    ctx.drawImage(drawable, 0, 0, sw, sh, 0, 0, sw, sh);
+
+    let type = "image/jpeg"
+    let blob = await new Promise(r => canvas.toBlob(r, type, .7));
+    return  blob
+}
+
 export const scrollToBottom =(direction)=> {
   setTimeout(() =>{
     const el = document.getElementById("chatContent")

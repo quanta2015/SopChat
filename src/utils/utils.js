@@ -7,6 +7,12 @@ import store from 'store2';
 import { parse, stringify } from 'qs';
 import { history } from 'umi';
 
+
+
+
+
+
+
 export const gotoLogin = () => {
   history.push(`/user/login`);
 };

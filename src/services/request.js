@@ -28,6 +28,26 @@ export async function request(url, opt = {}) {
   })
 }
 
+export async function upload(url, file) {
+  return new Promise((resolve, reject) => {
+    return fetch(url, {
+      method: "POST",
+      'Content-Type': 'multipart/form-data',
+      body:file,
+    })
+    .then(r => r.text() )
+    .then((data) => {
+      switch(data.code) {
+        case 401: 
+          message.error(data.msg);
+          reject(data);
+          break;
+        default: 
+          resolve(data); 
+      }
+    });
+  })
+}
 
 // import axios from 'axios';
 // import { message } from 'antd';
