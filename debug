@@ -1,0 +1,125 @@
+UpdateExternalUsers: 
+{
+    "WxId": "1688858346380220",
+    "Gender": 0,
+    "CorpId": 0,
+    "ContactUserId": "7881300038093345",
+    "ConversationId": "S:1688858346380220_7881300038093345",
+    "Avatar": "http://wx.qlogo.cn/mmhead/QzPtZqIzA0nrsXKMzA4gpw2ibqs5M7TXBNweHoia5A0f6jxJjBt9e2VQ/0",
+    "OssAvatar": "https://oss-dev.suosihulian.com/pre/system/202212/0_1600064647424544769/s9H6mcziqI/consacts1670320114346.jpg",
+    "NickName": "科科",
+    "UserName": "科科",
+    "RealName": "科科",
+    "Remark": "",
+    "IsDelete": false,
+    "isOnTop": false,
+    "MarkAsUnread": true,
+    "UnreadMsgCount": 1,
+    "Markasantibot": false,
+    "DeleteTime": "0001-01-01 00:00:00",
+    "CurrentReceiptionStatus": 3,
+    "LastChatTimestamp": 1670320140887,
+    "LatestMsg": "{\"data\":{\"send_time\":1670320107,\"local_id\":\"11438573891165900407_1670320111978_external\",\"receiver\":\"1688858346380220\",\"sender\":\"7881300038093345\",\"conversation_id\":\"S:1688858346380220_7881300038093345\",\"sender_name\":\"科科\",\"content\":\"你你你\"},\"type\":11041}"
+}
+
+
+new user msg 
+
+{
+    "WxId": "1688858346380220",
+    "Gender": 0,
+    "Location": null,
+    "IdentityId": null,
+    "CorpId": 0,
+    "ContactUserId": "7881300038093345",
+    "ConversationId": "S:1688858346380220_7881300038093345",
+    "Avatar": "http://wx.qlogo.cn/mmhead/QzPtZqIzA0nrsXKMzA4gpw2ibqs5M7TXBNweHoia5A0f6jxJjBt9e2VQ/0",
+    "OssAvatar": "https://oss-dev.suosihulian.com/pre/system/202212/0_1600064647424544769/s9H6mcziqI/consacts1670320114346.jpg",
+    "NickName": "科科",
+    "UserName": "科科",
+    "RealName": "科科",
+    "Remark": "",
+    "Position": null,
+    "Desc": null,
+    "IsDelete": 1,
+    "isOnTop": 1,
+    "MarkAsUnread": 0,
+    "UnreadMsgCount": 1,
+    "Markasantibot": 1,
+    "DeleteTime": "0001-01-01T00:00:00",
+    "ReceiptionUserLists": null,
+    "CurrentReceiptionUser": "1522203551195275350",
+    "CurrentReceiptionStatus": 0,
+    "LastChatTimestamp": 1670320140890,
+    "LatestMsg": "{\"data\":{\"send_time\":1670320121,\"local_id\":\"8159974641791959208_1670320125711_external\",\"receiver\":\"1688858346380220\",\"sender\":\"7881300038093345\",\"conversation_id\":\"S:1688858346380220_7881300038093345\",\"sender_name\":\"科科\",\"content\":\"你好\"},\"type\":11041}"
+}
+
+
+
+
+
+
+
+
+
+聊天记录更新转交消息信息
+
+{"IsTransfer":false,"hostname":"api","wxid":"1688858346380220","data":"{\"CreateTime\":\"2022-12-06 17:57:29\",\"TransferWxId\":\"wmAIhCKgAAg4wfPJsWtNceOD4EEbmvEA\",\"TransferWxName\":\"李李和莉莉\",\"TransferWxIcon\":\"https://oss-dev.suosihulian.com/pre/system/202211/0_1587645440978313217/m7W4yheR00/consacts1667359144808.jpg\",\"WxIcon\":\"https://oss-dev.suosihulian.com/pre/system/202211/0_1590684302643109889/aovOtC9ODM/consacts1668083665827.jpg\",\"FromUserId\":\"1522203551195275302\",\"Remark\":\"\",\"ToUserId\":\"1522203551195275350\",\"FromUserName\":\"李亚磊\",\"ToUserName\":\"李建彬\",\"WxId\":\"1688858346380220\",\"WxCompanyName\":\"杭州所思互连科技有限公司\",\"CorpId\":\"ww3eaf4f90528f7c0e\",\"acctId\":\"13657086451\",\"LoginType\":0,\"Id\":145,\"ConversationId\":\"S:1688858346380220_wmAIhCKgAAg4wfPJsWtNceOD4EEbmvEA\",\"LastChatTimestamp\":0,\"UnreadMsgCount\":0}","type":60001,"msgId":"b7076cc7-380d-4921-90c5-7cf5fd3c1da6","timestamp":1670320649434,"Send_Status":1}
+
+
+
+
+{
+    "CreateTime": "2022-12-06 17:57:29",
+    "TransferWxId": "wmAIhCKgAAg4wfPJsWtNceOD4EEbmvEA",
+    "TransferWxName": "李李和莉莉",
+    "TransferWxIcon": "https://oss-dev.suosihulian.com/pre/system/202211/0_1587645440978313217/m7W4yheR00/consacts1667359144808.jpg",
+    "WxIcon": "https://oss-dev.suosihulian.com/pre/system/202211/0_1590684302643109889/aovOtC9ODM/consacts1668083665827.jpg",
+    "FromUserId": "1522203551195275302",
+    "Remark": "",
+    "ToUserId": "1522203551195275350",
+    "FromUserName": "李亚磊",
+    "ToUserName": "李建彬",
+    "WxId": "1688858346380220",
+    "WxCompanyName": "杭州所思互连科技有限公司",
+    "CorpId": "ww3eaf4f90528f7c0e",
+    "acctId": "13657086451",
+    "LoginType": 0,
+    "Id": 145,
+    "ConversationId": "S:1688858346380220_wmAIhCKgAAg4wfPJsWtNceOD4EEbmvEA",
+    "LastChatTimestamp": 0,
+    "UnreadMsgCount": 0
+}
+
+
+
+是否是转交给我的客户 false
+{
+    "WxId": "1688858346380220",
+    "Gender": 0,
+    "Location": null,
+    "IdentityId": null,
+    "CorpId": 0,
+    "ContactUserId": "wmAIhCKgAAg4wfPJsWtNceOD4EEbmvEA",
+    "ConversationId": "S:1688858346380220_wmAIhCKgAAg4wfPJsWtNceOD4EEbmvEA",
+    "Avatar": "https://oss-dev.suosihulian.com/pre/system/202211/0_1587645440978313217/m7W4yheR00/consacts1667359144808.jpg",
+    "OssAvatar": "https://oss-dev.suosihulian.com/pre/system/202211/0_1587645440978313217/m7W4yheR00/consacts1667359144808.jpg",
+    "NickName": "李李和莉莉",
+    "UserName": "李李和莉莉",
+    "RealName": "李李和莉莉",
+    "Remark": "",
+    "Position": null,
+    "Desc": null,
+    "IsDelete": 0,
+    "isOnTop": 1,
+    "MarkAsUnread": 0,
+    "UnreadMsgCount": 0,
+    "Markasantibot": 0,
+    "DeleteTime": "2022-11-10T20:36:08.223018",
+    "ReceiptionUserLists": null,
+    "CurrentReceiptionUser": "1522203551195275350",
+    "CurrentReceiptionStatus": 0,
+    "LastChatTimestamp": 1670320470819,
+    "LatestMsg": "{\"data\":{\"send_time\":1670320444,\"local_id\":\"8772134539654309075_1670320448897_external\",\"receiver\":\"1688858346380220\",\"sender\":\"wmAIhCKgAAg4wfPJsWtNceOD4EEbmvEA\",\"conversation_id\":\"S:1688858346380220_wmAIhCKgAAg4wfPJsWtNceOD4EEbmvEA\",\"sender_name\":\"李李和莉莉\",\"content\":\"测试\"},\"type\":11041}",
+    "isActive": true
+}

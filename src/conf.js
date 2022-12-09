@@ -12,4 +12,5 @@ module.exports = {
   pwa: true,
   collapse: true,
   base: '/rhyysshl/pc/child-manager/',
+  debug: true,
 };

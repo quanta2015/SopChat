@@ -5,10 +5,19 @@ import React from 'react';
 import nzh from 'nzh/cn';
 import store from 'store2';
 import { parse, stringify } from 'qs';
-import { base } from '@/conf';
+import { base,debug } from '@/conf';
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
 dayjs.locale('zh-cn') 
+
+
+export const log =(e,inf="debug")=>{
+  if (debug) {
+    console.log('%c%s: %o','color:blue;',inf,e);
+    // console.dir(e, {depth: null, colors: true});
+  }
+  
+}
 
 
 export async function fileToBlob(file) {
@@ -594,7 +603,7 @@ export const keepLastIndex = obj => {
 };
 
 // 特殊字符正则判断
-export const specialRegex = /[^\u4e00-\u9fa5a-zA-Z\d\s,.，。？?！；：:"“‘+= 、…^\-*/'·～~@#¥$%&_!—「」【】《》()（）<>{}|[\]]+/;
+export const specialRegex = /[^\u4e00-\u9fa5a-zA-Z\d\s,.，。？?！；：:"“'+= 、…^\-*/'·～~@#¥$%&_!—「」【】《》()（）<>{}|[\]]+/;
 
 // 常用工具方法集合
 // 2017 / 03 / 07;

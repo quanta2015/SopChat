@@ -4,13 +4,23 @@ import { message }  from 'antd';
 import { request,upload }  from '@/services/request';
 import { procData } from '@/utils/procData';
 import { clone }    from '@/utils/common';
-import { formatTime } from '@/utils/common'
+import { formatTime,log } from '@/utils/common'
 import { MSG } from '@/pages/Index/msg'
 import { fileToBlob } from '@/utils/common'
+import iconAvatar from '@/imgs/icon-avatar.png'
 
-const HEAD = `https://pt-prod.lbian.cn`
 
-console.log('window.token',window.token)
+
+
+
+const HEAD_Z = `https://pt-prod.lbian.cn`
+const HEAD_S = `https://rhyy.pre.suosishequ.com/gateway/group/web/internalGroupManager/zm`
+
+const Z = {
+  tran_n: 0,
+  tran_b: 1,
+  tran_t: 2,
+}
 
 
 export class Index {
@@ -21,28 +31,38 @@ export class Index {
   @observable roomList = [];
   @observable contList = [];
   @observable procList = [];
+  @observable tranList = [];
 
   weList = []
-
-  orgId  = "3301001000005"
-  userId = "1522203551195275350"
+  user   = {
+    "realName": "李建彬",
+    "orgName": "杭州所思互连科技有限公司",
+    "corpId": "ww3eaf4f90528f7c0e",
+    "userId": "1522203551195275350",
+    "orgId": "3301001000005"
+  }
+  
  
-  URL_ONLINE_WX_USR_LIST  = `${HEAD}/WxUser/OnlineWxUserList`
-  URL_ROOM_CONTACT_LIST   = `${HEAD}/Room/RoomContactList`
-  URL_ROOM_MEMBER_LIST    = `${HEAD}/Room/RoomMemberList`
-  URL_CONTACT_USR_LIST    = `${HEAD}/Contact/GetUserContactList`
-  URL_CONTACT_ALL_LIST    = `${HEAD}/Contact/AllContactListWithstatus`
-  URL_CONTACT_RELATION    = `${HEAD}/Contact/GetContactRelation`
-  URL_CONTACT_SET_TOP     = `${HEAD}/Contact/ConactTopRequest`
-  URL_CONTACT_CANCEL_TOP  = `${HEAD}/Contact/CancelContactTopRequest`
-  URL_CHAT_HISTORY_LIST   = `${HEAD}/ChatHistory/ChatHistorys`
-  URL_CHAT_HISTORY_SEARCH = `${HEAD}/ChatHistory/SearchChatHistorys`
+  URL_ONLINE_WX_USR_LIST  = `${HEAD_Z}/WxUser/OnlineWxUserList`
+  URL_ROOM_CONTACT_LIST   = `${HEAD_Z}/Room/RoomContactList`
+  // URL_ROOM_MEMBER_LIST    = `${HEAD_Z}/Room/RoomMemberList`
+  URL_ROOM_MEMBER_LIST    = `${HEAD_S}/findMemberList?chatId=`
+  URL_CONTACT_USR_LIST    = `${HEAD_Z}/Contact/GetUserContactList`
+  URL_CONTACT_ALL_LIST    = `${HEAD_Z}/Contact/AllContactListWithstatus`
+  URL_CONTACT_RELATION    = `${HEAD_Z}/Contact/GetContactRelation`
+  URL_CONTACT_SET_TOP     = `${HEAD_Z}/Contact/ConactTopRequest`
+  URL_CONTACT_CANCEL_TOP  = `${HEAD_Z}/Contact/CancelContactTopRequest`
+  URL_CHAT_HISTORY_LIST   = `${HEAD_Z}/ChatHistory/ChatHistorys`
+  URL_CHAT_HISTORY_SEARCH = `${HEAD_Z}/ChatHistory/SearchChatHistorys`
+
+  URL_CONTACT_TRANSFER    = `${HEAD_Z}/Transfer/List`
 
 
-  URL_UPLOAD              = `${HEAD}/File/UploadFile`
-  URL_CHAT_MSG_IMAGE      = `${HEAD}/api/msg/image`
-  URL_CHAT_MSG_VIDEO      = `${HEAD}/api/msg/video`
-  URL_CHAT_MSG_FILE       = `${HEAD}/api/msg/file`
+
+  URL_UPLOAD              = `${HEAD_Z}/File/UploadFile`
+  URL_CHAT_MSG_IMAGE      = `${HEAD_Z}/api/msg/image`
+  URL_CHAT_MSG_VIDEO      = `${HEAD_Z}/api/msg/video`
+  URL_CHAT_MSG_FILE       = `${HEAD_Z}/api/msg/file`
 
 
 
@@ -54,8 +74,18 @@ export class Index {
   @action setRoomList(e) { this.roomList = e }
   @action setContList(e) { this.contList = e }
   @action setProcList(e) { this.procList = e }
+  @action setTranList(e) { this.tranList = e }
+  
 
+  @action
+  async finishProc() {
+    console.log('finishProc')
+  }
 
+  @action
+  async toggleAsantiBot() {
+    console.log('toggleAsantiBot')
+  }
 
   @action
   async sendFile(file) {
@@ -133,16 +163,22 @@ export class Index {
 
     // 群聊要过滤消息内容 添加聊天头像
     if (type===MSG.group) {
-      let t = await request(this.URL_ROOM_MEMBER_LIST, params);
+      let t = await request(`${this.URL_ROOM_MEMBER_LIST}${data.chatId}`, { method: 'GET' });
+      t = t.data.dataSource
+      // console.log('ttttt',t)
 
+
+      console.log(r)
       // 过滤群聊消息
-      r = r.filter(o=> o.WxId.length === MSG.len)
-           .filter(o=> o.Msg.type !== MSG.mem)
+      // r = r.filter(o=> o.WxId.length === MSG.len)
+           // .filter(o=> o.Msg.type !== MSG.mem)
 
       r.map(o=>{
         t.map(p=>{
-          if (o.Msg.data.sender === p.UserId) {
-            o.WeAvatar = p.OssAvatar
+          if (o.Msg.data.sender === p.id) {
+            o.WeAvatar = p.OssAvatar 
+          }else{
+            o.WeAvatar = iconAvatar
           }
         })
       })
@@ -150,6 +186,8 @@ export class Index {
       // 私聊设置聊天头像
       r.map(o=>o.WeAvatar = (o.WxId===o.Msg.data.sender)?we.WeAvatar:we.Avatar)
     }
+
+
 
     return { his: r, rel: s}
   }
@@ -164,8 +202,8 @@ export class Index {
         pageSize: 100,
         LastTimestamp: 1,
         status: 0,
-        orgId: this.orgId,
-        userId: this.userId,
+        orgId: this.user.orgId,
+        userId: this.user.userId,
       }) 
     };
 
@@ -196,17 +234,83 @@ export class Index {
         pageSize: 100,
         LastTimestamp: 1,
         status: 0,
-        orgId: this.orgId,
-        userId: this.userId,
+        orgId: this.user.orgId,
+        userId: this.user.userId,
       }) 
     };
     const s = await request(this.URL_ROOM_CONTACT_LIST,params);
     const t = await request(this.URL_CONTACT_ALL_LIST,params);
     const u = await request(this.URL_CONTACT_USR_LIST,params);
+    const v = await request(this.URL_CONTACT_TRANSFER,params);
+
+
+    log(v,'trans')
 
     const read = [0,0,0]
     procData(this.weList,s,t,u,read)
 
-    return {user:r, room:s, cont:t, proc: u, read:read}
+    let tran = []
+    // All 计算转交标记
+    t.map((item,i)=>{
+      v.map((o,j)=>{
+        // console.log(o.ConversationId,item.ConversationId)
+        if (o.ConversationId===item.ConversationId) {
+          item.status_t = Z.tran_n
+          // console.log(o)
+          if (o.ToUserId === this.user.userId) {
+            item.info_t = `${o.FromUserName} => ${o.ToUserName}`
+            item.status_t = Z.tran_t
+          }else if (o.FromUserId === this.user.userId) {
+            item.info_t = `${o.FromUserName} => ${o.ToUserName}`
+            item.status_t = Z.tran_b
+          }else {
+            item.status_t = Z.tran_n
+          }
+          tran.push({...item,...o})
+        }
+      })
+    })
+
+    // Trans
+    tran.map(o=> o.toMe = (o.ToUserId===this.user.userId) )
+
+    // console.log(tran,'trans')
+
+    this.setUserList(r)
+    this.setProcList(u)
+    this.setRoomList(s)
+    this.setContList(t)
+    this.setTranList(tran)
+
+
+    return {read:read}
+    
   }
+
+
+  @action
+  async getProcList() {
+    let WxIds = []
+    this.weList.map(o=>WxIds.push(o.WxId))
+
+    let params = { 
+      method: 'POST',
+      body: JSON.stringify({
+        WxIds: WxIds,
+        pageIndex:1,
+        pageSize: 100,
+        LastTimestamp: 1,
+        status: 0,
+        orgId: this.user.orgId,
+        userId: this.user.userId,
+      }) 
+    };
+    const u = await request(this.URL_CONTACT_USR_LIST,params);
+    const read = [0,0,0]
+    procData(this.weList,[],[],u,read)
+    return {proc: u}
+  }
+
+
+
 }

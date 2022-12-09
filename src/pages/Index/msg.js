@@ -22,13 +22,19 @@ export const MSG = {
 }
 
 
+const extractName = (e)=>{
+  let list = e.split('/')
+  return list[list.length-1]
+}
+
+
 export const updateLastMsg =(list,msg)=> {
   list.map((item,i)=>{
     if (item.ConversationId === msg.data.data.conversation_id) {
       item.msg = clone(msg.data.data)
       switch(msg.data.type) {
-        case MSG.img: item.msg.content = "【图片】";break;
-        case MSG.file: item.msg.content = "【文件】";break;
+        case MSG.img: item.lastMsg = "【图片】";break;
+        case MSG.file: item.lastMsg = "【文件】";break;
       }
     }
   })
@@ -90,7 +96,9 @@ const RenderImg   =(msg)=> <span  className="mg-img"><img src={msg.file_path} />
 const RenderGif   =(msg)=> <span  className="mg-gif"><img src={msg.file_path} /></span>
 const RenderVideo =(msg)=> <video className="mg-mp4" src={msg.file_path} muted controls preload="true" />
 const RenderAudio =(msg)=> <audio className="mg-mp3" src={msg.file_path} muted controls preload="true" />
-const RenderFile  =(msg)=> <span  className="mg-file" src={msg.file_path} >文件:{msg.content}</span>
+const RenderFile  =(msg)=> <span className="mg-txt"  target="_blank"><a className="mg-file" href={msg.file_path}>文件:{extractName(msg.file_path)}</a></span>
+
+
 
 const RenderApp =(msg)=> (
   <div className="mg-app">

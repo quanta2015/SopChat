@@ -57,62 +57,28 @@ const Sop = ({ index }) => {
     useEffect(() => {
       store.getOnlineWxUserList().then((r) => {
         setReadList(r.read)
-
-        store.setUserList(r.user)
-        store.setProcList(r.proc)
-        store.setRoomList(r.room)
-        store.setContList(r.cont)
-
-        initHub(procHisMsg)
+        // store.setUserList(r.user)
+        // store.setProcList(r.proc)
+        // store.setRoomList(r.room)
+        // store.setContList(r.cont)
+        initHub(store)
       });
     }, []);
   }
 
-  // 处理实时消息回调
-  const procHisMsg = (msg)=>{
-    let _msg
-    let _chatHis  = toJS(store.chatHis)
-    let _curUser  = toJS(store.curUser)
-    let _contList = toJS(store.contList)
-    let _procList = toJS(store.procList)
-    let _cid = _curUser?.ConversationId
-    let cid  = msg.data.data.conversation_id
 
-    switch(msg.data.type) {
-      case MSG.login:  break; // 企微账号登录
-      case MSG.iniGrp: break; // 创建群
-      case MSG.addUsr: break; // 添加群成员
-      case MSG.delUsr: break; // 删除群成员
-      case MSG.link:  _msg=initLink(msg,_curUser);break; // 图文链接
-      case MSG.app:   _msg=initApp(msg,_curUser);break;  // 小程序
-      case MSG.txt:                                      // 文本消息
-      case MSG.img:                                      // 图片消息
-      case MSG.video:                                    // 视频消息
-      case MSG.audio:                                    // 语音消息
-      case MSG.file:                                     // 文件消息
-      case MSG.gif:   _msg=initMsg(msg,_curUser); break; // 表情消息
-      default:        _msg=initMsg(msg,_curUser);
-    }
-    // console.log('_msg',_msg,msg)
-
-    // 更新聊天记录
-    if (cid === _cid) {
-      _chatHis.push(_msg)
-      store.setChatHis(clone(_chatHis))
-      scrollToBottom()
-    }
-    
-    // 更新列表的 LastMsg
-    updateLastMsg(_contList,msg)
-    updateLastMsg(_procList,msg)
-    store.setContList(clone(_contList))
-    store.setProcList(clone(_procList))
-  } 
-
+  
 
   // 折叠用户菜单
   const doCollapse =()=>{
     setCollapse(!collapse)
+  }
+
+
+  const doSelTab =(e)=>{
+    setSelTab(e)
+    setSelWeUsr(-1)
+    setShowChat(false)
   }
 
   // 选择企微对象
@@ -135,9 +101,11 @@ const Sop = ({ index }) => {
     });
   }
 
-
-  const onChange =()=>{
-
+  // 刷新开启接待用户列表
+  const doRefreshProcList =()=>{
+    store.getProcList().then((r) => {
+      store.setProcList(r.proc)
+    });
   }
 
 
@@ -177,10 +145,11 @@ const Sop = ({ index }) => {
 
   // 选择聊天对象
   const doSelCtUsr=(item,i)=>{
-    // console.log(item)
+    // console.log(toJS(item))
     let params = {
       WxId: item.WxId,
       pageIndex: 1,
+      chatId: item?.chatId,
       ContactUserId:item.ContactUserId,
       ConversationId:item.ConversationId,
       ConversationIds: [item.ConversationId],
@@ -204,14 +173,17 @@ const Sop = ({ index }) => {
   // 显示更多聊天记录
   const doMoreHistory = ()=>{
     let params = {
-      WxId: curUser.WxId,
+      WxId: store.curUser.WxId,
       pageIndex: pageIndex+1,
-      ContactUserId:curUser.ContactUserId,
-      ConversationId:curUser.ConversationId,
-      ConversationIds: [curUser.ConversationId],
+      chatId: store.curUser.chatId,
+      ContactUserId:store.curUser.ContactUserId,
+      ConversationId:store.curUser.ConversationId,
+      ConversationIds: [store.curUser.ConversationId],
     }
+
     store.getChatInfo(params,selTab,curUser).then((r) => {
       let _chatHis = toJS(store.chatHis)
+      console.log(toJS(r.rel),'rellll')
       setPageIndex(pageIndex+1)
       store.setChatHis(r.his.concat(_chatHis))
       store.setChatRel(clone(r.rel))
@@ -275,10 +247,49 @@ const Sop = ({ index }) => {
     )
   }
 
+
+  //渲染用户对象
+  const RenderItemUser = (item,i,tabIndex)=>(
+     <div key={i} className={cls('list-item',{top:!item.isOnTop, sel:selCtUsr===i})} 
+        onClick={()=>doSelCtUsr(item,i)}
+        onContextMenu={(e)=>doShowMenu(e,i)}
+      >
+      <div className="item-hd">
+        <img src={item?.OssAvatar} />
+        <div className="info">
+          <div className="hd">
+            <span>{item?.UserName}</span>
+            {item?.IsDelete===0 && <span className="card">流失</span> }
+            {item?.CurrentReceiptionStatus === 0 && tabIndex === 2 && <span className="card">接待</span> }
+            <span>{item?.send_time}</span>
+          </div>
+          <div className="bd">
+            <span>{item?.lastMsg}</span>
+          </div>
+        </div>
+      </div>
+      {(item?.status_t === 1) && 
+      <div className="item-ft">
+        <label>{item?.info_t}</label>
+        { (tabIndex === 0) && <span> 收回</span>}
+      </div>}
+
+      {item?.status_t === 2 && 
+      <div className="item-ft">
+        <label>{item?.info_t}</label>
+        { (tabIndex === 0) && <span> 退回</span>}
+      </div>}
+    </div>
+  )
+
   // 渲染用户列表
   const RenderItemList = (tabIndex)=>{
     let list = []
     let type = ''
+    let tran = toJS(store.tranList).filter(o=> o.toMe )
+    let tranLen = tran.length
+
+    // console.log('tran',tran)
 
     switch(tabIndex) {
       case 0: list = doFilter(store.procList,'NickName'); break;
@@ -293,12 +304,18 @@ const Sop = ({ index }) => {
           <img src={icon_search} />
         </div>
         <div className="list" onScroll={doCloseMenu}>
-          {list.map((item,i)=>
-            <React.Fragment key={i}>
-              {(tabIndex === 1) && 
-              <div className={(selCtUsr===i)?"list-item sel":"list-item"} 
-                   onClick={()=>doSelCtUsr(item,i)}
-                >
+
+          {(tabIndex === 0) && (tran.length>0) && <div className="list-title">转交客户</div>}
+          {(tabIndex === 0) && tran.map((item,i)=> RenderItemUser(item,i,tabIndex)) }
+          {(tabIndex === 0) && (list.length>0) && <div className="list-title">我的客户</div>}
+          {(tabIndex === 0) && list.map((item,i)=> RenderItemUser(item,i+tran.length,tabIndex)) }
+
+          {(tabIndex === 1) && 
+          <React.Fragment>
+            {list.map((item,i)=>
+            <div key={i} className={(selCtUsr===i)?"list-item sel":"list-item"} 
+                 onClick={()=>doSelCtUsr(item,i)} >
+              <div className="item-hd">
                 <img src={icon_user} />
                 <div className="info">
                   <div className="hd">
@@ -307,35 +324,22 @@ const Sop = ({ index }) => {
                     {(item?.IsManager===2)&&<i>群主</i>}
                   </div>
                 </div>
-              </div>}
-
-              {((tabIndex === 2)||(tabIndex === 0)) &&
-              <Tooltip 
-                  pid=".list" 
-                  open={selCtMenu==i}
-                  position={(i==0 || i==1)? "bottom":"top"} 
-                  content={topContent(item,tabIndex)}
-                  setOpen={()=>setSelCtMenu(i)}
+              </div>
+            </div>)}
+          </React.Fragment>}
+          
+          {tabIndex === 2 &&
+            <React.Fragment>
+              {list.map((item,i)=>
+              <Tooltip  key={i} pid=".list" 
+                open={selCtMenu==i}
+                position={(i==0 || i==1)? "bottom":"top"} 
+                content={topContent(item,tabIndex)}
+                setOpen={()=>setSelCtMenu(i)}
                 >
-                <div className={cls('list-item',{top:!item.isOnTop, sel:selCtUsr===i})} 
-                    onClick={()=>doSelCtUsr(item,i)}
-                    onContextMenu={(e)=>doShowMenu(e,i)}
-                  >
-                  <img src={item?.OssAvatar} />
-                  <div className="info">
-                    <div className="hd">
-                      <span>{item?.UserName}</span>
-                      <span>{item?.send_time}</span>
-                    </div>
-                    <div className="bd">
-                      <span>{item?.msg?.content}</span>
-                    </div>
-                  </div>
-                </div>
-              </Tooltip>}
-        
-            </React.Fragment>
-          )}
+                {RenderItemUser(item,i,tabIndex)}
+              </Tooltip>)}
+            </React.Fragment>}
         </div>
       </div>
     )
@@ -357,14 +361,14 @@ const Sop = ({ index }) => {
               <label>{item.UserName}</label>
               <span>{item.CorpName}</span>
             </div>
-            {item.LoginType === 2 && <i className="login-type">云机托管</i>}
+            {item.LoginType === 2 && <i className="login-type">RPA</i>}
           </div>
         )}
       </div>
       <div className="main">
         <header>
           <li>开启接待</li>
-          <li><Switch defaultChecked onChange={onChange} /></li>
+          <li><Switch defaultChecked onChange={doRefreshProcList} /></li>
           <li>|</li>
           <li>开启机器人</li>
           <li><img src={icon_edit} /></li>
@@ -373,7 +377,7 @@ const Sop = ({ index }) => {
           <div className="chat-lt">
             <div className="tab">
               {tabList.map((item,i)=> 
-                <span key={i} className={(i===selTab)?"sel":""} onClick={()=>setSelTab(i)}>
+                <span key={i} className={(i===selTab)?"sel":""} onClick={()=>doSelTab(i)}>
                   {item}  
                   {(readList[i]>0) && <i className="unread">{readList[i]}</i>}
                 </span>
@@ -413,14 +417,13 @@ const Sop = ({ index }) => {
 
                           <div className="avatar">
                             <img src={item.WeAvatar} />
-                            
                           </div>
                           <div className="msg-detail">
                             <div className="msg-info">
                               {item.Msg.data.sender_name || item.UserName} {item.Timestamp}
                             </div>
                             <div className="msg-wrap">
-                              {(item.Send_Status === 0) && <div className="msg-status r"><img src={icon_load} /></div>}
+                              {/*{(item.Send_Status === 0) && <div className="msg-status r"><img src={icon_load} /></div>}*/}
                               {(item.Send_Status ===-1) && <div className="msg-status"  ><img src={icon_error} /></div>}
                               
                               {item.WxId===item.Msg.data.sender && 
@@ -436,6 +439,7 @@ const Sop = ({ index }) => {
                                 </Tooltip>} 
                               {RenderMsgDetail(item.Msg)}
                             </div>
+                            {(item.Send_Status === 0) && <i className="msg-status"> 发送中...</i>}
                           </div> 
                         </div>
                       </div>
@@ -456,11 +460,22 @@ const Sop = ({ index }) => {
                         <input className="upload-file" name="file" type="file" onChange={sendFile} value=""/>
                       </div>
                       <div className="sp"></div>
+
+
                       <div className="menu-item">
-                        <input id="closeRobot" type="checkbox" />
+                        <input 
+                          type="checkbox" 
+                          defaultChecked={store.curUser.Markasantibot === 0?true:false}
+                          onClick={()=>store.toggleAsantiBot()}
+                          />
                         <label> 临时关闭该机器人</label>
-                        <span className="finish">处理完成</span>
                       </div>
+
+                      {(selTab === 0) && 
+                        <div className="menu-item" onClick={()=>store.finishProc()}>
+                          <label>处理完成</label>
+                        </div> }
+
                       <div className="menu-item" onClick={()=>setShowSide(!showSide)}>
                         <img src={icon_side} />
                       </div>

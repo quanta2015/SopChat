@@ -3,14 +3,29 @@ import { stringify } from 'qs';
 import { history } from 'umi';
 import axios from 'axios'
 
+
+// const env = "sit"
+// const params = {
+//   client_id: env,
+//   client_secret: env,
+//   from: "normal",
+//   username: "13657086451",
+//   password: "1bfc68f2d19c9b1e06cd466906e1b4a5",
+// }
+// const SERVER = `https://front.sit.suosihulian.com`
+
+const env = "pre"
 const params = {
-  client_id: "pre",
-  client_secret: "pre",
+  client_id: env,
+  client_secret: env,
   from: "normal",
   username: "13657086451",
   password: "4af29b04aba82d265b7a0a5cf14eb657",
 }
 const SERVER = `https://rhyy.pre.suosishequ.com`
+
+
+
 const LOGIN  = `${SERVER}/gateway/auth/oauth/token?${stringify(params)}`
 
 const Auth = () => {

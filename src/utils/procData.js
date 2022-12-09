@@ -1,7 +1,9 @@
 import dayjs from 'dayjs'
 import calendar from 'dayjs/plugin/calendar' 
 import relativeTime from 'dayjs/plugin/relativeTime'
+import { MSG } from '@/pages/Index/msg'
 import 'dayjs/locale/zh-cn'
+import { log } from '@/utils/common'
 dayjs.locale('zh-cn') 
 dayjs.extend(calendar)
 dayjs.extend(relativeTime)
@@ -9,10 +11,25 @@ dayjs.extend(relativeTime)
 
 const rTime = (t)=> {return dayjs().to(dayjs.unix(parseInt(t)))}
 
+
 // 将时间格式化为相对格式
 const formatMsg =(list)=>{
   list.map((item,i)=>{
-    item.msg = JSON.parse(item?.LatestMsg)?.data;
+    let msg = JSON.parse(item?.LatestMsg)
+
+
+    log(msg,'msg')
+
+    switch(msg?.type) {
+      case MSG.txt:  item.lastMsg = msg?.data?.content;break;
+      case MSG.img:  
+      case MSG.gif:  item.lastMsg = "【图片】";break;
+      case MSG.file: item.lastMsg = "【文件】";break;
+      case MSG.video: item.lastMsg = "【视频】";break;
+      case MSG.audio: item.lastMsg = "【音频】";break;
+      case MSG.link: item.lastMsg = `【链接】${msg.data.title}`;break;
+      case MSG.app:  item.lastMsg = `【小程序】${msg.data.title}`;break;
+    }
     item.send_time = item?.msg?.send_time? rTime(item?.msg?.send_time):'';
   })
 }

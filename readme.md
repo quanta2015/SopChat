@@ -74,8 +74,8 @@
 
 
 #### 4. 实时消息
-1. 聊天消息 `ReceiveChatMessage`: 处理接受到的聊天消息
-2. 更新外部用户 `UpdateExternalUsers`：更新用户状态`角标` `流失状态` `转交`
+1. 聊天消息 `ReceiveChatMessage`: 处理接受到的聊天消息 `转交`
+2. 更新外部用户 `UpdateExternalUsers`：更新用户状态 `流失` 
 3. 更新群聊消息 `UpdateRoomMsg`：更新群聊消息
 4. 添加外部用户 `NewExternalUsers`：将新用户添加到列表，判断是否置顶排序
 
