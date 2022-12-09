@@ -1,9 +1,10 @@
-import React, { useState, useEffect,useCallback } from 'react';
+import React, { useState, useEffect,useCallback,useRef } from 'react';
 import cls from 'classnames';
+import {message} from 'antd'
 import { observer, inject, history,connect,userMobxStore } from 'umi';
 import { toJS } from 'mobx'
 import { Switch,Input } from 'antd';
-import { formatTime,clone,scrollToBottom,fileToBlob } from '@/utils/common'
+import { formatTime,clone,scrollToBottom,fileToBlob,log } from '@/utils/common'
 import { sortList } from '@/utils/procData';
 import { Tooltip } from '@/components/Tooltip';
 import { MSG,RenderMsgDetail,updateLastMsg,initMsg,initLink,initApp } from './msg'
@@ -36,6 +37,9 @@ const Sop = ({ index }) => {
   const store = index;
 
 
+  const inputEl = useRef(null)
+
+  const [inputMsg,setInputMsg] = useState("")
   const [collapse,setCollapse] = useState(true) 
   const [showChat,setShowChat] = useState(false) 
   const [showSide,setShowSide] = useState(false)
@@ -218,13 +222,45 @@ const Sop = ({ index }) => {
   const sendFile =async(e)=>{
     if (e.target.files.length > 0) {
       let file = e.target.files[0]
-      store.sendFile(file).then((r) => {
-        
-      })
-      
+      store.sendFile(file)
     }
-
   }
+
+  const doSetBot=(e)=>{
+    let val = e.currentTarget.checked
+    // log(val,'set bot')
+    // log(store.curUser.Markasantibot,'set bot')
+    store.updateBotSetting(val)
+  }
+
+
+  const doDisEnter =(e)=>{
+    // 屏蔽回车事件
+    if (e.keyCode == 13) e.preventDefault()
+  }
+
+  const doChkInput =(e)=>{
+    // 屏蔽回车事件
+    if (e.keyCode !== 13) return
+    
+    if (e.ctrlKey) {
+      let strPre  = inputMsg.substring(0, inputEl.current.selectionStart)
+      let strTail = inputMsg.substring(inputEl.current.selectionStart, inputMsg.length)
+      setInputMsg(strPre + '\n' + strTail)
+    }else if(inputMsg.length === 0){
+      message.info("不能发送空信息")
+    }else{
+      setInputMsg('')
+      store.sendMsg(inputMsg)
+    }
+    
+  }
+
+  // 更新输入数据
+  const doChgInput=(e)=>{
+    setInputMsg(e.currentTarget.value)
+  }
+
 
   // 置顶对话框
   const topContent = (item,tabIndex) =>{
@@ -465,8 +501,8 @@ const Sop = ({ index }) => {
                       <div className="menu-item">
                         <input 
                           type="checkbox" 
-                          defaultChecked={store.curUser.Markasantibot === 0?true:false}
-                          onClick={()=>store.toggleAsantiBot()}
+                          checked={store.curUser.Markasantibot === 0?true:false}
+                          onChange={doSetBot}
                           />
                         <label> 临时关闭该机器人</label>
                       </div>
@@ -481,8 +517,8 @@ const Sop = ({ index }) => {
                       </div>
                     </div>
                     <div className="send-area">
-                      <textarea maxLength="1000" autoComplete="off" placeholder="输入聊天内容"></textarea>
-                      <span className="el-input__count">0 / 1000</span>
+                      <textarea ref={inputEl} maxLength="1000" autoComplete="off" placeholder="输入聊天内容" value={inputMsg} onKeyDown={doDisEnter} onKeyUp={doChkInput} onChange={doChgInput}></textarea>
+                      <span className="el-input__count">{inputMsg.length} / 1000</span>
                     </div>
                     <div className="send-desc"> Enter发送；Ctrl+Enter换行 </div>
                   </div>

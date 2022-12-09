@@ -18,7 +18,7 @@ const formatMsg =(list)=>{
     let msg = JSON.parse(item?.LatestMsg)
 
 
-    log(msg,'msg')
+    // log(msg,'msg')
 
     switch(msg?.type) {
       case MSG.txt:  item.lastMsg = msg?.data?.content;break;

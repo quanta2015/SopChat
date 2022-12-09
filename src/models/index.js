@@ -52,19 +52,21 @@ export class Index {
   URL_CONTACT_RELATION    = `${HEAD_Z}/Contact/GetContactRelation`
   URL_CONTACT_SET_TOP     = `${HEAD_Z}/Contact/ConactTopRequest`
   URL_CONTACT_CANCEL_TOP  = `${HEAD_Z}/Contact/CancelContactTopRequest`
+  URL_CONTACT_UPDATE_BOT  = `${HEAD_Z}/Contact/UpdateUserBotSetting`
+
+
   URL_CHAT_HISTORY_LIST   = `${HEAD_Z}/ChatHistory/ChatHistorys`
   URL_CHAT_HISTORY_SEARCH = `${HEAD_Z}/ChatHistory/SearchChatHistorys`
+
 
   URL_CONTACT_TRANSFER    = `${HEAD_Z}/Transfer/List`
 
 
-
   URL_UPLOAD              = `${HEAD_Z}/File/UploadFile`
+  URL_CHAT_MSG_TEXT       = `${HEAD_Z}/api/msg/text`
   URL_CHAT_MSG_IMAGE      = `${HEAD_Z}/api/msg/image`
   URL_CHAT_MSG_VIDEO      = `${HEAD_Z}/api/msg/video`
   URL_CHAT_MSG_FILE       = `${HEAD_Z}/api/msg/file`
-
-
 
 
   @action setCurUser(e)  { this.curUser = e }
@@ -77,15 +79,49 @@ export class Index {
   @action setTranList(e) { this.tranList = e }
   
 
+
+  @action
+  async sendMsg(data) {
+    let {WxId, ConversationId,chatId } = this.curUser
+    let {realName,corpId,userId} = this.user
+    const { ExternalUserId,CorpId } = this.chatRel
+
+    let params = {
+      method: 'POST',
+      body: JSON.stringify({
+        WxId,
+        ConversationId,
+        CorpId: corpId,
+        senderName: realName,
+        Content: data,
+        unionIdOrChatId: ConversationId.includes('R:')?chatId:ExternalUserId,
+        Id: 'JHLT_' + userId + '_' + Date.now(),
+        msgSource: 'api_artificial_input',
+      }) 
+    };
+    let r = await request(this.URL_CHAT_MSG_TEXT, params)
+  }
+
+
+  @action
+  async updateBotSetting(data) {
+    this.curUser.Markasantibot = data?0:1
+    let params = {
+      method: 'POST',
+      body: JSON.stringify({
+        WxId: this.curUser.WxId,
+        conversationId: this.curUser.ConversationId,
+        turnon: data?'true':'false'
+      }) 
+    };
+    let r = await request(this.URL_CONTACT_UPDATE_BOT, params)
+  }
+
   @action
   async finishProc() {
     console.log('finishProc')
   }
 
-  @action
-  async toggleAsantiBot() {
-    console.log('toggleAsantiBot')
-  }
 
   @action
   async sendFile(file) {
