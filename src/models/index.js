@@ -11,8 +11,6 @@ import iconAvatar from '@/imgs/icon-avatar.png'
 
 
 
-
-
 const HEAD_Z = `https://pt-prod.lbian.cn`
 const HEAD_S = `https://rhyy.pre.suosishequ.com/gateway/group/web/internalGroupManager/zm`
 
@@ -82,9 +80,9 @@ export class Index {
 
   @action
   async sendMsg(data) {
-    let {WxId, ConversationId,chatId } = this.curUser
-    let {realName,corpId,userId} = this.user
-    const { ExternalUserId,CorpId } = this.chatRel
+    let { WxId, ConversationId, chatId } = this.curUser
+    let { realName, corpId, userId } = this.user
+    let { ExternalUserId,CorpId } = this.chatRel
 
     let params = {
       method: 'POST',

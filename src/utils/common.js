@@ -16,7 +16,13 @@ export const log =(e,inf="debug")=>{
     console.log('%c%s: %o','color:blue;',inf,e);
     // console.dir(e, {depth: null, colors: true});
   }
-  
+}
+
+
+export const insertMsg=(msg,str,el,setMsg)=>{
+  let strPre  = msg.substring(0, el.current.selectionStart)
+  let strTail = msg.substring(el.current.selectionStart, msg.length)
+  setMsg(strPre + str + strTail)
 }
 
 

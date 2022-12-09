@@ -8,7 +8,7 @@ const getTooltipPosition = (el,tooltip,prt,position,gap) =>{
 
     switch (position) {
       case 'top': {
-         correctedLeft = correctedLeft + elWidth / 2 -  tooltipWidth / 2;
+         // correctedLeft = correctedLeft + elWidth / 2 -  tooltipWidth / 2;
          correctedTop = correctedTop - gap - tooltipHeight;
          break;
       }
@@ -37,6 +37,8 @@ const getTooltipPosition = (el,tooltip,prt,position,gap) =>{
 
 const isN=(e)=>{
    return  ((e===null)||(e==='')||(e===undefined))?true:false
- }
+}
+
+
 
 export {getTooltipPosition,isN}

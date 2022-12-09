@@ -4,9 +4,10 @@ import {message} from 'antd'
 import { observer, inject, history,connect,userMobxStore } from 'umi';
 import { toJS } from 'mobx'
 import { Switch,Input } from 'antd';
-import { formatTime,clone,scrollToBottom,fileToBlob,log } from '@/utils/common'
+import { formatTime,clone,scrollToBottom,fileToBlob,log,insertMsg } from '@/utils/common'
 import { sortList } from '@/utils/procData';
 import { Tooltip } from '@/components/Tooltip';
+import { QQFace } from '@/components/QQFace';
 import { MSG,RenderMsgDetail,updateLastMsg,initMsg,initLink,initApp } from './msg'
 import { initHub } from './hub'
 
@@ -24,6 +25,7 @@ import icon_face   from '@/imgs/icon-face.png'
 import icon_img    from '@/imgs/icon-img.png'
 import icon_file   from '@/imgs/icon-file.png'
 import icon_side   from '@/imgs/icon-side.svg'
+import img_face    from '@/imgs/img-face.png'
 
 const tabList   = ["处理中","群聊","客户"]
 const typeList  = ["联系人","群","联系人"]
@@ -244,9 +246,7 @@ const Sop = ({ index }) => {
     if (e.keyCode !== 13) return
     
     if (e.ctrlKey) {
-      let strPre  = inputMsg.substring(0, inputEl.current.selectionStart)
-      let strTail = inputMsg.substring(inputEl.current.selectionStart, inputMsg.length)
-      setInputMsg(strPre + '\n' + strTail)
+      insertMsg(inputMsg,'\n',inputEl,setInputMsg)
     }else if(inputMsg.length === 0){
       message.info("不能发送空信息")
     }else{
@@ -332,6 +332,12 @@ const Sop = ({ index }) => {
       case 1: list = doFilter(store.roomList,'NickName'); break;
       case 2: list = doFilter(store.contList,'UserName'); break;
     }
+
+    // list.map(o=>{
+    //   log(o.MarkAsUnread,'MarkAsUnread')
+    //   log(o.UnreadMsgCount,'UnreadMsgCount')
+    //   log(o.NickName)
+    // })
 
     return (
       <div className="contact">
@@ -485,7 +491,17 @@ const Sop = ({ index }) => {
                   <div className="sendbox">
                     <div className="send-menu">
                       <div className="menu-item">
-                        <img src={icon_face} />
+                        <QQFace
+                          position='top' 
+                          pid ='.menu-item'
+                          closeEvent='mouseleave'
+                          msg = {inputMsg}
+                          el = {inputEl}
+                          setMsg = {setInputMsg}
+                          >
+                          <img src={icon_face} />
+                        </QQFace>
+                        
                       </div>
                       <div className="menu-item">
                         <img src={icon_img} />
