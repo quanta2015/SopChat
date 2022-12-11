@@ -1,117 +1,130 @@
-
+/* eslint-disable react/no-danger */
+/* eslint-disable no-shadow */
+import React from 'react';
+import axios from 'axios';
+import store from 'store2';
+import { parse, stringify } from 'qs';
 import { message } from 'antd';
+import packageData from '../../package.json';
 
-export async function request(url, opt = {}) {
+const useComponent = ['suo-web-all'];
+
+export default function request(url, options = { method: 'GET' }) {
+  // 过滤
+  const filterUseComponent = () => {
+    const newObj = {};
+    if (packageData?.dependencies) {
+      const obj = packageData.dependencies;
+      for (const key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+          const element = obj[key];
+          useComponent.forEach(item => {
+            if (item === key) {
+              newObj[key] = element;
+            }
+          });
+        }
+      }
+    }
+    return newObj;
+  };
+
+  const { method = 'get', data } = options;
+  let _appCode = '';
+  if (method.toLowerCase() === 'get') {
+    const { appCode: getAppcode } = parse(url.split('?')[1]);
+    _appCode = getAppcode;
+  } else {
+    const { appCode: postAppcode } = data;
+    _appCode = postAppcode;
+  }
+  const { appCode } = parse(window.location.search.slice(1));
+  const pageLog = decodeURIComponent(
+    stringify({ ...filterUseComponent(), appCode: _appCode || appCode }),
+  );
+
   return new Promise((resolve, reject) => {
-    return fetch(url, {
+    let params = {};
+    let corpid;
+    let currentUserId;
+    let appId;
+
+    const urlArray = url.split('?');
+    if (urlArray.length > 1) {
+      params = parse(urlArray[1]);
+    }
+
+    const search = parse(window.location.search.slice(1)) || {};
+    if (!(corpid = store.session('corpid'))) {
+      // 首次进入页面从url中获取corpid
+      // eslint-disable-next-line
+      corpid = search.corpid;
+      store.session('corpid', corpid);
+    }
+
+    if (!(currentUserId = store.session('workflow_userId'))) {
+      // 首次进入页面从url中获取currentUserId
+      // eslint-disable-next-line
+      currentUserId = search.userId;
+      store.session('workflow_userId', currentUserId);
+    }
+
+    if (!(appId = store.session('workflow_appId'))) {
+      // 首次进入页面从url中获取appId
+      // eslint-disable-next-line
+      appId = search.appId || search.xCAppId;
+      store.session('workflow_appId', appId);
+    }
+
+    // const handlerId = store.session('handlerId');
+    // const handlerOrgId = store.session('handlerOrgId');
+    // debugger;
+    // corpid需要拼接到url上
+    // console.log(window.token, 'window.token');
+    return axios({
+      url: `${urlArray[0]}?${stringify({
+        currentUserId,
+        appId,
+        ...params,
+        corpid,
+        // 先注释掉，否则我发起的详情接口会报用户身份为空的错误
+        // ...{ handlerId, handlerOrgId },
+      })}`,
       headers: {
-        Accept: "application/json",
         Authorization: window.token,
-        "Content-Type": "application/json;charset=UTF-8",
+        'page-log': pageLog,
+        'app-code': _appCode || appCode,
       },
-      ...opt,
+      // withCredentials: true,
+
+      ...options,
     })
-    .then(async(response) => {
-      const string = await response.text();
-      return string === "" ? {} : JSON.parse(string)
-    })
-    .then((data) => {
-      switch(data.code) {
-        case 401: 
-          message.error(data.msg);
+      .then(response => {
+        const { data } = response;
+        if (data.code === 0 || data.result === 0) {
+          resolve(data.data || data.result);
+        } else {
+          if (data?.msg?.indexOf('<br/>')) {
+            message.warning({
+              content: (
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: data?.msg,
+                  }}
+                />
+              ),
+              className: 'custom-antd-message',
+              duration: 6,
+            });
+          } else {
+            message.error(data.msg || '网络错误');
+          }
+          // message.error(data.msg || '网络请求失败');
           reject(data);
-          break;
-        default: 
-          resolve(data); 
-      }
-    });
-  })
+        }
+      })
+      .catch(response => {
+        reject(response);
+      });
+  });
 }
-
-export async function upload(url, file) {
-  return new Promise((resolve, reject) => {
-    return fetch(url, {
-      method: "POST",
-      'Content-Type': 'multipart/form-data',
-      body:file,
-    })
-    .then(r => r.text() )
-    .then((data) => {
-      switch(data.code) {
-        case 401: 
-          message.error(data.msg);
-          reject(data);
-          break;
-        default: 
-          resolve(data); 
-      }
-    });
-  })
-}
-
-// import axios from 'axios';
-// import { message } from 'antd';
-// import { stringify } from 'qs';
-// import { gotoLogin } from '../utils/utils';
-// import { getLogInfo } from './log';
-// import packageData from '../../package.json';
-
-// export const useComponent = ['suo-web-all'];
-
-// export default async function request(url, options = {}) {
-//   const appCode = getLogInfo();
-//   const filterUseComponent = () => {
-//     const newObj = {};
-//     if (packageData?.dependencies) {
-//       const obj = packageData.dependencies;
-//       for (const key in obj) {
-//         if (Object.prototype.hasOwnProperty.call(obj, key)) {
-//           const element = obj[key];
-//           useComponent.forEach(item => {
-//             if (item === key) {
-//               newObj[key] = element;
-//             }
-//           });
-//         }
-//       }
-//     }
-//     return newObj;
-//   };
-//   const { headers } = options;
-
-//   const token = headers ? headers['Access-Token'] : '';
-//   return new Promise((resolve, reject) => {
-//     return axios({
-//       url,
-//       ...options,
-//       headers: {
-//         'page-log': decodeURIComponent(stringify({ ...filterUseComponent(), appCode })),
-//         'app-code': appCode,
-//         Authorization: window.token,
-//         'Access-Token': token, // token
-//       },
-//     })
-//       .then(response => {
-//         const { data } = response;
-//         if (data.code === 200 || data.code === 0 || data.code === '200') {
-//           return resolve(data.data || data.result || data);
-//         } else if (data.code === 21002 || data.code === 21018 || data.code === 21019) {
-//           return reject(data);
-//         } else if (data.code === 401) {
-//           message.error(data.msg);
-//           gotoLogin();
-//           return resolve(data);
-//         } else {
-//           message.error(data.msg || '网络错误，请重试');
-//           return reject(data || {});
-//         }
-//       })
-//       .catch(error => {
-//         const { response } = error || {};
-//         const { data } = response || {};
-//         return reject(data || {});
-//       });
-//   });
-// }
-
-

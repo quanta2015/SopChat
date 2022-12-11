@@ -1,13 +1,13 @@
 import React, { useState, useEffect,useCallback,useRef } from 'react';
 import cls from 'classnames';
-import {message} from 'antd'
 import { observer, inject, history,connect,userMobxStore } from 'umi';
 import { toJS } from 'mobx'
-import { Switch,Input } from 'antd';
+import { Switch,Input,Tabs,message } from 'antd';
 import { formatTime,clone,scrollToBottom,fileToBlob,log,insertMsg } from '@/utils/common'
 import { sortList } from '@/utils/procData';
 import { Tooltip } from '@/components/Tooltip';
 import { QQFace } from '@/components/QQFace';
+import { ChatSide } from '@/components/ChatSide';
 import { MSG,RenderMsgDetail,updateLastMsg,initMsg,initLink,initApp } from './msg'
 import { initHub } from './hub'
 
@@ -27,11 +27,12 @@ import icon_file   from '@/imgs/icon-file.png'
 import icon_side   from '@/imgs/icon-side.svg'
 import img_face    from '@/imgs/img-face.png'
 
+
+
 const tabList   = ["处理中","群聊","客户"]
 const typeList  = ["联系人","群","联系人"]
 const KEY_ENTER = 'Enter'
 const KEY_BLANK = ''
-
 
 
 
@@ -85,6 +86,7 @@ const Sop = ({ index }) => {
     setSelTab(e)
     setSelWeUsr(-1)
     setShowChat(false)
+    setShowSide(false)
   }
 
   // 选择企微对象
@@ -501,7 +503,6 @@ const Sop = ({ index }) => {
                           >
                           <img src={icon_face} />
                         </QQFace>
-                        
                       </div>
                       <div className="menu-item">
                         <img src={icon_img} />
@@ -542,7 +543,10 @@ const Sop = ({ index }) => {
               </div>
 
               {showSide && 
-              <div className="chat-side"></div>}
+              <div className="chat-side">
+                
+                <ChatSide  tab={selTab} store={store} />
+              </div>}
             </div>
           </div>
         </div>

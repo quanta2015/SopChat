@@ -95,11 +95,15 @@ export const QQFace = ({
 
       {isVisible && createPortal(
         <div ref={tooltipRef} className="qqface" >
-          {faceList.map((item,i)=>
-            <div className="item" key={i}
-              style={{backgroundPosition: `${-(i%15)*29}px ${-(Math.floor(i/15))*29}px`}}
-              onClick={()=>doSelFace(item)}></div>
-          )}
+          <div className="qqface-wrap">
+            <div className="qqface-bd">
+              {faceList.map((item,i)=>
+                <div className="qqface-item" key={i}
+                  style={{backgroundPosition: `${-(i%15)*29}px ${-(Math.floor(i/15))*29}px`}}
+                  onClick={()=>doSelFace(item)}></div>
+              )}
+            </div>
+          </div>
         </div>,
         document.querySelector(pid)
       )}

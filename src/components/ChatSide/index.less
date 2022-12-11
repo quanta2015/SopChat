@@ -1,0 +1,26 @@
+.chatside-tab {
+  display: flex;
+  flex-direction: column;
+
+  .tab-nav {
+    display: flex;
+    justify-content: space-around;
+    border-bottom: 1px solid #ccc;
+    height: 36px;
+
+    &>span {
+      height: 36px;
+      padding:5px 0;
+      text-align: center;
+      // border-bottom: 3px solid #eee;
+      cursor: pointer;
+
+      &.sel {
+        color:var(--clr-main);
+        border-bottom:2px solid var(--clr-main);
+      }
+    }
+  }
+
+}
+

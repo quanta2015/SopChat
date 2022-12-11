@@ -60,7 +60,8 @@
     "react-router-dom": "^4.3.1",
     "recompose": "^0.30.0",
     "umi": "^3.5.0",
-    "umi-plugin-mobx-store": "^0.9.3"
+    "umi-plugin-mobx-store": "^0.9.3",
+    "suo-web-all": "^0.0.45-beta.0"
   },
   "devDependencies": {
     "@umijs/fabric": "^2.6.2",

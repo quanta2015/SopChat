@@ -1,5 +1,5 @@
 import { stringify } from 'qs';
-import {request} from '@/services/request';
+import {request} from '@/services/req';
 
 export async function fakeRegister(data) {
   return request('/api/register', {

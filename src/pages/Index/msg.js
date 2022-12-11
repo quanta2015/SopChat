@@ -1,4 +1,7 @@
 import { clone } from '@/utils/common'
+import { faceList,faceMap } from '@/components/QQFace/util'
+
+import '@/components/QQFace/index.less'
 
 export const MSG = {
   proc:  0,
@@ -91,12 +94,24 @@ export const initApp =(msg,usr)=>{
   }
 }
 
-const RenderTxt   =(msg)=> <span  className="mg-txt">{msg.content}</span>
+// 将文字表情替换成图标
+const formatTxtMsg=(msg)=> {
+  const list = msg?.match(/\[([\u4e00-\u9fa5]|[A-Z]){1,3}\]/g);
+  list && list.forEach(item => {
+    let index = faceList.findIndex(e=> e === item)
+    let faceItem = `<div class='qqface-item' title=${item} style='background-position: ${-(index%15)*29}px ${-(Math.floor(index/15))*29}px' \></div>`
+    msg = msg.replace(item, faceItem);
+  })
+  return msg
+}
+
+
+const RenderTxt   =(msg)=> <span  className="mg-txt" dangerouslySetInnerHTML={{ __html:formatTxtMsg(msg.content) }}></span>
 const RenderImg   =(msg)=> <span  className="mg-img"><img src={msg.file_path} /></span>
 const RenderGif   =(msg)=> <span  className="mg-gif"><img src={msg.file_path} /></span>
 const RenderVideo =(msg)=> <video className="mg-mp4" src={msg.file_path} muted controls preload="true" />
 const RenderAudio =(msg)=> <audio className="mg-mp3" src={msg.file_path} muted controls preload="true" />
-const RenderFile  =(msg)=> <span className="mg-txt"  target="_blank"><a className="mg-file" href={msg.file_path}>文件:{extractName(msg.file_path)}</a></span>
+const RenderFile  =(msg)=> <span  className="mg-txt"  target="_blank"><a className="mg-file" href={msg.file_path}>文件:{extractName(msg.file_path)}</a></span>
 
 
 

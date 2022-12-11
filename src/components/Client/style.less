@@ -1,0 +1,223 @@
+.client {
+  background-color: #f5f5f5;
+  overflow: auto;
+  height: 100%;
+  box-sizing: border-box;
+
+  :global {
+    .client-info {
+      padding: 16px;
+      background-color: #fff;
+
+      .user-content {
+        .user-item {
+          display: flex;
+
+          & + .user-item {
+            margin-top: 8px;
+          }
+
+          .label {
+            width: 76px;
+            font-size: 12px;
+            color: #666;
+            font-weight: 400;
+          }
+
+          .value {
+            max-width: calc(100vw - 108px);
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            font-size: 12px;
+            font-weight: 400;
+            color: #000;
+          }
+        }
+      }
+
+      .cf-compose-form-container {
+        padding-bottom: 0;
+        .ant-form-item-row {
+          width: 100%;
+        }
+
+        .cf-form-item {
+          margin-bottom: 0;
+        }
+
+        .ant-form-item-label-left {
+          label {
+            font-size: 12px;
+            color: #666;
+          }
+          &::after {
+            content: ':';
+            margin-left: 2px;
+            // color: #000;
+            font-size: 14px;
+          }
+        }
+        .ant-form-item-control {
+          font-size: 13px;
+        }
+
+        .ant-form-item-label {
+          text-align: left !important;
+        }
+
+        // .ant-form-item-control-input {
+        //   min-height: auto;
+        //   .cf-form-text-item {
+        //     line-height: 13px;
+        //   }
+        // }
+      }
+    }
+
+    .client-tag {
+      padding: 16px;
+      margin-top: 10px;
+      background-color: #fff;
+
+      .select-form-user {
+        margin-top: 16px;
+
+        .ssl-select-user,
+        .ant-select {
+          width: 100%;
+        }
+      }
+
+      .input {
+        margin-top: 16px;
+      }
+
+      .tips {
+        font-size: 12px;
+        font-weight: 400;
+        color: #999;
+        margin-top: 8px;
+      }
+    }
+
+    .baby-connect {
+      padding: 16px;
+      background-color: #fff;
+      margin-top: 10px;
+
+      .connect-content {
+        .item {
+          display: flex;
+          margin-top: 16px;
+          align-items: center;
+
+          img {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+          }
+
+          .right {
+            margin-left: 10px;
+            flex: 1;
+            overflow: hidden;
+
+            .name {
+              display: flex;
+              align-items: center;
+              overflow: hidden;
+
+              > :first-child {
+                // flex: 1;
+                max-width: calc(100vw - 162px);
+                color: #000;
+                font-size: 14px;
+                font-weight: 400;
+              }
+
+              img {
+                width: 12px;
+                height: 12px;
+                margin-left: 8px;
+              }
+
+              .relation {
+                margin-left: 8px;
+                color: #ef8839;
+                font-size: 12px;
+                font-weight: 400;
+                vertical-align: middle;
+              }
+            }
+
+            .info {
+              font-size: 12px;
+              font-weight: 400;
+              color: #999;
+            }
+          }
+        }
+      }
+    }
+
+    .client-connect {
+      padding: 16px;
+      background-color: #fff;
+      margin-top: 10px;
+
+      .connect-content {
+        .item {
+          display: flex;
+          margin-top: 16px;
+          align-items: center;
+
+          img {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+          }
+
+          .right {
+            margin-left: 10px;
+            flex: 1;
+
+            .name {
+              display: flex;
+              align-items: center;
+
+              div:first-child {
+                display: inline-block;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                overflow: hidden;
+                max-width: calc(100vw - 162px);
+                color: #000;
+                font-size: 14px;
+                font-weight: 400;
+                margin-right: 8px;
+              }
+
+              div:not(:first-child) {
+                color: #ef8839;
+                font-size: 12px;
+                font-weight: 400;
+                vertical-align: middle;
+              }
+            }
+
+            .info {
+              text-overflow: ellipsis;
+              white-space: nowrap;
+              overflow: hidden;
+              font-size: 12px;
+              font-weight: 400;
+              color: #999;
+              max-width: calc(100vw - 82px);
+            }
+          }
+        }
+      }
+    }
+  }
+}

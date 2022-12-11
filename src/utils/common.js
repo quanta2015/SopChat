@@ -6,6 +6,8 @@ import nzh from 'nzh/cn';
 import store from 'store2';
 import { parse, stringify } from 'qs';
 import { base,debug } from '@/conf';
+import { url } from '@/services/service-utils.js';
+import { request }  from '@/services/req';
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
 dayjs.locale('zh-cn') 
@@ -15,6 +17,25 @@ export const log =(e,inf="debug")=>{
   if (debug) {
     console.log('%c%s: %o','color:blue;',inf,e);
     // console.dir(e, {depth: null, colors: true});
+  }
+}
+
+
+export const parseFile =async(formVal)=>{
+  const { avatar, id } = formVal;
+  if (id && !avatar?.startsWith('http')) {
+    const files = await request(
+      `${url.file}/web/file/find?appCode=${formVal.appCode}&bizId=${formVal?.id}`,
+    );
+
+    if (files && files.length) {
+      files.forEach(val => {
+        const { formName, file } = val;
+        formVal[formName] = file[0]?.url;
+      });
+    } else {
+      formVal.avatar = icon_avatar;
+    }
   }
 }
 

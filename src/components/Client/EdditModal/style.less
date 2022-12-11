@@ -1,0 +1,175 @@
+.eddit {
+  padding: 16px;
+
+  :global {
+    .back {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+
+      .backIcon {
+        color: #bdc1c9;
+        img {
+          display: block;
+        }
+      }
+      .title {
+        color: #666;
+        font-size: 12px;
+        font-weight: 400;
+        margin-left: 3px;
+      }
+    }
+  }
+}
+
+.eddit-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  padding: 16px;
+  background-color: #fff;
+  overflow: auto;
+  box-sizing: border-box;
+
+  @media (max-width: 575px) {
+    :global {
+      .cf-compose-form-container {
+        padding-bottom: 0;
+        height: auto;
+        .ant-form .ant-form-item {
+          flex-wrap: nowrap;
+        }
+
+        .ant-form-item-row {
+          width: 100%;
+        }
+
+        .ant-form .ant-form-item .ant-form-item-label,
+        .ant-form .ant-form-item .ant-form-item-control {
+          flex: unset;
+          max-width: 100%;
+        }
+
+        .ant-divider {
+          border: none;
+        }
+
+        .cf-form-item {
+          display: flex;
+          margin-bottom: 17px;
+
+          .ant-form-item-label {
+            // width: 40px !important;
+            text-align: left !important;
+            padding: 0;
+            margin-right: 16px;
+            color: #333;
+            font-size: 14px;
+
+            label::after {
+              content: ':';
+              position: relative;
+              top: -0.5px;
+              margin: 0 8px 0 2px;
+            }
+          }
+          .ant-form-item-control {
+            flex: 1 !important;
+            font-size: 12px;
+            textarea.ant-input {
+              min-height: 72px !important;
+            }
+            .ant-picker {
+              width: 100% !important;
+            }
+          }
+        }
+
+        .cf-form-action {
+          margin-bottom: 0;
+          display: flex;
+          justify-content: flex-end;
+
+          .ant-form-item-row {
+            width: 100%;
+            justify-content: flex-end;
+          }
+
+          .ant-btn {
+            border-radius: 5px;
+          }
+
+          .ant-btn-primary:not([disabled]) {
+            border-color: #2c7ef8;
+            background: #2c7ef8;
+          }
+
+          .ant-btn:not(:first-child) {
+            margin-right: 0;
+          }
+
+          .ant-btn:first-child:not([disabled]) {
+            color: #2c7ef8;
+            border: 1px solid #447cf0;
+          }
+        }
+
+        .cf-compose-form-action-divider {
+          margin: 0;
+        }
+      }
+    }
+  }
+
+  :global(.ant-form-item-label) {
+    margin-right: 0 !important;
+  }
+
+  :global {
+    .select-form-user {
+      margin-top: 16px;
+      .ssl-select-user,
+      .ant-select {
+        width: 100%;
+      }
+    }
+  }
+  .title {
+    display: flex;
+    align-items: center;
+    padding: 0 0 16px;
+    > img {
+      height: 12px;
+      width: 12px;
+    }
+    > span {
+      margin-left: 8px;
+      font-size: 12px;
+      color: #666;
+    }
+  }
+  .tips {
+    padding-top: 8px;
+    font-size: 12px;
+    line-height: 22px;
+    color: #999;
+  }
+  .switch {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+    > span {
+      font-size: 14px;
+      color: #000;
+    }
+  }
+  .button {
+    display: flex;
+    justify-content: end;
+    margin-top: 24px;
+  }
+}

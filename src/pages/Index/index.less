@@ -406,7 +406,7 @@
             display: flex;
             flex-direction: column;
             height: 100%;
-            // overflow: hidden;
+            overflow: hidden;
 
 
             .chat-content {
@@ -479,6 +479,10 @@
                     &:after {
                       right: -6px;
                       border-left: 6px solid var(--clr-msg-rec);
+                    }
+
+                    .qqface-item {
+                      border: none!important;
                     }
                   }
                 }
@@ -646,6 +650,8 @@
             flex-direction: column;
             width: 360px;
             border-left: 1px solid #ccc;
+            overflow: scroll;
+            margin-right: -12px;
           }
         }
       }

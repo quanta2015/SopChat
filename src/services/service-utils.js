@@ -3,7 +3,7 @@ import conf from '../conf';
 const { base } = conf;
 
 async function fetchEnv() {
-  return request('/rhyysshl/pc/conf.json', {
+  return request('conf.json', {
     method: 'GET',
   });
 }
@@ -13,6 +13,9 @@ document.querySelector('meta[name="x-server-env"]').setAttribute('content', urlC
 
 export const ENV = urlCollect.mode;
 export const { url } = urlCollect;
+
+
+// console.log('url',urlCollect)
 
 export const getPathnameBybase = () =>
   base === '/' ? window.location.pathname : window.location.pathname.split(base)[1];

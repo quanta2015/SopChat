@@ -1,12 +1,16 @@
 /* eslint-disable no-param-reassign */
 import { observable, action,toJS } from 'mobx';
 import { message }  from 'antd';
-import { request,upload }  from '@/services/request';
+import { request,upload }  from '@/services/req';
 import { procData } from '@/utils/procData';
 import { clone }    from '@/utils/common';
-import { formatTime,log } from '@/utils/common'
+import { stringify } from 'qs';
+import { formatTime,log,parseFile } from '@/utils/common'
 import { MSG } from '@/pages/Index/msg'
 import { fileToBlob } from '@/utils/common'
+import { url } from '@/services/service-utils.js';
+
+
 import iconAvatar from '@/imgs/icon-avatar.png'
 
 
@@ -30,15 +34,17 @@ export class Index {
   @observable contList = [];
   @observable procList = [];
   @observable tranList = [];
+  @observable user = {};
+
 
   weList = []
-  user   = {
-    "realName": "李建彬",
-    "orgName": "杭州所思互连科技有限公司",
-    "corpId": "ww3eaf4f90528f7c0e",
-    "userId": "1522203551195275350",
-    "orgId": "3301001000005"
-  }
+  // user   = {
+  //   "realName": "李建彬",
+  //   "orgName": "杭州所思互连科技有限公司",
+  //   "corpId": "ww3eaf4f90528f7c0e",
+  //   "userId": "1522203551195275350",
+  //   "orgId": "3301001000005"
+  // }
   
  
   URL_ONLINE_WX_USR_LIST  = `${HEAD_Z}/WxUser/OnlineWxUserList`
@@ -66,7 +72,7 @@ export class Index {
   URL_CHAT_MSG_VIDEO      = `${HEAD_Z}/api/msg/video`
   URL_CHAT_MSG_FILE       = `${HEAD_Z}/api/msg/file`
 
-
+  @action setUser(e)  { this.user = e }
   @action setCurUser(e)  { this.curUser = e }
   @action setChatHis(e)  { this.chatHis = e }
   @action setChatRel(e)  { this.chatRel = e }
@@ -346,5 +352,50 @@ export class Index {
   }
 
 
+  @action
+  async login() {
+    const env = "pre"
+    const params = {
+      client_id: env,
+      client_secret: env,
+      from: "normal",
+      username: "13657086451",
+      password: "4af29b04aba82d265b7a0a5cf14eb657",
+    }
+    const SERVER = `https://rhyy.pre.suosishequ.com`
+    let r = await request(`${SERVER}/gateway/auth/oauth/token?${stringify(params)}`)
+    let token = `${r.data.tokenHead}${r.data.accessToken}`
+    window.token = window.token || token;
 
+    let s = await request(`${SERVER}/gateway/auth/oauth/loginInfo`)
+    this.setUser(s.data)
+    console.log(s.data)
+  }
+
+  // -- Client ---------------------------------------------------
+  @action
+  async initClient() {
+    let { CorpId, ExternalUserId, UnionId } = this.chatRel;
+    let prefix = `${url.usercenter}/web/maternal/user/unionid/detail?corpId=${CorpId}`;
+    let _url = UnionId?`${prefix}&unionid=${UnionId}`:`${prefix}&externalUserId=${ExternalUserId}`;
+
+    let r = await request(_url);
+    let detail = r.data.formValue
+    parseFile(detail)
+
+    let s = await request(`${url.usercenter}/web/maternal/viwe/getFormColumn`);
+    let { dataSource } = s.data
+    const control = dataSource?.filter(item => {
+      return !['avatar'].includes(item.name);
+    }); 
+
+
+
+    return { detail,control }
+  }
+
+
+  
 }
+
+

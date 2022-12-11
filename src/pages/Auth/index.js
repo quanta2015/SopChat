@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
+import { observer, inject, history,connect } from 'umi';
 import { stringify } from 'qs';
-import { history } from 'umi';
 import axios from 'axios'
 
 
@@ -14,31 +14,32 @@ import axios from 'axios'
 // }
 // const SERVER = `https://front.sit.suosihulian.com`
 
-const env = "pre"
-const params = {
-  client_id: env,
-  client_secret: env,
-  from: "normal",
-  username: "13657086451",
-  password: "4af29b04aba82d265b7a0a5cf14eb657",
-}
-const SERVER = `https://rhyy.pre.suosishequ.com`
+// const env = "pre"
+// const params = {
+//   client_id: env,
+//   client_secret: env,
+//   from: "normal",
+//   username: "13657086451",
+//   password: "4af29b04aba82d265b7a0a5cf14eb657",
+// }
+// const SERVER = `https://rhyy.pre.suosishequ.com`
+// const LOGIN  = `${SERVER}/gateway/auth/oauth/token?${stringify(params)}`
 
-
-
-const LOGIN  = `${SERVER}/gateway/auth/oauth/token?${stringify(params)}`
-
-const Auth = () => {
-  useEffect(() => {
-    axios(LOGIN,{ method: 'GET' }).then((ret)=>{
-      let token = `${ret.data.data.tokenHead}${ret.data.data.accessToken}`
-      // console.log(token)
-      window.token = window.token || token;
-      history.push('/sop')
-    })
-  })
+const Auth = ({index}) => {
+  const store = index
+  
+  store.login().then(() => {
+    history.push('/sop')
+  });
+  
+  // axios(LOGIN,{ method: 'GET' }).then((ret)=>{
+  //   let token = `${ret.data.data.tokenHead}${ret.data.data.accessToken}`
+  //   // console.log(token)
+  //   window.token = window.token || token;
+  //   history.push('/sop')
+  // })
 
   return null
 };
 
-export default Auth
+export default inject('index')(observer(Auth))

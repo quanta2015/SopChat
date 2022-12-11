@@ -1,0 +1,79 @@
+@media (max-width: 575px) {
+  :global .cf-compose-form-container {
+    padding-bottom: 0;
+  }
+  :global .cf-compose-form-container .ant-form .ant-form-item {
+    flex-wrap: nowrap;
+  }
+  :global .cf-compose-form-container .ant-form .ant-form-item .ant-form-item-label,
+  :global .cf-compose-form-container .ant-form .ant-form-item .ant-form-item-control {
+    flex: unset;
+    max-width: 100%;
+  }
+  :global .cf-compose-form-container .ant-divider {
+    border: none;
+  }
+  :global .cf-compose-form-container .cf-form-item {
+    display: flex;
+    margin-bottom: 17px;
+  }
+  :global .cf-compose-form-container .cf-form-item .ant-form-item-label {
+    text-align: right !important;
+    padding: 0;
+    margin-right: 16px;
+    color: #333;
+    font-size: 14px;
+  }
+  :global .cf-compose-form-container .cf-form-item .ant-form-item-label label::after {
+    content: ':';
+    position: relative;
+    top: -0.5px;
+    margin: 0 8px 0 2px;
+  }
+  :global .cf-compose-form-container .cf-form-item .ant-form-item-control {
+    flex: 1 !important;
+    font-size: 12px;
+  }
+  :global .cf-compose-form-container .cf-form-item .ant-form-item-control textarea.ant-input {
+    min-height: 72px !important;
+  }
+  :global .cf-compose-form-container .cf-form-action {
+    margin-bottom: 0;
+    display: flex;
+    justify-content: flex-end;
+  }
+  :global .cf-compose-form-container .cf-form-action .ant-btn {
+    border-radius: 5px;
+  }
+  :global .cf-compose-form-container .cf-form-action .ant-btn-primary:not([disabled]) {
+    border-color: #2c7ef8;
+    background: #2c7ef8;
+  }
+  :global .cf-compose-form-container .cf-form-action .ant-btn:not(:first-child) {
+    margin-right: 0;
+  }
+  :global .cf-compose-form-container .cf-form-action .ant-btn:first-child:not([disabled]) {
+    color: #2c7ef8;
+    border: 1px solid #447cf0;
+  }
+  :global .cf-compose-form-container .cf-compose-form-action-divider {
+    margin: 0;
+  }
+}
+.eddit {
+  padding: 16px;
+}
+.eddit :global .back {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.eddit :global .back .backIcon {
+  color: #bdc1c9;
+}
+.eddit :global .back .title {
+  color: #666;
+  font-size: 12px;
+  font-weight: 400;
+  margin-left: 8px;
+}
