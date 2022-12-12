@@ -8,10 +8,88 @@ import { parse, stringify } from 'qs';
 import { base,debug } from '@/conf';
 import { url } from '@/services/service-utils.js';
 import { request }  from '@/services/req';
+import calendar from 'dayjs/plugin/calendar' 
+import relativeTime from 'dayjs/plugin/relativeTime'
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
 dayjs.locale('zh-cn') 
+dayjs.extend(calendar)
+dayjs.extend(relativeTime)
 
+
+import icon_avatar from '@/imgs/icon-avatar.png';
+
+function getDateTimeStamp(dateStr) {
+  return new Date(dateStr).getTime();
+}
+
+export function formatTime(dateStr) {
+  var publishTime
+  if (dateStr && dateStr.toString().length <= 10) {
+    publishTime = dateStr
+  } else if (dateStr && dateStr.toString().length > 10){
+    publishTime = getDateTimeStamp(dateStr) / 1000
+  }
+  
+    var d_seconds,
+    d_minutes,
+    d_hours,
+    d_days,
+    timeNow = parseInt(new Date().getTime() / 1000),
+    d,
+    date = new Date(publishTime * 1000),
+    Y = date.getFullYear().toString().slice(2),
+    M = date.getMonth() + 1,
+    D = date.getDate(),
+    H = date.getHours(),
+    m = date.getMinutes(),
+    s = date.getSeconds();
+  d = timeNow - publishTime;
+  //小于10的在前面补0
+  // if (M < 10) {
+  //   M = "0" + M;
+  // }
+  // if (D < 10) {
+  //   D = "0" + D;
+  // }
+  if (H < 10) {
+    H = "0" + H;
+  }
+  if (m < 10) {
+    m = "0" + m;
+  }
+  if (s < 10) {
+    s = "0" + s;
+  }
+  d_days = parseInt(d / 86400)
+  d_hours = parseInt(d / 3600);
+  d_minutes = parseInt(d / 60);
+  d_seconds = parseInt(d);
+  if (d_days > 0 && d_days < 3) {
+    if(d_days == 1){
+        return "昨天";
+    }else if(d_days == 2){
+        return "前天";
+    }
+  } else if (d_days <= 0 && d_hours > 0) {
+    // return d_hours + "小时前";
+    if (new Date().getHours() !==  d_hours && new Date().getHours() < d_hours) {
+      return '昨天'
+    } 
+    return  H + ':' + m
+  } else if (d_hours <= 0 && d_minutes > 0) {
+    return d_minutes + "分钟前";
+  } else if (d_seconds < 60) {
+      return '刚刚'
+  } else if (d_days >= 3 && d_days < 30) {
+    return Y + "/" + M + "/" + D ;
+  } else if (d_days >= 30) {
+    return Y + "/" + M + "/" + D;
+  }
+}
+
+
+// export const formatTime = (t)=> {return dayjs().to(t)}
 
 export const log =(e,inf="debug")=>{
   if (debug) {
@@ -89,10 +167,6 @@ export const autoAuth = async()=>{
   window.token = window.token || token;
 }
 
-
-export function formatTime(e) {
-  return dayjs(e).format('YYYY-MM-DD HH:mm')
-}
 
 export function clone(v) {
   return JSON.parse(JSON.stringify(v))

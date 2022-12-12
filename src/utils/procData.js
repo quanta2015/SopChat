@@ -1,24 +1,11 @@
-import dayjs from 'dayjs'
-import calendar from 'dayjs/plugin/calendar' 
-import relativeTime from 'dayjs/plugin/relativeTime'
 import { MSG } from '@/pages/Index/msg'
-import 'dayjs/locale/zh-cn'
 import { log } from '@/utils/common'
-dayjs.locale('zh-cn') 
-dayjs.extend(calendar)
-dayjs.extend(relativeTime)
-
-
-const rTime = (t)=> {return dayjs().to(dayjs.unix(parseInt(t)))}
 
 
 // 将时间格式化为相对格式
 const formatMsg =(list)=>{
   list.map((item,i)=>{
     let msg = JSON.parse(item?.LatestMsg)
-
-
-    // log(msg,'msg')
 
     switch(msg?.type) {
       case MSG.txt:  item.lastMsg = msg?.data?.content;break;
@@ -30,7 +17,6 @@ const formatMsg =(list)=>{
       case MSG.link: item.lastMsg = `【链接】${msg.data.title}`;break;
       case MSG.app:  item.lastMsg = `【小程序】${msg.data.title}`;break;
     }
-    item.send_time = item?.msg?.send_time? rTime(item?.msg?.send_time):'';
   })
 }
 
@@ -46,11 +32,17 @@ const initUnRead =(r,list)=>{
 }
 
 
-export const sortList = (list)=>{
+export const sortListG = (list)=>{
   list.sort((a,b) => {
     return a.isOnTop ==  b.isOnTop?
     b.msg?.send_time - a.msg?.send_time:
     a.isOnTop - b.isOnTop
+  })
+}
+
+export const sortListS = (list)=>{
+  list.sort((a,b) => {
+    return b.LastChatTimestamp - a.LastChatTimestamp
   })
 }
 
@@ -74,8 +66,10 @@ export const procData = (weList,s,t,u,read)=>{
   // 格式化聊天消息和时间
   formatMsg(t)
   formatMsg(u)
-  sortList(t)
-  sortList(u)
+  sortListG(t)
+  sortListG(u)
+  sortListS(s)
+  
 
   // 计算未读消息
   initUnRead(read, [s,t,u])

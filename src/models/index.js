@@ -167,8 +167,6 @@ export class Index {
   }
 
 
-
-
   @action
   async setTop(data) {
     let url = data.isOnTop? this.URL_CONTACT_SET_TOP:this.URL_CONTACT_CANCEL_TOP;
@@ -284,7 +282,7 @@ export class Index {
     const v = await request(this.URL_CONTACT_TRANSFER,params);
 
 
-    log(v,'trans')
+    log(s,'trans')
 
     const read = [0,0,0]
     procData(this.weList,s,t,u,read)
@@ -359,8 +357,8 @@ export class Index {
       client_id: env,
       client_secret: env,
       from: "normal",
-      username: "13657086451",
-      password: "4af29b04aba82d265b7a0a5cf14eb657",
+      username: "17839637528",
+      password: "59a7f9cfa6d9b19914659110debf8cdc",
     }
     const SERVER = `https://rhyy.pre.suosishequ.com`
     let r = await request(`${SERVER}/gateway/auth/oauth/token?${stringify(params)}`)

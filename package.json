@@ -59,9 +59,10 @@
     "react-media": "^1.9.2",
     "react-router-dom": "^4.3.1",
     "recompose": "^0.30.0",
+    "signalr": "^2.4.3",
+    "suo-web-all": "^0.0.45-beta.0",
     "umi": "^3.5.0",
-    "umi-plugin-mobx-store": "^0.9.3",
-    "suo-web-all": "^0.0.45-beta.0"
+    "umi-plugin-mobx-store": "^0.9.3"
   },
   "devDependencies": {
     "@umijs/fabric": "^2.6.2",

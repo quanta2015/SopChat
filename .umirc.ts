@@ -5,7 +5,6 @@ export default defineConfig({
   base: '/',
   publicPath: '/',
   devtool: 'source-map',
-  // exportStatic: {},
   dva: {
     hmr: true,
   },
@@ -15,7 +14,6 @@ export default defineConfig({
   },
   exportStatic: {},
   layout: false,
-  // exportStatic: {},
   routes: [
     {
       path: '/',

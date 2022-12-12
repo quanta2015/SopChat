@@ -230,13 +230,20 @@
               .item-hd {
                 display: flex;
 
-                img {
-                  width: 56px;
-                  height: 56px;
-                  margin-right: 10px;
-                  background: #f7f7f7;
-                  border-radius: 5px;
+                .item-logo {
+                  position: relative;
+
+                  
+
+                  &>img {
+                    width: 56px;
+                    height: 56px;
+                    margin-right: 10px;
+                    background: #f7f7f7;
+                    border-radius: 5px;
+                  }
                 }
+                
 
                 &>.info{
                   flex: 1;
@@ -670,7 +677,21 @@
 }
 
 
-
+.uread {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: #ee6666;
+  border-radius: 12px;
+  font-size: 12px;
+  color: #fff;
+  right: 2px;
+  top: -8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transform: scale(.9);
+}
 
 .pop{
   .item{
@@ -690,14 +711,6 @@
 }
 
 
-@keyframes rotating{
-  from{
-    transform:rotate(0deg);
-  }
-  to{
-    transform:rotate(360deg);
-  }
-}
 
 *:focus {
   outline: 0;

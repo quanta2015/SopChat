@@ -73,7 +73,7 @@ const Sop = ({ index }) => {
     }, []);
   }
 
-
+  // console.log(toJS(store.contList))
   
 
   // 折叠用户菜单
@@ -293,13 +293,19 @@ const Sop = ({ index }) => {
         onContextMenu={(e)=>doShowMenu(e,i)}
       >
       <div className="item-hd">
-        <img src={item?.OssAvatar} />
+
+        <div className="item-logo">
+          {(item.UnreadMsgCount>0) && <i className="uread">{item.UnreadMsgCount}</i> }
+          <img src={item?.OssAvatar} />
+        </div>
+        
+
         <div className="info">
           <div className="hd">
             <span>{item?.UserName}</span>
             {item?.IsDelete===0 && <span className="card">流失</span> }
             {item?.CurrentReceiptionStatus === 0 && tabIndex === 2 && <span className="card">接待</span> }
-            <span>{item?.send_time}</span>
+            <span>{formatTime(item?.LastChatTimestamp)}</span>
           </div>
           <div className="bd">
             <span>{item?.lastMsg}</span>
@@ -360,7 +366,10 @@ const Sop = ({ index }) => {
             <div key={i} className={(selCtUsr===i)?"list-item sel":"list-item"} 
                  onClick={()=>doSelCtUsr(item,i)} >
               <div className="item-hd">
-                <img src={icon_user} />
+                <div className="item-logo">
+                  {(item.MarkAsUnread===0) && <i className="uread"></i> }
+                  <img src={icon_user} />
+                </div>
                 <div className="info">
                   <div className="hd">
                     <span>{item?.NickName}</span>

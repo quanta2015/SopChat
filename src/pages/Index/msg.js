@@ -32,10 +32,12 @@ const extractName = (e)=>{
 
 
 export const updateLastMsg =(list,msg)=> {
+  console.log('msg',msg)
   list.map((item,i)=>{
     if (item.ConversationId === msg.data.data.conversation_id) {
-      item.msg = clone(msg.data.data)
+      // item.msg = clone(msg.data.data)
       switch(msg.data.type) {
+        case MSG.txt: item.lastMsg = msg?.data?.data?.content;break;
         case MSG.img: item.lastMsg = "【图片】";break;
         case MSG.file: item.lastMsg = "【文件】";break;
       }

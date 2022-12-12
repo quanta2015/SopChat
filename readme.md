@@ -97,15 +97,34 @@
 
 
 #### 5. 疑问逻辑
-1. 关闭机器人
-2. NewExternalUsers是把用户添加到哪个列表？
-3. ReceiveChatMessage的 `主动退出` `心跳`
-4. 角标处理的计算逻辑
-5. 
+```bash
+# NewExternalUsers
+1. 客户发送消息时，更新 `UnreadMsgCount、LastChatTimestamp、IsDelete`
+2. 后台分配把某个客户分配给虚拟客户经理时，将该客户加入 `处理中` 列表
 
 
+# UpdateRoomMsg
+1. 收到新的群聊消息时，更新 `UnreadMsgCount、LastChatTimestamp`
 
 
+# LogoutMessage/LoginMessage
+1. 更新虚拟客户经理列表
+
+
+# SynExternalUsers
+1. 新客户添加进客户列表
+
+
+# UpdateExternalUsers
+1. 更新转交列表
+2. UnreadMsgCount、LastChatTimestamp、IsDelete
+
+
+# ReceiveChatMessage
+1. 异常退出企微账号
+2. 创建群
+3. 添加移除群成员消息提示
+```
 
 
 

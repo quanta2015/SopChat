@@ -20,7 +20,7 @@ import femal from '@/imgs/femal.svg';
 import unknow from '@/imgs/unknow.svg';
 import babyImg from '@/imgs/baby.svg';
 
-import icon_avatar from '@/imgs/icon-avatar.png';
+
 import ImageAvatar from './ImageAvatar.js';
 
 const userTypeData = {

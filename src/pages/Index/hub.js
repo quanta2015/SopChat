@@ -27,7 +27,6 @@ export const initHub =(_store)=>{
   receiveMsgHub.on('ReceiveChatMessage',res => {
     res = JSON.parse(res)
     res.data = JSON.parse(res.data)
-    console.log('chat msg', res)
 
     switch(res.type) {
       case 60001:                    // 转交
@@ -38,17 +37,16 @@ export const initHub =(_store)=>{
   })
 
   receiveMsgHub.on('UpdateExternalUsers', res => {
-    console.log('update user msg', JSON.parse(res))
+    res = JSON.parse(res)
+    console.log('update user msg', res)
     procUpateUsr(res)
-    // cb2(res)
   })
   receiveMsgHub.on('UpdateRoomMsg', res => {
     console.log('room msg', JSON.parse(res))
-    // cb3(res)
+    procRoomMsg(JSON.parse(res))
   })
   receiveMsgHub.on('NewExternalUsers',res => {
     console.log('new user msg', JSON.parse(res))
-    // cb4(res)
   })
 
 
@@ -68,10 +66,27 @@ const procTrans =(msg)=>{
   
 }
 
+
+const procRoomMsg=(msg)=>{
+  updateMsg(store.roomList, msg)
+}
+
+// 更新未读数量、最新回复时间、是否流失
+const updateMsg =(list,msg)=>{
+  list.map((item,i)=>{
+    if (msg.ConversationId === item.ConversationId) {
+      item.MarkAsUnread = msg.MarkAsUnread?0:1
+      item.UnreadMsgCount = msg.UnreadMsgCount
+      item.IsDelete = msg.IsDelete
+      item.LastChatTimestamp = msg.LastChatTimestamp
+    }
+  })
+}
+
 // 处理实时消息回调
 const procUpateUsr = (msg)=>{
-
-
+  updateMsg(store.contList, msg)
+  updateMsg(store.tranList, msg)
 }
 
 // 处理实时消息回调
