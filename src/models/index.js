@@ -57,6 +57,8 @@ export class Index {
   URL_CONTACT_SET_TOP     = `${HEAD_Z}/Contact/ConactTopRequest`
   URL_CONTACT_CANCEL_TOP  = `${HEAD_Z}/Contact/CancelContactTopRequest`
   URL_CONTACT_UPDATE_BOT  = `${HEAD_Z}/Contact/UpdateUserBotSetting`
+  URL_CONTACT_UPDATE_CST  = `${HEAD_Z}/Contact/UpdateConvsationStatus`
+
 
 
   URL_CHAT_HISTORY_LIST   = `${HEAD_Z}/ChatHistory/ChatHistorys`
@@ -83,7 +85,9 @@ export class Index {
   @action setTranList(e) { this.tranList = e }
   
 
+// 
 
+  // 发送消息
   @action
   async sendMsg(data) {
     let { WxId, ConversationId, chatId } = this.curUser
@@ -106,7 +110,7 @@ export class Index {
     let r = await request(this.URL_CHAT_MSG_TEXT, params)
   }
 
-
+  // 更新机器人设置
   @action
   async updateBotSetting(data) {
     this.curUser.Markasantibot = data?0:1
@@ -126,7 +130,7 @@ export class Index {
     console.log('finishProc')
   }
 
-
+  // 发送文件
   @action
   async sendFile(file) {
     let url 
@@ -166,7 +170,7 @@ export class Index {
     const s = await request(url, params)
   }
 
-
+  // 置顶客户
   @action
   async setTop(data) {
     let url = data.isOnTop? this.URL_CONTACT_SET_TOP:this.URL_CONTACT_CANCEL_TOP;
@@ -177,19 +181,42 @@ export class Index {
     const r = await request(url, params);
   }
 
+  // 获取聊天详情列表
   @action
-  async getChatInfo(data,type,we) {
-    let params = {
+  async getChatInfo(type,item) {
+    let params1 = {
       method: 'POST',
       body: JSON.stringify({
-        ...data,
+        WxId: item.WxId,
+        pageIndex: 1,
+        chatId: item?.chatId,
+        ContactUserId:item?.ContactUserId,
+        ConversationId:item?.ConversationId,
+        ConversationIds: [item?.ConversationId],
         Type: 0,
         pageSize: 100,
       }) 
     };
-    let r = await request(this.URL_CHAT_HISTORY_LIST, params)
-    let s = await request(this.URL_CONTACT_RELATION, params)
+    let params2 = {
+      method: 'POST',
+      body: JSON.stringify({
+        WxId: item.WxId,
+        conversationId: [item?.ConversationId],
+        status: item.CurrentReceiptionStatus,
+        changeStatus: 0,
+        orgId: this.user.orgId,
+        userId: this.user.userId,
+      }) 
+    };
+    let r = await request(this.URL_CHAT_HISTORY_LIST, params1)
+    let s = await request(this.URL_CONTACT_RELATION, params1)
+    let t = await request(this.URL_CONTACT_UPDATE_CST, params2)
 
+    // 用户选中时将小红点清零
+    this.curUser.MarkAsUnread = 1
+    this.curUser.UnreadMsgCount = 0
+
+    
     // 是否有更多消息
     s.more = (r.length=== 100)? true:false
 
@@ -201,16 +228,9 @@ export class Index {
 
     // 群聊要过滤消息内容 添加聊天头像
     if (type===MSG.group) {
-      let t = await request(`${this.URL_ROOM_MEMBER_LIST}${data.chatId}`, { method: 'GET' });
+      let t = await request(`${this.URL_ROOM_MEMBER_LIST}${item.chatId}`, { method: 'GET' });
       t = t.data.dataSource
-      // console.log('ttttt',t)
-
-
-      console.log(r)
-      // 过滤群聊消息
-      // r = r.filter(o=> o.WxId.length === MSG.len)
-           // .filter(o=> o.Msg.type !== MSG.mem)
-
+      
       r.map(o=>{
         t.map(p=>{
           if (o.Msg.data.sender === p.id) {
@@ -222,14 +242,14 @@ export class Index {
       })
     }else{
       // 私聊设置聊天头像
-      r.map(o=>o.WeAvatar = (o.WxId===o.Msg.data.sender)?we.WeAvatar:we.Avatar)
+      r.map(o=>o.WeAvatar = (o.WxId===o.Msg.data.sender)?item.WeAvatar:item.Avatar)
     }
-
-
 
     return { his: r, rel: s}
   }
 
+
+  // 获取客户、群聊、处理客户列表
   @action
   async getDataList(data) {
     let params = { 
@@ -256,11 +276,12 @@ export class Index {
   }
 
 
+  // 获取虚拟客户经理、客户、群聊、处理客户列表
   @action
   async getOnlineWxUserList() {
     let WxIds = []
     let r = await request(this.URL_ONLINE_WX_USR_LIST,{ method: 'POST', });
-    // console.log('r',r)
+    console.log('URL_ONLINE_WX_USR_LIST',r)
 
     this.weList = clone(r)
     r.map((o,i)=>WxIds.push(o.WxId))
@@ -282,7 +303,10 @@ export class Index {
     const v = await request(this.URL_CONTACT_TRANSFER,params);
 
 
-    log(s,'trans')
+    console.log('ROOM_LIST',s)
+    console.log('ALL_LIST',t)
+    console.log('USR_LIST',u)
+    console.log('TRAN_LIST',v)
 
     const read = [0,0,0]
     procData(this.weList,s,t,u,read)
@@ -326,6 +350,7 @@ export class Index {
   }
 
 
+  // 获取处理中客户列表
   @action
   async getProcList() {
     let WxIds = []
@@ -350,6 +375,7 @@ export class Index {
   }
 
 
+  // 用户登录鉴权
   @action
   async login() {
     const env = "pre"
@@ -370,7 +396,9 @@ export class Index {
     console.log(s.data)
   }
 
+
   // -- Client ---------------------------------------------------
+
   @action
   async initClient() {
     let { CorpId, ExternalUserId, UnionId } = this.chatRel;

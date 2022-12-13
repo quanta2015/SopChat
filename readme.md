@@ -96,7 +96,7 @@
 ```
 
 
-#### 5. 疑问逻辑
+#### 5. 实时消息解析
 ```bash
 # NewExternalUsers
 1. 客户发送消息时，更新 `UnreadMsgCount、LastChatTimestamp、IsDelete`
@@ -109,6 +109,8 @@
 
 # LogoutMessage/LoginMessage
 1. 更新虚拟客户经理列表
+
+
 
 
 # SynExternalUsers

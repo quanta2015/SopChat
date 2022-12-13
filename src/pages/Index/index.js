@@ -4,7 +4,7 @@ import { observer, inject, history,connect,userMobxStore } from 'umi';
 import { toJS } from 'mobx'
 import { Switch,Input,Tabs,message } from 'antd';
 import { formatTime,clone,scrollToBottom,fileToBlob,log,insertMsg } from '@/utils/common'
-import { sortList } from '@/utils/procData';
+import { sortListS,sortListG } from '@/utils/procData';
 import { Tooltip } from '@/components/Tooltip';
 import { QQFace } from '@/components/QQFace';
 import { ChatSide } from '@/components/ChatSide';
@@ -145,31 +145,21 @@ const Sop = ({ index }) => {
 
     let _contList = toJS(store.contList)
     let _procList = toJS(store.procList)
-    sortList(_contList)
-    sortList(_procList)
+    sortListG(_contList)
+    sortListG(_procList)
+    sortListS(s)
     store.setContList(_contList)
     store.setProcList(_procList)
   }
 
   // 选择聊天对象
   const doSelCtUsr=(item,i)=>{
-    // console.log(toJS(item))
-    let params = {
-      WxId: item.WxId,
-      pageIndex: 1,
-      chatId: item?.chatId,
-      ContactUserId:item.ContactUserId,
-      ConversationId:item.ConversationId,
-      ConversationIds: [item.ConversationId],
-    }
-
     setSelCtUsr(i)
     setSelCtMenu(-1)
     setCurUser(item)
     store.setCurUser(item)
 
-    store.getChatInfo(params,selTab,item).then((r) => {
-      // console.log(r.his)
+    store.getChatInfo(selTab,item).then((r) => {
       setShowChat(true)
       store.setChatHis(clone(r.his))
       store.setChatRel(clone(r.rel))

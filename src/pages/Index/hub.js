@@ -6,7 +6,8 @@ import { formatTime,clone,scrollToBottom,fileToBlob } from '@/utils/common'
 const signalR = require("@microsoft/signalr");
 const timeout = [0,1,2,4,10,20,30,40].map(o=>o=o*5000)
 const URL_CHAT = `https://pt-prod.lbian.cn/chathub`
-
+const LOGIN  = 0
+const LOGOUT = 1
 
 var receiveMsgHub = null
 var store = null 
@@ -27,6 +28,8 @@ export const initHub =(_store)=>{
   receiveMsgHub.on('ReceiveChatMessage',res => {
     res = JSON.parse(res)
     res.data = JSON.parse(res.data)
+
+    console.log('chat msg', res)
 
     switch(res.type) {
       case 60001:                    // 转交
@@ -49,6 +52,16 @@ export const initHub =(_store)=>{
     console.log('new user msg', JSON.parse(res))
   })
 
+  receiveMsgHub.on('LoginMessage',res => {
+    res = JSON.parse(res)
+    procLogInOut(res,LOGIN)
+    console.log('Login msg', res)
+  })
+  receiveMsgHub.on('logoutmessage',res => {
+    res = JSON.parse(res)
+    procLogInOut(res,LOGOUT)
+    console.log('Logout msg', res)
+  })
 
   receiveMsgHub.onclose((err) => {
      console.log('连接断开了：', err)
@@ -59,6 +72,40 @@ export const initHub =(_store)=>{
        console.log('消息接收连接失败：', err)
   })
 
+}
+
+
+const procLogInOut=(msg,type)=>{
+  console.log(type,'type')
+  console.log(msg,'msg')
+  console.log(toJS(store.userList),'userlist old')
+  switch(type) {
+    case LOGIN: 
+      msg.map(o=>store.userList.push(o)); 
+      break;
+    case LOGOUT: 
+      store.userList.map((item,i)=>{
+        if (item.WxId === msg.wxid) {
+          store.userList.splice(i,1)
+        }
+      })
+      break;
+  }
+  console.log(toJS(store.userList),'userlist new')
+
+
+
+  // store.userList.map((item,i)=>{
+  //   if (item.WxId === msg.wxid) {
+  //     switch(type) {
+  //       case LOGIN: 
+  //         msg.map(o=>store.userList.push(o)); 
+  //         console.log(toJS(store.userList),'userlist new')
+  //         break;
+  //       case LOGOUT: store.userList.splice(i,1);break;
+  //     }
+  //   }
+  // })
 }
 
 
