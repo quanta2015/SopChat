@@ -13,6 +13,7 @@ var receiveMsgHub = null
 var store = null 
 
 
+
 export const initHub =(_store)=>{
   store = _store
 
@@ -29,12 +30,12 @@ export const initHub =(_store)=>{
     res = JSON.parse(res)
     res.data = JSON.parse(res.data)
 
-    console.log('chat msg', res)
+    
 
     switch(res.type) {
-      case 60001:                    // 转交
-      case 60002:                    // 收回转交
-      case 60003: procTrans();break; // 退回转交
+      case 60001:                       // 转交
+      case 60002:                       // 收回转交
+      case 60003: procTrans(res);break; // 退回转交
       default: procHisMsg(res);
     }
   })
@@ -75,13 +76,16 @@ export const initHub =(_store)=>{
 }
 
 
+// 虚拟客户经理上下线
 const procLogInOut=(msg,type)=>{
-  console.log(type,'type')
-  console.log(msg,'msg')
-  console.log(toJS(store.userList),'userlist old')
   switch(type) {
     case LOGIN: 
-      msg.map(o=>store.userList.push(o)); 
+      msg.map(o=>{
+        let exist = store.userList.filter(o=> o.WxId === msg.wxid)
+        if (!exist.length) {
+          store.userList.push(o)
+        }
+      }); 
       break;
     case LOGOUT: 
       store.userList.map((item,i)=>{
@@ -91,26 +95,48 @@ const procLogInOut=(msg,type)=>{
       })
       break;
   }
-  console.log(toJS(store.userList),'userlist new')
-
-
-
-  // store.userList.map((item,i)=>{
-  //   if (item.WxId === msg.wxid) {
-  //     switch(type) {
-  //       case LOGIN: 
-  //         msg.map(o=>store.userList.push(o)); 
-  //         console.log(toJS(store.userList),'userlist new')
-  //         break;
-  //       case LOGOUT: store.userList.splice(i,1);break;
-  //     }
-  //   }
-  // })
 }
 
 
 const procTrans =(msg)=>{
-  
+  let { data } = msg
+
+  if (msg.type === 60001) {
+    data.Avatar = data.TransferWxIcon
+    data.OssAvatar = data.TransferWxIcon
+    data.UserName = data.TransferWxName
+    data.LastChatTimestamp = msg.timestamp
+
+    if (data.ToUserId === store.user.userId) {
+      data.info_t = `${data.FromUserName} => ${data.ToUserName}`
+      data.status_t = 2
+      data.toMe = true
+      store.tranList.push(data)
+    }else if (data.FromUserId === store.user.userId) {
+      findItem(store.procList, msg.data,'ConversationId',(i,item)=>{
+        item.info_t = `${data.FromUserName} => ${data.ToUserName}`
+        item.status_t = 1
+        item.Id = data.Id
+      })
+    }
+  }else if (msg.type === 60002){
+    findItem(store.procList, msg.data,'ConversationId',(i,item)=>{
+      item.info_t = ''
+      item.status_t = 0
+    })
+  }else if (msg.type === 60003){
+    if (data.ToUserId === store.user.userId) {
+      findItem(store.tranList, msg.data,'ConversationId',(i,item)=>{
+        store.tranList.splice(i,1)
+      })
+    }else if (data.FromUserId === store.user.userId) {
+      findItem(store.procList, msg.data,'ConversationId',(i,item)=>{
+        item.info_t = ''
+        item.status_t = 0
+      })
+    }
+    
+  }
 }
 
 
@@ -125,6 +151,7 @@ const updateMsg =(list,msg)=>{
       item.MarkAsUnread = msg.MarkAsUnread?0:1
       item.UnreadMsgCount = msg.UnreadMsgCount
       item.IsDelete = msg.IsDelete
+      item.CurrentReceiptionStatus = msg.CurrentReceiptionStatus
       item.LastChatTimestamp = msg.LastChatTimestamp
     }
   })
@@ -138,6 +165,7 @@ const procUpateUsr = (msg)=>{
 
 // 处理实时消息回调
 const procHisMsg = (msg)=>{
+  console.log('chat msg', msg)
   let _msg
   let _chatHis  = toJS(store.chatHis)
   let _curUser  = toJS(store.curUser)
@@ -176,3 +204,13 @@ const procHisMsg = (msg)=>{
   store.setContList(clone(_contList))
   store.setProcList(clone(_procList))
 } 
+
+
+
+const findItem =(list,item,key,cb) => {
+  list.map((o,i)=>{
+    if (o[key] === item[key]) {
+      cb(i,o)
+    }
+  })
+}

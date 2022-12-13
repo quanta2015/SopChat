@@ -253,6 +253,19 @@ const Sop = ({ index }) => {
     setInputMsg(e.currentTarget.value)
   }
 
+  const doTransReturn=(item,e)=>{
+    e.stopPropagation()
+    store.transferReturn(item)
+  }
+
+  const doTransBack=(item,e)=>{
+    e.stopPropagation()
+    store.transferBack(item)
+  }
+
+
+  
+
 
   // 置顶对话框
   const topContent = (item,tabIndex) =>{
@@ -305,13 +318,13 @@ const Sop = ({ index }) => {
       {(item?.status_t === 1) && 
       <div className="item-ft">
         <label>{item?.info_t}</label>
-        { (tabIndex === 0) && <span> 收回</span>}
+        { (tabIndex === 0) && <span onClick={(e)=>doTransBack(item,e)}> 收回</span>}
       </div>}
 
       {item?.status_t === 2 && 
       <div className="item-ft">
         <label>{item?.info_t}</label>
-        { (tabIndex === 0) && <span> 退回</span>}
+        { (tabIndex === 0) && <span onClick={(e)=>doTransReturn(item,e)}> 退回</span>}
       </div>}
     </div>
   )
@@ -320,10 +333,11 @@ const Sop = ({ index }) => {
   const RenderItemList = (tabIndex)=>{
     let list = []
     let type = ''
-    let tran = toJS(store.tranList).filter(o=> o.toMe )
+    let tran = store.tranList.filter(o=> o.toMe )
+    // let tran = store.tranList
     let tranLen = tran.length
 
-    // console.log('tran',tran)
+    // console.log('tran',toJS(store.procList))
 
     switch(tabIndex) {
       case 0: list = doFilter(store.procList,'NickName'); break;

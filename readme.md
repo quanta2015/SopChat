@@ -97,9 +97,11 @@
 
 
 #### 5. 实时消息解析
+
+已经完成
 ```bash
 # NewExternalUsers
-1. 客户发送消息时，更新 `UnreadMsgCount、LastChatTimestamp、IsDelete`
+1. 客户发送消息时，更新 `UnreadMsgCount、LastChatTimestamp、IsDelete、CurrentReceiptionStatus`
 2. 后台分配把某个客户分配给虚拟客户经理时，将该客户加入 `处理中` 列表
 
 
@@ -111,15 +113,15 @@
 1. 更新虚拟客户经理列表
 
 
-
-
-# SynExternalUsers
-1. 新客户添加进客户列表
-
-
 # UpdateExternalUsers
-1. 更新转交列表
-2. UnreadMsgCount、LastChatTimestamp、IsDelete
+1. 客户将虚拟客户删除时，更新 `UnreadMsgCount、LastChatTimestamp、IsDelete、CurrentReceiptionStatus`
+```
+
+
+未完成
+```bash
+# SynExternalUsers 
+1. 新客户添加进客户列表
 
 
 # ReceiveChatMessage

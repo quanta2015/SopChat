@@ -25,6 +25,24 @@ const Z = {
 }
 
 
+const setTranData = (to,fr)=>{
+    to.LatestMsg = JSON.parse(o.LatestMsg)
+    to.lastMsg = fr.LatestMsg?.data?.content
+    to.OssAvatar = fr.TransferWxIcon
+    to.Avatar = fr.TransferWxIcon
+    to.UserName = fr.TransferWxName
+    if (to.ToUserId === this.user.userId) {
+      to.info_t = `${fr.FromUserName} => ${fr.ToUserName}`
+      to.status_t = 2
+    }else if (to.FromUserId === this.user.userId) {
+      to.info_t = `${fr.FromUserName} => ${fr.ToUserName}`
+      to.status_t = 1
+    }else {
+      to.status_t = 0
+    }
+  }
+
+
 export class Index {
   @observable curUser = null;
   @observable chatHis = [];
@@ -65,7 +83,10 @@ export class Index {
   URL_CHAT_HISTORY_SEARCH = `${HEAD_Z}/ChatHistory/SearchChatHistorys`
 
 
-  URL_CONTACT_TRANSFER    = `${HEAD_Z}/Transfer/List`
+  URL_CONTACT_TRANS_LIST  = `${HEAD_Z}/Transfer/List`
+  URL_CONTACT_TRANS_RETURN= `${HEAD_Z}/Transfer/TransferReturn`
+  URL_CONTACT_TRANS_BACK  = `${HEAD_Z}/Transfer/TransferBack`
+
 
 
   URL_UPLOAD              = `${HEAD_Z}/File/UploadFile`
@@ -85,7 +106,36 @@ export class Index {
   @action setTranList(e) { this.tranList = e }
   
 
-// 
+  
+
+  // 退回转交
+  @action
+  async transferReturn(data) {
+    let params = {
+      method: 'POST',
+      body: JSON.stringify({
+        Id: data.Id,
+      }) 
+    };
+    await request(this.URL_CONTACT_TRANS_RETURN, params)
+  }
+
+  // 收回转交
+  @action
+  async transferBack(data) {
+    console.log(toJS(data),'aaa')
+    let params = {
+      method: 'POST',
+      body: JSON.stringify({
+        Id: data.Id,
+      }) 
+    };
+    await request(this.URL_CONTACT_TRANS_BACK, params)
+  }
+
+
+
+  
 
   // 发送消息
   @action
@@ -300,54 +350,72 @@ export class Index {
     const s = await request(this.URL_ROOM_CONTACT_LIST,params);
     const t = await request(this.URL_CONTACT_ALL_LIST,params);
     const u = await request(this.URL_CONTACT_USR_LIST,params);
-    const v = await request(this.URL_CONTACT_TRANSFER,params);
+    const v = await request(this.URL_CONTACT_TRANS_LIST,params);
 
-
-    console.log('ROOM_LIST',s)
-    console.log('ALL_LIST',t)
-    console.log('USR_LIST',u)
-    console.log('TRAN_LIST',v)
 
     const read = [0,0,0]
     procData(this.weList,s,t,u,read)
 
-    let tran = []
+
     // All 计算转交标记
+    v.map((o,j)=>{
+      o.LatestMsg = JSON.parse(o.LatestMsg)
+      o.lastMsg = o.LatestMsg?.data?.content
+      o.OssAvatar = o.TransferWxIcon
+      o.Avatar = o.TransferWxIcon
+      o.UserName = o.TransferWxName
+      if (o.ToUserId === this.user.userId) {
+        o.info_t = `${o.FromUserName} => ${o.ToUserName}`
+        o.status_t = 2
+      }else if (o.FromUserId === this.user.userId) {
+        o.info_t = `${o.FromUserName} => ${o.ToUserName}`
+        o.status_t = 1
+      }else {
+        o.status_t = 0
+      }
+      o.toMe = (o.ToUserId===this.user.userId)
+    })
+
+
     t.map((item,i)=>{
       v.map((o,j)=>{
-        // console.log(o.ConversationId,item.ConversationId)
-        if (o.ConversationId===item.ConversationId) {
-          item.status_t = Z.tran_n
-          // console.log(o)
-          if (o.ToUserId === this.user.userId) {
-            item.info_t = `${o.FromUserName} => ${o.ToUserName}`
-            item.status_t = Z.tran_t
-          }else if (o.FromUserId === this.user.userId) {
-            item.info_t = `${o.FromUserName} => ${o.ToUserName}`
-            item.status_t = Z.tran_b
-          }else {
-            item.status_t = Z.tran_n
-          }
-          tran.push({...item,...o})
+        if ((item.ConversationId === o.ConversationId)&&(o.FromUserId === this.user.userId)) {
+          item.Id = o.Id
+          item.info_t = `${o.FromUserName} => ${o.ToUserName}`
+          item.status_t = 1
         }
       })
     })
-
+    u.map((item,i)=>{
+      v.map((o,j)=>{
+        if ((item.ConversationId === o.ConversationId)&&(o.FromUserId === this.user.userId)) {
+          item.Id = o.Id
+          item.info_t = `${o.FromUserName} => ${o.ToUserName}`
+          item.status_t = 1
+        }
+      })
+    })
+    
     // Trans
-    tran.map(o=> o.toMe = (o.ToUserId===this.user.userId) )
+    // tran.map(o=> o.toMe = (o.ToUserId===this.user.userId) )
 
-    // console.log(tran,'trans')
+    // console.log('ROOM_LIST',s)
+    // console.log('ALL_LIST',t)
+    console.log('USR_LIST',u)
+    console.log('TRAN_LIST',v)
 
     this.setUserList(r)
     this.setProcList(u)
     this.setRoomList(s)
     this.setContList(t)
-    this.setTranList(tran)
+    this.setTranList(v)
 
 
     return {read:read}
     
   }
+
+  
 
 
   // 获取处理中客户列表
@@ -385,6 +453,8 @@ export class Index {
       from: "normal",
       username: "17839637528",
       password: "59a7f9cfa6d9b19914659110debf8cdc",
+      // username: "13657086451",
+      // password: "4af29b04aba82d265b7a0a5cf14eb657",
     }
     const SERVER = `https://rhyy.pre.suosishequ.com`
     let r = await request(`${SERVER}/gateway/auth/oauth/token?${stringify(params)}`)
