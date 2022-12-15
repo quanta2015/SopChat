@@ -1,7 +1,7 @@
 import { toJS } from 'mobx'
 import { MSG,RenderMsgDetail,updateLastMsg,initMsg,initLink,initApp } from './msg'
-import { formatTime,clone,scrollToBottom,fileToBlob,getUniqueListBy } from '@/utils/common'
-import { initUnRead } from '@/utils/procData';
+import { formatTime,clone,scrollToBottom,fileToBlob,getUniqueListBy,findItem } from '@/utils/common'
+import { initUnRead,sortListS } from '@/utils/procData';
 
 const signalR = require("@microsoft/signalr");
 const timeout = [0,1,2,4,10,20,30,40].map(o=>o=o*5000)
@@ -13,7 +13,7 @@ var receiveMsgHub = null
 var store = null 
 
 
-
+// 初始化 signalr
 export const initHub =(_store)=>{
   store = _store
 
@@ -49,7 +49,7 @@ export const initHub =(_store)=>{
   })
   receiveMsgHub.on('NewExternalUsers',res => {
     console.log('new user msg', JSON.parse(res))
-    
+    procNewUsr(JSON.parse(res))
   })
   receiveMsgHub.on('SynExternalUsers',res => {
     console.log('Syn user msg', JSON.parse(res))
@@ -76,18 +76,29 @@ export const initHub =(_store)=>{
   })
 }
 
-
-// 新加人员到【客户】列表
-export const procSynUsr=(msg)=>{
-  let list = getUniqueListBy(msg,'ConversationId')
-  list.map((item,i)=>{
+// 添加用户到列表
+const addUsrToList=(list,msg, lastMsg)=> {
+  let _list = getUniqueListBy(msg,'ConversationId')
+  _list.map((item,i)=>{
     item.OssAvatar = item.Avatar
     item.IsDelete = item.IsDelete?0:1
     item.isOnTop = item.isOnTop?0:1
     item.MarkAsUnread = item.MarkAsUnread?0:1
-    item.lastMsg = '【新人入群】'
+    item.lastMsg = lastMsg
     store.contList.push(item)
   })
+}
+
+
+// 新加人员到【客户】列表
+export const procSynUsr=(msg)=>{
+  addUsrToList(store.contList,msg,'【新人入群】')
+}
+
+
+// 新加人员到【处理中】列表
+export const procNewUsr=(msg)=>{
+  addUsrToList(store.contList,msg,msg?.data?.data?.lastMsg)
 }
 
 
@@ -117,6 +128,7 @@ const procLogInOut=(msg,type)=>{
 const procTrans =(msg)=>{
   let { data } = msg
 
+  // 转交
   if (msg.type === 60001) {
     data.Avatar = data.TransferWxIcon
     data.OssAvatar = data.TransferWxIcon
@@ -135,12 +147,12 @@ const procTrans =(msg)=>{
         item.Id = data.Id
       })
     }
-  }else if (msg.type === 60002){
+  }else if (msg.type === 60002) { //收回转交
     findItem(store.procList, msg.data,'ConversationId',(i,item)=>{
       item.info_t = ''
       item.status_t = 0
     })
-  }else if (msg.type === 60003){
+  }else if (msg.type === 60003) { //退回转交
     if (data.ToUserId === store.user.userId) {
       findItem(store.tranList, msg.data,'ConversationId',(i,item)=>{
         store.tranList.splice(i,1)
@@ -151,13 +163,23 @@ const procTrans =(msg)=>{
         item.status_t = 0
       })
     }
-    
   }
 }
 
-
-const procRoomMsg=(msg)=>{
-  updateMsg(store.roomList, msg)
+// 处理群聊消息
+export const procRoomMsg=(msg)=>{
+  let roomList = clone(store.roomList)
+  let exist = roomList.filter(e=> e.ConversationId===msg.ConversationId)
+  
+  // 如果群聊存在，则修改聊天标签、未读
+  if (exist.length) {
+    updateMsg(roomList, msg)
+  }else{ //群聊不存在，则加入群聊列表
+    msg.MarkAsUnread = 0
+    roomList.push(msg)
+    sortListS(roomList)
+    store.setRoomList(roomList)
+  }
 }
 
 // 更新未读数量、最新回复时间、是否流失
@@ -180,24 +202,24 @@ const procUpateUsr = (msg)=>{
   updateMsg(store.tranList, msg)
 }
 
+
+// 处理群聊成员消息
 const initSysMsg=(msg,type)=>{ 
   let userList = msg.data?.data?.member_list.map(e=>e.name).join('","')
   let ret = { 
     sys: 1,
     msg: type?`${userList}加入群聊`:`你已将${userList}移出群聊`,  
   }
-
-  console.log('msg-aaa',ret)
-
   return ret
 }
 
-// 处理实时消息回调
+
+// 处理聊天消息
 const procHisMsg = (msg)=>{
   let _msg
   let cid = msg?.data?.data?.conversation_id
   
-  
+  // 分类处理
   switch(msg.data.type) {
     case MSG.iniGrp: break;                                 // 创建群
     case MSG.addUsr:_msg=initSysMsg(msg,0);break;           // 添加群成员
@@ -215,7 +237,6 @@ const procHisMsg = (msg)=>{
   }
 
   console.log('msg',msg)
-  // console.log('cid',cid)
 
   // 更新聊天记录
   if (store.curUser?.ConversationId === cid) {
@@ -243,16 +264,5 @@ const procHisMsg = (msg)=>{
   store.unread = initUnRead(store.contList)
 } 
 
-const setRoomUsr =(msg)=>{
-  
-  console.log('room user change:',msg)
-}
 
 
-const findItem =(list,item,key,cb) => {
-  list.map((o,i)=>{
-    if (o[key] === item[key]) {
-      cb(i,o)
-    }
-  })
-}

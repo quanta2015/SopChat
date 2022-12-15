@@ -112,14 +112,13 @@
 1. 新客户添加进客户列表
 
 
-
 # NewExternalUsers
 1. 客户发送消息时，更新 `UnreadMsgCount、LastChatTimestamp、IsDelete、CurrentReceiptionStatus`
 
 
 # UpdateRoomMsg
-1. 收到新的群聊消息时，更新 `UnreadMsgCount、LastChatTimestamp`
-
+1. 如果收到的群消息 ConversationId 存在，更新 `UnreadMsgCount、LastChatTimestamp`
+2. 如果收到的群消息 ConversationId 不存在，则添加到群聊列表
 
 # LogoutMessage/LoginMessage
 1. 更新虚拟客户经理列表
@@ -127,18 +126,19 @@
 
 # UpdateExternalUsers
 1. 客户将虚拟客户删除时，更新 `UnreadMsgCount、LastChatTimestamp、IsDelete、CurrentReceiptionStatus`
+
+
+# NewExternalUsers
+2. 后台分配把某个客户分配给虚拟客户经理时，将该客户加入 `处理中` 列表
 ```
 
 
 未完成
 ```bash
-# NewExternalUsers
-2. 后台分配把某个客户分配给虚拟客户经理时，将该客户加入 `处理中` 列表
-
 # ReceiveChatMessage
-1. 异常退出企微账号：关闭企业微信，没有消息
-2. 创建群：创建之后没有下发消息
-5. 客户自动关闭机器人
+1. 异常退出企微账号
+2. 创建群
+3. 客户自动关闭机器人
 ```
 
 

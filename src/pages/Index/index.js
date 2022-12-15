@@ -9,7 +9,7 @@ import { Tooltip } from '@/components/Tooltip';
 import { QQFace } from '@/components/QQFace';
 import { ChatSide } from '@/components/ChatSide';
 import { MSG,RenderMsgDetail,updateLastMsg,initMsg,initLink,initApp } from './msg'
-import { initHub } from './hub'
+import { initHub,procRoomMsg } from './hub'
 
 import './index.less';
 import './msg.less';
@@ -260,34 +260,45 @@ const Sop = ({ index }) => {
 
 
   const doOpenNotify=(e)=>{
-    let msg = [
-    {
-        "WxId": "1688854703403498",
-        "Gender": 0,
-        "CorpId": 0,
-        "ContactUserId": "7881302266120813",
-        "ConversationId": "S:1688854703403498_7881302266120813",
-        "Avatar": "http://wx.qlogo.cn/mmhead/CkBYF6IYNs3zrcRRBDaqspYUCKKw0OwgwsrUl9Z0730icrnXw4ia3lTw/0",
-        "NickName": "",
-        "UserName": "李太白",
-        "RealName": "",
-        "Remark": "",
-        "Position": "",
-        "IsDelete": false,
-        "isOnTop": false,
-        "MarkAsUnread": false,
-        "UnreadMsgCount": 0,
-        "Markasantibot": false,
-        "DeleteTime": "0001-01-01 00:00:00",
-        "CurrentReceiptionStatus": 4,
-        "LastChatTimestamp": 0,
-        "CreateOn": "2022-12-15 11:13:41",
-        "Id": 11118,
-        "ModifyDatetime": "2022-12-15 11:13:41"
-    }
-]
+    // 新加客户
+    // let msg = [{
+    //     "WxId": "1688854703403498",
+    //     "ContactUserId": "7881302266120813",
+    //     "ConversationId": "S:1688854703403498_7881302266120813",
+    //     "Avatar": "http://wx.qlogo.cn/mmhead/CkBYF6IYNs3zrcRRBDaqspYUCKKw0OwgwsrUl9Z0730icrnXw4ia3lTw/0",
+    //     "UserName": "李太白",
+    //     "IsDelete": false,
+    //     "isOnTop": false,
+    //     "MarkAsUnread": false,
+    //     "UnreadMsgCount": 0,
+    //     "Markasantibot": false,
+    //     "CurrentReceiptionStatus": 4,
+    // }]
+    // procSynUsr(msg)
 
-    procSynUsr(msg)
+    // 新加 room
+    let msg = {
+      "WxId": "1688856848362567",
+      "ConversationId": "R:wrAIhCKgAAE2A7ISwwVAqdnhnps9e8lg",
+      "CreateTime": 1671088937,
+      "CreateUserId": "1688856848362567",
+      "IsExternal": 1,
+      "IsManager": 2,
+      "NickName": "礼拜群",
+      "Total": 1,
+      "LeaderId": "1688856848362567",
+      "chatId": "wrAIhCKgAAE2A7ISwwVAqdnhnps9e8lg",
+      "CurrentReceiptionStatus": 0,
+      "LastChatTimestamp": 1671089010812,
+      "MarkAsUnread": true,
+      "UnreadMsgCount": 0,
+      "AntiBot": 0,
+      "IsRemoved": false,
+      "CreateOn": "2022-12-15 15:22:19",
+      "Id": 1506,
+      "ModifyDatetime": "2022-12-15 15:23:30"
+    }
+    procRoomMsg(msg)
     // notify('aaa','this is a',icon_avatar,doDetail)
   }
 

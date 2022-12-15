@@ -21,6 +21,14 @@ dayjs.extend(relativeTime)
 import icon_avatar from '@/imgs/icon-avatar.png';
 
 
+export const findItem =(list,item,key,cb) => {
+  list.map((o,i)=>{
+    if (o[key] === item[key]) {
+      cb(i,o)
+    }
+  })
+}
+
 export const getUniqueListBy=(arr, key)=> {
     return [...new Map(arr.map(item => [item[key], item])).values()]
 }

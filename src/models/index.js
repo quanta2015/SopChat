@@ -394,11 +394,16 @@ export class Index {
 
     initTransInfo(t,v,this)
     initTransInfo(u,v,this)
+
+
+    // let s1 = s.filter(e=> e.ConversationId!=="R:wrAIhCKgAAE2A7ISwwVAqdnhnps9e8lg")
     
-    // console.log('ROOM_LIST',s)
-    console.log('ALL_LIST',t)
-    console.log('USR_LIST',u)
-    console.log('TRAN_LIST',v)
+    console.log('ROOM_LIST',s)
+    // console.log('ALL_LIST',t)
+    // console.log('USR_LIST',u)
+    // console.log('TRAN_LIST',v)
+
+    
 
     this.setUserList(r)
     this.setProcList(u)
@@ -454,7 +459,7 @@ export class Index {
 
     let s = await request(`${SERVER}/gateway/auth/oauth/loginInfo`)
     this.setUser(s.data)
-    console.log(token)
+    // console.log(token)
   }
 
 
