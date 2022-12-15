@@ -2,8 +2,8 @@ import React, { useState, useEffect,useCallback,useRef } from 'react';
 import cls from 'classnames';
 import { observer, inject, history,connect,userMobxStore } from 'umi';
 import { toJS } from 'mobx'
-import { Switch,Input,Tabs,message } from 'antd';
-import { formatTime,clone,scrollToBottom,fileToBlob,log,insertMsg } from '@/utils/common'
+import { Switch,Input,Tabs,message,notification,Button} from 'antd';
+import { formatTime,clone,scrollToBottom,fileToBlob,log,insertMsg,notify } from '@/utils/common'
 import { sortListS,sortListG } from '@/utils/procData';
 import { Tooltip } from '@/components/Tooltip';
 import { QQFace } from '@/components/QQFace';
@@ -13,6 +13,9 @@ import { initHub } from './hub'
 
 import './index.less';
 import './msg.less';
+
+
+import {procSynUsr} from '@/pages/Index/hub'
 
 
 import icon_wechat from '@/imgs/icon-wechat.png'
@@ -25,8 +28,7 @@ import icon_face   from '@/imgs/icon-face.png'
 import icon_img    from '@/imgs/icon-img.png'
 import icon_file   from '@/imgs/icon-file.png'
 import icon_side   from '@/imgs/icon-side.svg'
-import img_face    from '@/imgs/img-face.png'
-
+import icon_avatar from '@/imgs/icon-avatar.png'
 
 
 const tabList   = ["处理中","群聊","客户"]
@@ -51,7 +53,6 @@ const Sop = ({ index }) => {
   const [selCtUsr,setSelCtUsr] = useState(-1) 
   const [selCtMenu,setSelCtMenu] = useState(-1)
   const [userList,setUserList] = useState([]) 
-  const [readList,setReadList] = useState([0,0,0])
   const [filter,  setFilter]   = useState('')
   const [curUser, setCurUser]  = useState(null)
   const [pageIndex, setPageIndex]  = useState(1)
@@ -63,18 +64,10 @@ const Sop = ({ index }) => {
   }else {
     useEffect(() => {
       store.getOnlineWxUserList().then((r) => {
-        setReadList(r.read)
-        // store.setUserList(r.user)
-        // store.setProcList(r.proc)
-        // store.setRoomList(r.room)
-        // store.setContList(r.cont)
         initHub(store)
       });
     }, []);
   }
-
-  // console.log(toJS(store.contList))
-  
 
   // 折叠用户菜单
   const doCollapse =()=>{
@@ -105,7 +98,6 @@ const Sop = ({ index }) => {
       store.setProcList(r.proc)
       store.setRoomList(r.room)
       store.setContList(r.cont)
-      setReadList(r.read)
     });
   }
 
@@ -263,8 +255,45 @@ const Sop = ({ index }) => {
     store.transferBack(item)
   }
 
+  // console.dir(toJS(store.curUser))
 
-  
+
+
+  const doOpenNotify=(e)=>{
+    let msg = [
+    {
+        "WxId": "1688854703403498",
+        "Gender": 0,
+        "CorpId": 0,
+        "ContactUserId": "7881302266120813",
+        "ConversationId": "S:1688854703403498_7881302266120813",
+        "Avatar": "http://wx.qlogo.cn/mmhead/CkBYF6IYNs3zrcRRBDaqspYUCKKw0OwgwsrUl9Z0730icrnXw4ia3lTw/0",
+        "NickName": "",
+        "UserName": "李太白",
+        "RealName": "",
+        "Remark": "",
+        "Position": "",
+        "IsDelete": false,
+        "isOnTop": false,
+        "MarkAsUnread": false,
+        "UnreadMsgCount": 0,
+        "Markasantibot": false,
+        "DeleteTime": "0001-01-01 00:00:00",
+        "CurrentReceiptionStatus": 4,
+        "LastChatTimestamp": 0,
+        "CreateOn": "2022-12-15 11:13:41",
+        "Id": 11118,
+        "ModifyDatetime": "2022-12-15 11:13:41"
+    }
+]
+
+    procSynUsr(msg)
+    // notify('aaa','this is a',icon_avatar,doDetail)
+  }
+
+  const doDetail =()=>{
+    console.log('aaa')
+  }
 
 
   // 置顶对话框
@@ -351,6 +380,8 @@ const Sop = ({ index }) => {
     //   log(o.NickName)
     // })
 
+    console.log('his',toJS(store.chatHis))
+
     return (
       <div className="contact">
         <div className="search">
@@ -428,7 +459,7 @@ const Sop = ({ index }) => {
           <li><Switch defaultChecked onChange={doRefreshProcList} /></li>
           <li>|</li>
           <li>开启机器人</li>
-          <li><img src={icon_edit} /></li>
+          <li onClick={doOpenNotify}><img src={icon_edit} /></li>
         </header>
         <div className="wrap">
           <div className="chat-lt">
@@ -436,7 +467,7 @@ const Sop = ({ index }) => {
               {tabList.map((item,i)=> 
                 <span key={i} className={(i===selTab)?"sel":""} onClick={()=>doSelTab(i)}>
                   {item}  
-                  {(readList[i]>0) && <i className="unread">{readList[i]}</i>}
+                  {(store.unread>0) && (i===2) && <i className="unread">{store.unread}</i>}
                 </span>
               )}
             </div>
@@ -469,38 +500,43 @@ const Sop = ({ index }) => {
                     
 
                     {store.chatHis.map((item,i)=>
-                      <div className={(item.WxId===item.Msg.data.sender)?"msg rec":"msg my"} key={i}>
-                        <div className="msg-line">
+                      <React.Fragment key={i}>
+                        {(!item?.sys) &&
+                        <div className={(item?.WxId===item?.Msg?.data?.sender)?"msg rec":"msg my"} >
+                          <div className="msg-line">
 
-                          <div className="avatar">
-                            <img src={item.WeAvatar} />
+                            <div className="avatar">
+                              <img src={item.WeAvatar} />
+                            </div>
+                            <div className="msg-detail">
+                              <div className="msg-info">
+                                {item.Msg.data.sender_name || item.UserName} {item.Timestamp}
+                              </div>
+                              <div className="msg-wrap">
+                                {/*{(item.Send_Status === 0) && <div className="msg-status r"><img src={icon_load} /></div>}*/}
+                                {(item.Send_Status ===-1) && <div className="msg-status"  ><img src={icon_error} /></div>}
+                                
+                                {item?.WxId===item?.Msg?.data?.sender && 
+                                  <Tooltip 
+                                    position='left' 
+                                    content={msgContent(list)}
+                                    trigger='click' 
+                                    closeEvent='mouseleave'
+                                    enterable={true}
+                                    timeout={300}
+                                    >
+                                    <i className='msg-menu'>···</i>
+                                  </Tooltip>} 
+                                {RenderMsgDetail(item.Msg)}
+                              </div>
+                              {(item.Send_Status === 0) && <i className="msg-status"> 发送中...</i>}
+                            </div> 
                           </div>
-                          <div className="msg-detail">
-                            <div className="msg-info">
-                              {item.Msg.data.sender_name || item.UserName} {item.Timestamp}
-                            </div>
-                            <div className="msg-wrap">
-                              {/*{(item.Send_Status === 0) && <div className="msg-status r"><img src={icon_load} /></div>}*/}
-                              {(item.Send_Status ===-1) && <div className="msg-status"  ><img src={icon_error} /></div>}
-                              
-                              {item.WxId===item.Msg.data.sender && 
-                                <Tooltip 
-                                  position='left' 
-                                  content={msgContent(list)}
-                                  trigger='click' 
-                                  closeEvent='mouseleave'
-                                  enterable={true}
-                                  timeout={300}
-                                  >
-                                  <i className='msg-menu'>···</i>
-                                </Tooltip>} 
-                              {RenderMsgDetail(item.Msg)}
-                            </div>
-                            {(item.Send_Status === 0) && <i className="msg-status"> 发送中...</i>}
-                          </div> 
-                        </div>
-                      </div>
+                        </div>}
 
+                        {(item?.sys) && <div className="sys-msg">{item.inf}</div>}
+
+                      </React.Fragment>
                     )}
                   </div>
                   <div className="sendbox">

@@ -1,7 +1,7 @@
 import { toJS } from 'mobx'
 import { MSG,RenderMsgDetail,updateLastMsg,initMsg,initLink,initApp } from './msg'
-import { formatTime,clone,scrollToBottom,fileToBlob } from '@/utils/common'
-
+import { formatTime,clone,scrollToBottom,fileToBlob,getUniqueListBy } from '@/utils/common'
+import { initUnRead } from '@/utils/procData';
 
 const signalR = require("@microsoft/signalr");
 const timeout = [0,1,2,4,10,20,30,40].map(o=>o=o*5000)
@@ -26,11 +26,10 @@ export const initHub =(_store)=>{
     .withAutomaticReconnect(timeout)
     .build()
 
+
   receiveMsgHub.on('ReceiveChatMessage',res => {
     res = JSON.parse(res)
     res.data = JSON.parse(res.data)
-
-    
 
     switch(res.type) {
       case 60001:                       // 转交
@@ -39,7 +38,6 @@ export const initHub =(_store)=>{
       default: procHisMsg(res);
     }
   })
-
   receiveMsgHub.on('UpdateExternalUsers', res => {
     res = JSON.parse(res)
     console.log('update user msg', res)
@@ -51,8 +49,12 @@ export const initHub =(_store)=>{
   })
   receiveMsgHub.on('NewExternalUsers',res => {
     console.log('new user msg', JSON.parse(res))
+    
   })
-
+  receiveMsgHub.on('SynExternalUsers',res => {
+    console.log('Syn user msg', JSON.parse(res))
+    procSynUsr(JSON.parse(res))
+  })
   receiveMsgHub.on('LoginMessage',res => {
     res = JSON.parse(res)
     procLogInOut(res,LOGIN)
@@ -72,11 +74,24 @@ export const initHub =(_store)=>{
   }).catch(err => {
        console.log('消息接收连接失败：', err)
   })
-
 }
 
 
-// 虚拟客户经理上下线
+// 新加人员到【客户】列表
+export const procSynUsr=(msg)=>{
+  let list = getUniqueListBy(msg,'ConversationId')
+  list.map((item,i)=>{
+    item.OssAvatar = item.Avatar
+    item.IsDelete = item.IsDelete?0:1
+    item.isOnTop = item.isOnTop?0:1
+    item.MarkAsUnread = item.MarkAsUnread?0:1
+    item.lastMsg = '【新人入群】'
+    store.contList.push(item)
+  })
+}
+
+
+//【虚拟客户经理】上下线
 const procLogInOut=(msg,type)=>{
   switch(type) {
     case LOGIN: 
@@ -98,6 +113,7 @@ const procLogInOut=(msg,type)=>{
 }
 
 
+//【转交消息处理】
 const procTrans =(msg)=>{
   let { data } = msg
 
@@ -157,54 +173,80 @@ const updateMsg =(list,msg)=>{
   })
 }
 
+
 // 处理实时消息回调
 const procUpateUsr = (msg)=>{
   updateMsg(store.contList, msg)
   updateMsg(store.tranList, msg)
 }
 
+const initSysMsg=(msg,type)=>{ 
+  let userList = msg.data?.data?.member_list.map(e=>e.name).join('","')
+  let ret = { 
+    sys: 1,
+    msg: type?`${userList}加入群聊`:`你已将${userList}移出群聊`,  
+  }
+
+  console.log('msg-aaa',ret)
+
+  return ret
+}
+
 // 处理实时消息回调
 const procHisMsg = (msg)=>{
-  console.log('chat msg', msg)
   let _msg
-  let _chatHis  = toJS(store.chatHis)
-  let _curUser  = toJS(store.curUser)
-  let _contList = toJS(store.contList)
-  let _procList = toJS(store.procList)
-  let _cid = _curUser?.ConversationId
-  let cid  = msg?.data?.data?.conversation_id
-
-
+  let cid = msg?.data?.data?.conversation_id
+  
+  
   switch(msg.data.type) {
-    case MSG.iniGrp: break; // 创建群
-    case MSG.addUsr: break; // 添加群成员
-    case MSG.delUsr: break; // 删除群成员
-    case MSG.link:  _msg=initLink(msg,_curUser);break; // 图文链接
-    case MSG.app:   _msg=initApp(msg,_curUser);break;  // 小程序
-    case MSG.txt:                                      // 文本消息
-    case MSG.img:                                      // 图片消息
-    case MSG.video:                                    // 视频消息
-    case MSG.audio:                                    // 语音消息
-    case MSG.file:                                     // 文件消息
-    case MSG.gif:   _msg=initMsg(msg,_curUser); break; // 表情消息
-    default:        _msg=initMsg(msg,_curUser);
+    case MSG.iniGrp: break;                                 // 创建群
+    case MSG.addUsr:_msg=initSysMsg(msg,0);break;           // 添加群成员
+    case MSG.delUsr:_msg=initSysMsg(msg,1);break;           // 删除群成员
+    case MSG.link:  _msg=initLink(msg,store.curUser);break; // 图文链接
+    case MSG.app:   _msg=initApp(msg,store.curUser);break;  // 小程序
+    case MSG.txt:                                           // 文本消息
+    case MSG.img:                                           // 图片消息
+    case MSG.video:                                         // 视频消息
+    case MSG.audio:                                         // 语音消息
+    case MSG.file:                                          // 文件消息
+    case MSG.gif:   _msg=initMsg(msg,store.curUser); break; // 表情消息
+    default: 
+      console.log(toJS(msg));return;
   }
-  // console.log('_msg',_msg,msg)
+
+  console.log('msg',msg)
+  // console.log('cid',cid)
 
   // 更新聊天记录
-  if (cid === _cid) {
-    _chatHis.push(_msg)
-    store.setChatHis(clone(_chatHis))
+  if (store.curUser?.ConversationId === cid) {
+    console.log('_msg',_msg)
+    store.chatHis.push(_msg)
     scrollToBottom()
   }
   
   // 更新列表的 LastMsg
-  updateLastMsg(_contList,msg)
-  updateLastMsg(_procList,msg)
-  store.setContList(clone(_contList))
-  store.setProcList(clone(_procList))
+  updateLastMsg(store.contList,msg)
+  updateLastMsg(store.procList,msg)
+
+  // 重新计算未读消息
+  store.contList.map((item,i)=>{
+    // 不是当前选中聊天对象
+    if ((cid===item.ConversationId)&&(cid !== store?.curUser?.ConversationId)) {
+      item.UnreadMsgCount ++
+    } else // 当前选中聊天对象
+    if ((cid===item.ConversationId)&&(cid === store?.curUser?.ConversationId)) {
+      // 当前选中聊天对象
+      store.curUser.UnreadMsgCount = 0
+      item.UnreadMsgCount = 0
+    }
+  })
+  store.unread = initUnRead(store.contList)
 } 
 
+const setRoomUsr =(msg)=>{
+  
+  console.log('room user change:',msg)
+}
 
 
 const findItem =(list,item,key,cb) => {

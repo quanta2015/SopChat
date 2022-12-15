@@ -1,4 +1,5 @@
 import { clone } from '@/utils/common'
+import { toJS } from 'mobx'
 import { faceList,faceMap } from '@/components/QQFace/util'
 
 import '@/components/QQFace/index.less'
@@ -21,7 +22,6 @@ export const MSG = {
   link:  11047, 
   gif:   11048,
   app:   11066, 
-  mem:   11072,
 }
 
 
@@ -32,7 +32,7 @@ const extractName = (e)=>{
 
 
 export const updateLastMsg =(list,msg)=> {
-  console.log('msg',msg)
+  // console.log('msg',msg)
   list.map((item,i)=>{
     if (item.ConversationId === msg.data.data.conversation_id) {
       // item.msg = clone(msg.data.data)
@@ -140,6 +140,10 @@ const RenderCard=(msg)=>(
   </a>
 )
 
+// const RenderRoomInfo =(msg)=> {
+//   <span>{msg.member_list.join(',')}</span>
+// }
+
 export const RenderMsgDetail = (msg)=>{
   switch(msg.type) {
     case MSG.txt:  return RenderTxt(msg.data);
@@ -150,6 +154,12 @@ export const RenderMsgDetail = (msg)=>{
     case MSG.file: return RenderFile(msg.data);
     case MSG.video:return RenderVideo(msg.data);
     case MSG.audio:return RenderAudio(msg.data);
+    // case MSG.addUsr:return RenderRoomInfo(msg.data,0);
+    // case MSG.delUsr:return RenderRoomInfo(msg.data,1);
+
+    default: 
+      console.log(toJS(msg))
+      console.log('不支持的消息')
   }
 }
 

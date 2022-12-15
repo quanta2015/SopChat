@@ -1,8 +1,8 @@
 /* eslint-disable no-param-reassign */
 import { observable, action,toJS } from 'mobx';
-import { message }  from 'antd';
+import { message,notification }  from 'antd';
 import { request,upload }  from '@/services/req';
-import { procData } from '@/utils/procData';
+import { procData,initUnRead } from '@/utils/procData';
 import { clone }    from '@/utils/common';
 import { stringify } from 'qs';
 import { formatTime,log,parseFile } from '@/utils/common'
@@ -17,6 +17,9 @@ import iconAvatar from '@/imgs/icon-avatar.png'
 
 const HEAD_Z = `https://pt-prod.lbian.cn`
 const HEAD_S = `https://rhyy.pre.suosishequ.com/gateway/group/web/internalGroupManager/zm`
+const HEAD_T = `https://front.sit.suosihulian.com/gateway/crm/mobile`
+
+
 
 const Z = {
   tran_n: 0,
@@ -25,26 +28,26 @@ const Z = {
 }
 
 
-const setTranData = (to,fr)=>{
-    to.LatestMsg = JSON.parse(o.LatestMsg)
-    to.lastMsg = fr.LatestMsg?.data?.content
-    to.OssAvatar = fr.TransferWxIcon
-    to.Avatar = fr.TransferWxIcon
-    to.UserName = fr.TransferWxName
-    if (to.ToUserId === this.user.userId) {
-      to.info_t = `${fr.FromUserName} => ${fr.ToUserName}`
-      to.status_t = 2
-    }else if (to.FromUserId === this.user.userId) {
-      to.info_t = `${fr.FromUserName} => ${fr.ToUserName}`
-      to.status_t = 1
-    }else {
-      to.status_t = 0
-    }
-  }
+const initTransInfo =(tList,vList,that)=>{
+  tList.map((item,i)=>{
+    vList.map((o,j)=>{
+      if ((item.ConversationId === o.ConversationId)&&(o.FromUserId === that.user.userId)) {
+        item.Id = o.Id
+        item.info_t = `${o.FromUserName} => ${o.ToUserName}`
+        item.status_t = 1
+      }
+    })
+  })
+}
+
+
+
+
 
 
 export class Index {
   @observable curUser = null;
+  @observable unread  = 0;
   @observable chatHis = [];
   @observable chatRel = {};
   @observable userList = [];
@@ -68,7 +71,6 @@ export class Index {
   URL_ONLINE_WX_USR_LIST  = `${HEAD_Z}/WxUser/OnlineWxUserList`
   URL_ROOM_CONTACT_LIST   = `${HEAD_Z}/Room/RoomContactList`
   // URL_ROOM_MEMBER_LIST    = `${HEAD_Z}/Room/RoomMemberList`
-  URL_ROOM_MEMBER_LIST    = `${HEAD_S}/findMemberList?chatId=`
   URL_CONTACT_USR_LIST    = `${HEAD_Z}/Contact/GetUserContactList`
   URL_CONTACT_ALL_LIST    = `${HEAD_Z}/Contact/AllContactListWithstatus`
   URL_CONTACT_RELATION    = `${HEAD_Z}/Contact/GetContactRelation`
@@ -77,7 +79,9 @@ export class Index {
   URL_CONTACT_UPDATE_BOT  = `${HEAD_Z}/Contact/UpdateUserBotSetting`
   URL_CONTACT_UPDATE_CST  = `${HEAD_Z}/Contact/UpdateConvsationStatus`
 
-
+  URL_ROOM_MEMBER_LIST    = `${HEAD_S}/findMemberList?chatId=`
+  URL_CONTACT_UNREAD_NUM  = `${HEAD_T}/comchat/unreadNum`
+  
 
   URL_CHAT_HISTORY_LIST   = `${HEAD_Z}/ChatHistory/ChatHistorys`
   URL_CHAT_HISTORY_SEARCH = `${HEAD_Z}/ChatHistory/SearchChatHistorys`
@@ -265,6 +269,9 @@ export class Index {
     // 用户选中时将小红点清零
     this.curUser.MarkAsUnread = 1
     this.curUser.UnreadMsgCount = 0
+    this.unread = initUnRead(this.contList)
+
+
 
     
     // 是否有更多消息
@@ -289,11 +296,19 @@ export class Index {
             o.WeAvatar = iconAvatar
           }
         })
+        if ((o.Msg.type === 11072)||(o.Msg.type === 11073)) {
+          let userList = o.Msg?.data?.member_list.map(e=>e.name).join('","')
+          o.sys = 1
+          o.inf = (o.Msg.type === 11072)?`"${userList}"加入群聊`:`你已将"${userList}"移出群聊`
+        }
       })
     }else{
       // 私聊设置聊天头像
       r.map(o=>o.WeAvatar = (o.WxId===o.Msg.data.sender)?item.WeAvatar:item.Avatar)
     }
+
+
+    console.log('his',toJS(r))
 
     return { his: r, rel: s}
   }
@@ -318,11 +333,10 @@ export class Index {
     const s = await request(this.URL_ROOM_CONTACT_LIST,params);
     const t = await request(this.URL_CONTACT_ALL_LIST, params);
     const u = await request(this.URL_CONTACT_USR_LIST, params);
-    const read = [0,0,0]
-    procData(this.weList,s,t,u,read)
+    procData(this.weList,s,t,u)
 
     console.log(s,t,u)
-    return { room:s, cont:t, proc: u, read: read}
+    return { room:s, cont:t, proc: u}
   }
 
 
@@ -352,9 +366,11 @@ export class Index {
     const u = await request(this.URL_CONTACT_USR_LIST,params);
     const v = await request(this.URL_CONTACT_TRANS_LIST,params);
 
+    // let params2 = { method: 'POST', body: JSON.stringify({ wxIdList: WxIds }) };
+    // const n = await request(this.URL_CONTACT_UNREAD_NUM,params2);
 
-    const read = [0,0,0]
-    procData(this.weList,s,t,u,read)
+    procData(this.weList,s,t,u)
+    this.unread = initUnRead(t)
 
 
     // All 计算转交标记
@@ -376,31 +392,11 @@ export class Index {
       o.toMe = (o.ToUserId===this.user.userId)
     })
 
-
-    t.map((item,i)=>{
-      v.map((o,j)=>{
-        if ((item.ConversationId === o.ConversationId)&&(o.FromUserId === this.user.userId)) {
-          item.Id = o.Id
-          item.info_t = `${o.FromUserName} => ${o.ToUserName}`
-          item.status_t = 1
-        }
-      })
-    })
-    u.map((item,i)=>{
-      v.map((o,j)=>{
-        if ((item.ConversationId === o.ConversationId)&&(o.FromUserId === this.user.userId)) {
-          item.Id = o.Id
-          item.info_t = `${o.FromUserName} => ${o.ToUserName}`
-          item.status_t = 1
-        }
-      })
-    })
+    initTransInfo(t,v,this)
+    initTransInfo(u,v,this)
     
-    // Trans
-    // tran.map(o=> o.toMe = (o.ToUserId===this.user.userId) )
-
     // console.log('ROOM_LIST',s)
-    // console.log('ALL_LIST',t)
+    console.log('ALL_LIST',t)
     console.log('USR_LIST',u)
     console.log('TRAN_LIST',v)
 
@@ -409,10 +405,6 @@ export class Index {
     this.setRoomList(s)
     this.setContList(t)
     this.setTranList(v)
-
-
-    return {read:read}
-    
   }
 
   
@@ -436,9 +428,8 @@ export class Index {
         userId: this.user.userId,
       }) 
     };
-    const u = await request(this.URL_CONTACT_USR_LIST,params);
-    const read = [0,0,0]
-    procData(this.weList,[],[],u,read)
+    const u = await request(this.URL_CONTACT_USR_LIST,params)
+    procData(this.weList,[],[],u)
     return {proc: u}
   }
 
@@ -463,12 +454,11 @@ export class Index {
 
     let s = await request(`${SERVER}/gateway/auth/oauth/loginInfo`)
     this.setUser(s.data)
-    console.log(s.data)
+    console.log(token)
   }
 
 
   // -- Client ---------------------------------------------------
-
   @action
   async initClient() {
     let { CorpId, ExternalUserId, UnionId } = this.chatRel;
@@ -489,7 +479,6 @@ export class Index {
 
     return { detail,control }
   }
-
 
   
 }

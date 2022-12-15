@@ -4,6 +4,7 @@ import moment from 'moment';
 import React from 'react';
 import nzh from 'nzh/cn';
 import store from 'store2';
+import { Button,notification} from 'antd';
 import { parse, stringify } from 'qs';
 import { base,debug } from '@/conf';
 import { url } from '@/services/service-utils.js';
@@ -18,6 +19,21 @@ dayjs.extend(relativeTime)
 
 
 import icon_avatar from '@/imgs/icon-avatar.png';
+
+
+export const getUniqueListBy=(arr, key)=> {
+    return [...new Map(arr.map(item => [item[key], item])).values()]
+}
+
+
+export const notify = (message,description,icon,cb) => {
+  notification.open({
+    message,
+    description,
+    icon: <img src={icon} />,
+    btn: <Button type="primary" onClick={cb}>详情</Button>
+  });
+};
 
 function getDateTimeStamp(dateStr) {
   return new Date(dateStr).getTime();

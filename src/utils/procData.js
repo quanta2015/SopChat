@@ -21,14 +21,11 @@ const formatMsg =(list)=>{
 }
 
 // 计算未读消息
-const initUnRead =(r,list)=>{
+export const initUnRead =(list,count=0)=>{
   list.map((o,i)=>{
-    let count = 0
-    o.map((p,j)=>{
-      if (p.UnreadMsgCount) count++
-    })
-    r[i] = count
+    if (o.UnreadMsgCount) count+=o.UnreadMsgCount
   })
+  return count
 }
 
 
@@ -62,17 +59,13 @@ const formatInfo =(weList,list)=>{
 }
 
 
-export const procData = (weList,s,t,u,read)=>{
+export const procData = (weList,s,t,u)=>{
   // 格式化聊天消息和时间
   formatMsg(t)
   formatMsg(u)
   sortListG(t)
   sortListG(u)
   sortListS(s)
-  
-
-  // 计算未读消息
-  initUnRead(read, [s,t,u])
 
   // 补充虚拟客户经理信息
   formatInfo(weList,[s,t,u])
