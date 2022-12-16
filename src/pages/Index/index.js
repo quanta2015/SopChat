@@ -102,10 +102,8 @@ const Sop = ({ index }) => {
   }
 
   // 刷新开启接待用户列表
-  const doRefreshProcList =()=>{
-    store.getProcList().then((r) => {
-      store.setProcList(r.proc)
-    });
+  const doRefreshProcList =(e)=>{
+    store.refreshProcList(e)
   }
 
 
@@ -467,7 +465,7 @@ const Sop = ({ index }) => {
       <div className="main">
         <header>
           <li>开启接待</li>
-          <li><Switch defaultChecked onChange={doRefreshProcList} /></li>
+          <li><Switch checked={store.conf.robot} onChange={(e)=>doRefreshProcList(e)}  /></li>
           <li>|</li>
           <li>开启机器人</li>
           <li onClick={doOpenNotify}><img src={icon_edit} /></li>

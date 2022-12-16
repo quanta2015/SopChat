@@ -218,6 +218,9 @@ const initSysMsg=(msg,type)=>{
 const procHisMsg = (msg)=>{
   let _msg
   let cid = msg?.data?.data?.conversation_id
+
+
+  console.log('chat msg',msg)
   
   // 分类处理
   switch(msg.data.type) {
@@ -236,7 +239,7 @@ const procHisMsg = (msg)=>{
       console.log(toJS(msg));return;
   }
 
-  console.log('msg',msg)
+  // console.log('msg',msg)
 
   // 更新聊天记录
   if (store.curUser?.ConversationId === cid) {

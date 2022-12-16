@@ -56,6 +56,7 @@ export class Index {
   @observable procList = [];
   @observable tranList = [];
   @observable user = {};
+  @observable conf = { robot:false, rid: null };
 
 
   weList = []
@@ -67,7 +68,9 @@ export class Index {
   //   "orgId": "3301001000005"
   // }
   
- 
+
+
+
   URL_ONLINE_WX_USR_LIST  = `${HEAD_Z}/WxUser/OnlineWxUserList`
   URL_ROOM_CONTACT_LIST   = `${HEAD_Z}/Room/RoomContactList`
   // URL_ROOM_MEMBER_LIST    = `${HEAD_Z}/Room/RoomMemberList`
@@ -78,6 +81,9 @@ export class Index {
   URL_CONTACT_CANCEL_TOP  = `${HEAD_Z}/Contact/CancelContactTopRequest`
   URL_CONTACT_UPDATE_BOT  = `${HEAD_Z}/Contact/UpdateUserBotSetting`
   URL_CONTACT_UPDATE_CST  = `${HEAD_Z}/Contact/UpdateConvsationStatus`
+  URL_CONTACT_CONF_LOAD   = `${HEAD_Z}/Contact/GetUserRecSetting`
+  URL_CONTACT_CONF_SAVE   = `${HEAD_Z}/Contact/SaveUserRecSetting`
+
 
   URL_ROOM_MEMBER_LIST    = `${HEAD_S}/findMemberList?chatId=`
   URL_CONTACT_UNREAD_NUM  = `${HEAD_T}/comchat/unreadNum`
@@ -308,7 +314,7 @@ export class Index {
     }
 
 
-    console.log('his',toJS(r))
+    // console.log('his',toJS(r))
 
     return { his: r, rel: s}
   }
@@ -361,6 +367,8 @@ export class Index {
         userId: this.user.userId,
       }) 
     };
+
+    const z = await request(this.URL_CONTACT_CONF_LOAD,params);
     const s = await request(this.URL_ROOM_CONTACT_LIST,params);
     const t = await request(this.URL_CONTACT_ALL_LIST,params);
     const u = await request(this.URL_CONTACT_USR_LIST,params);
@@ -368,6 +376,8 @@ export class Index {
 
     // let params2 = { method: 'POST', body: JSON.stringify({ wxIdList: WxIds }) };
     // const n = await request(this.URL_CONTACT_UNREAD_NUM,params2);
+    log(z,'setting')
+
 
     procData(this.weList,s,t,u)
     this.unread = initUnRead(t)
@@ -398,13 +408,16 @@ export class Index {
 
     // let s1 = s.filter(e=> e.ConversationId!=="R:wrAIhCKgAAE2A7ISwwVAqdnhnps9e8lg")
     
-    console.log('ROOM_LIST',s)
+    // console.log('ROOM_LIST',s)
     // console.log('ALL_LIST',t)
     // console.log('USR_LIST',u)
     // console.log('TRAN_LIST',v)
 
     
-
+    this.conf = {
+      robot: z.turnon===1?true:false,
+      rid: z.id
+    }
     this.setUserList(r)
     this.setProcList(u)
     this.setRoomList(s)
@@ -417,7 +430,7 @@ export class Index {
 
   // 获取处理中客户列表
   @action
-  async getProcList() {
+  async refreshProcList(e) {
     let WxIds = []
     this.weList.map(o=>WxIds.push(o.WxId))
 
@@ -431,11 +444,16 @@ export class Index {
         status: 0,
         orgId: this.user.orgId,
         userId: this.user.userId,
+        turnon: e?1:0,
+        id: this.conf.rid,
       }) 
-    };
+    }
     const u = await request(this.URL_CONTACT_USR_LIST,params)
+    const z = await request(this.URL_CONTACT_CONF_SAVE,params)
     procData(this.weList,[],[],u)
-    return {proc: u}
+
+    this.conf.robot = e
+    this.setProcList(u)
   }
 
 
@@ -447,10 +465,13 @@ export class Index {
       client_id: env,
       client_secret: env,
       from: "normal",
-      username: "17839637528",
-      password: "59a7f9cfa6d9b19914659110debf8cdc",
+      // username: "17839637528",
+      // password: "59a7f9cfa6d9b19914659110debf8cdc",
       // username: "13657086451",
       // password: "4af29b04aba82d265b7a0a5cf14eb657",
+      username: "15201873797",
+      password: "b6ed1a09ca47340ac6bffd5e69cec127",
+      
     }
     const SERVER = `https://rhyy.pre.suosishequ.com`
     let r = await request(`${SERVER}/gateway/auth/oauth/token?${stringify(params)}`)
