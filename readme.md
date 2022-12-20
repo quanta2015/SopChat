@@ -72,29 +72,7 @@
 
 
 
-
-#### 4. 实时消息
-1. 聊天消息 `ReceiveChatMessage`: 处理接受到的聊天消息 `转交`
-2. 更新外部用户 `UpdateExternalUsers`：更新用户状态 `流失` 
-3. 更新群聊消息 `UpdateRoomMsg`：更新群聊消息
-4. 添加外部用户 `NewExternalUsers`：将新用户添加到列表，判断是否置顶排序
-
-```bash
-# ReceiveChatMessage
-1. 转交
-2. 异常退出企微账号
-3. 创建群
-4. 添加删除群成员消息提示
-5. 图文链接消息
-6. 小程序消息
-7. 其他消息
-8. 不支持消息
-9. 角标处理
-10.客户自动关闭机器人
-```
-
-
-#### 5. 实时消息解析
+#### 4. 实时消息解析
 
 已经完成
 ```bash
@@ -114,11 +92,13 @@
 
 # NewExternalUsers
 1. 客户发送消息时，更新 `UnreadMsgCount、LastChatTimestamp、IsDelete、CurrentReceiptionStatus`
+2. 后台分配把某个客户分配给虚拟客户经理时，将该客户加入 `处理中` 列表
 
 
 # UpdateRoomMsg
 1. 如果收到的群消息 ConversationId 存在，更新 `UnreadMsgCount、LastChatTimestamp`
 2. 如果收到的群消息 ConversationId 不存在，则添加到群聊列表
+
 
 # LogoutMessage/LoginMessage
 1. 更新虚拟客户经理列表
@@ -126,10 +106,6 @@
 
 # UpdateExternalUsers
 1. 客户将虚拟客户删除时，更新 `UnreadMsgCount、LastChatTimestamp、IsDelete、CurrentReceiptionStatus`
-
-
-# NewExternalUsers
-2. 后台分配把某个客户分配给虚拟客户经理时，将该客户加入 `处理中` 列表
 ```
 
 
@@ -137,7 +113,6 @@
 ```bash
 # ReceiveChatMessage
 1. 异常退出企微账号
-2. 创建群
 3. 客户自动关闭机器人
 ```
 

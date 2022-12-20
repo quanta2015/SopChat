@@ -1,7 +1,7 @@
 import React, { Children, cloneElement, useEffect, useRef,useState } from 'react'
 import { createPortal } from 'react-dom';
 import { getTooltipPosition,isN } from './util'
-import './index.css'
+import './index.less'
 
 /**
  * children: 将 带有提示 的元素
@@ -19,7 +19,7 @@ import './index.css'
 export const Tooltip = ({
     children,
     pid='body',
-    position="top",
+    position="left",
     content="Text",
     trigger="contextmenu",
     closeEvent="click",
@@ -28,11 +28,13 @@ export const Tooltip = ({
     setOpen = ()=>{},
     gap=8,
     timeout=15000,
+
 }) =>{
     const child = Children.only(children)
     const childRef = useRef()
     const tooltipRef = useRef();
     const [isVisible, setIsVisible] = useState(false);
+    const [hide, setHide] = useState(false);
 
     const setRef = (el) =>{
       childRef.current = el
@@ -44,9 +46,7 @@ export const Tooltip = ({
 
     const showTooltip = async(e,el) =>{
       e.preventDefault();
-      // console.log('el_1',el.getBoundingClientRect())
       await setIsVisible(true)
-      // console.log('el_2',el.getBoundingClientRect())
       setOpen();
 
       const tooltip = tooltipRef.current
@@ -66,10 +66,15 @@ export const Tooltip = ({
     }
 
     const closeTooltip = () =>{
-        if(tooltipRef.current && !tooltipRef.current.enterable){
-          console.log('close')
-          setTimeout(()=>setIsVisible(false),timeout);
-        }
+      const tooltip = tooltipRef.current
+
+      if(tooltipRef.current && !tooltipRef.current.enterable){
+        tooltip.classList.add(`hide`);
+        setTimeout(()=>{
+          setIsVisible(false)
+          tooltip.classList.remove(`hide`);
+        },500);
+      }
     }
 
     useEffect(()=>{
@@ -96,11 +101,12 @@ export const Tooltip = ({
       setIsVisible(open);
     },[open])
 
+
     return <>
       {cloneElement(child,{ref:setRef})}
 
       {isVisible && createPortal(
-        <div ref={tooltipRef} className="tooltip">
+        <div ref={tooltipRef} className={hide?"tooltip hide":"tooltip"}>
           <div>{content}</div>
           <span></span>
         </div>,

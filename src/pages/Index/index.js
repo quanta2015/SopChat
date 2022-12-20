@@ -2,14 +2,15 @@ import React, { useState, useEffect,useCallback,useRef } from 'react';
 import cls from 'classnames';
 import { observer, inject, history,connect,userMobxStore } from 'umi';
 import { toJS } from 'mobx'
-import { Switch,Input,Tabs,message,notification,Button} from 'antd';
+import { Switch,Input,Tabs,message,notification,Button,Modal} from 'antd';
 import { formatTime,clone,scrollToBottom,fileToBlob,log,insertMsg,notify } from '@/utils/common'
 import { sortListS,sortListG } from '@/utils/procData';
 import { Tooltip } from '@/components/Tooltip';
 import { QQFace } from '@/components/QQFace';
+import RobotSetting  from '@/components/RobotSetting';
 import { ChatSide } from '@/components/ChatSide';
 import { MSG,RenderMsgDetail,updateLastMsg,initMsg,initLink,initApp } from './msg'
-import { initHub,procRoomMsg } from './hub'
+import { initHub,procRoomMsg,procNewUsr,weLogout } from './hub'
 
 import './index.less';
 import './msg.less';
@@ -29,7 +30,10 @@ import icon_img    from '@/imgs/icon-img.png'
 import icon_file   from '@/imgs/icon-file.png'
 import icon_side   from '@/imgs/icon-side.svg'
 import icon_avatar from '@/imgs/icon-avatar.png'
+import icon_robot from '@/imgs/icon-robot.svg'
+import icon_stow from '@/imgs/icon-stow.svg'
 
+// icon-stow.svg
 
 const tabList   = ["处理中","群聊","客户"]
 const typeList  = ["联系人","群","联系人"]
@@ -44,6 +48,7 @@ const Sop = ({ index }) => {
 
   const inputEl = useRef(null)
 
+  const [showRobet,setShowRobet] = useState(false)
   const [inputMsg,setInputMsg] = useState("")
   const [collapse,setCollapse] = useState(true) 
   const [showChat,setShowChat] = useState(false) 
@@ -275,29 +280,80 @@ const Sop = ({ index }) => {
     // procSynUsr(msg)
 
     // 新加 room
-    let msg = {
-      "WxId": "1688856848362567",
-      "ConversationId": "R:wrAIhCKgAAE2A7ISwwVAqdnhnps9e8lg",
-      "CreateTime": 1671088937,
-      "CreateUserId": "1688856848362567",
-      "IsExternal": 1,
-      "IsManager": 2,
-      "NickName": "礼拜群",
-      "Total": 1,
-      "LeaderId": "1688856848362567",
-      "chatId": "wrAIhCKgAAE2A7ISwwVAqdnhnps9e8lg",
-      "CurrentReceiptionStatus": 0,
-      "LastChatTimestamp": 1671089010812,
-      "MarkAsUnread": true,
-      "UnreadMsgCount": 0,
-      "AntiBot": 0,
-      "IsRemoved": false,
-      "CreateOn": "2022-12-15 15:22:19",
-      "Id": 1506,
-      "ModifyDatetime": "2022-12-15 15:23:30"
-    }
-    procRoomMsg(msg)
-    // notify('aaa','this is a',icon_avatar,doDetail)
+    // let msg = {
+    //   "WxId": "1688856848362567",
+    //   "ConversationId": "R:wrAIhCKgAAE2A7ISwwVAqdnhnps9e8lg",
+    //   "CreateTime": 1671088937,
+    //   "CreateUserId": "1688856848362567",
+    //   "IsExternal": 1,
+    //   "IsManager": 2,
+    //   "NickName": "礼拜群",
+    //   "Total": 1,
+    //   "LeaderId": "1688856848362567",
+    //   "chatId": "wrAIhCKgAAE2A7ISwwVAqdnhnps9e8lg",
+    //   "CurrentReceiptionStatus": 0,
+    //   "LastChatTimestamp": 1671089010812,
+    //   "MarkAsUnread": true,
+    //   "UnreadMsgCount": 0,
+    //   "AntiBot": 0,
+    //   "IsRemoved": false,
+    //   "CreateOn": "2022-12-15 15:22:19",
+    //   "Id": 1506,
+    //   "ModifyDatetime": "2022-12-15 15:23:30"
+    // }
+    // procRoomMsg(msg)
+
+    // 处理列表新加客户
+    // let msg = {
+    //     "WxId": "1688855187378464",
+    //     "Gender": 0,
+    //     "CorpId": 0,
+    //     "ContactUserId": "7881302637932589",
+    //     "ConversationId": "S:1688855187378464_7881302637932589",
+    //     "Avatar": "http://wx.qlogo.cn/mmhead/CJ35Z2cnZA3VtFzzwIOlKu8UjcYgiaLiaYHbYOxlGAaTgHIIe2HEbZGw/0",
+    //     "OssAvatar": "https://wx-auth.suosihulian.com/chatapi/20220810/f841c52a-6ca1-4878-ba59-732c1bc72df9/bcef02be-9581-4adb-985b-2b126fbce3750",
+    //     "NickName": "",
+    //     "UserName": "8",
+    //     "RealName": "",
+    //     "Remark": "",
+    //     "Position": "",
+    //     "Desc": "",
+    //     "IsDelete": false,
+    //     "isOnTop": false,
+    //     "MarkAsUnread": true,
+    //     "UnreadMsgCount": 1,
+    //     "Markasantibot": false,
+    //     "DeleteTime": "2022-12-15 11:55:03",
+    //     "CurrentReceiptionUser": "1522408338939518978",
+    //     "CurrentReceiptionStatus": 3,
+    //     "LastChatTimestamp": 1671178602467,
+    //     "LatestMsg": "{\"data\":{\"at_list\":[],\"content\":\"你好\",\"content_type\":2,\"conversation_id\":\"S:1688855187378464_7881302637932589\",\"is_pc\":0,\"local_id\":\"197\",\"receiver\":\"1688855187378464\",\"send_time\":\"1671178602\",\"sender\":\"7881302637932589\",\"sender_name\":\"8\",\"server_id\":\"1020612\"},\"type\":11041}"
+    // }
+    // procNewUsr(msg)
+    
+    // 虚拟客户经理掉线
+    // let msg = {
+    //   "data": {
+    //     "user_id": "1688855187378468"
+    //   },
+    //   "type": 11027
+    // }
+    // weLogout(msg)
+
+    setShowRobet(true)
+
+  }
+
+  console.log(showRobet,'showRobet')
+
+  const robotModel = ()=>{
+    return (
+      <Modal title="Basic Modal" >
+        <p>Some contents...</p>
+        <p>Some contents...</p>
+        <p>Some contents...</p>
+      </Modal>
+    )
   }
 
   const doDetail =()=>{
@@ -307,6 +363,8 @@ const Sop = ({ index }) => {
 
   // 置顶对话框
   const topContent = (item,tabIndex) =>{
+
+
     return (
       <div className='pop'>
         <h4>请选择你要进行的操作</h4>
@@ -433,6 +491,7 @@ const Sop = ({ index }) => {
                 position={(i==0 || i==1)? "bottom":"top"} 
                 content={topContent(item,tabIndex)}
                 setOpen={()=>setSelCtMenu(i)}
+
                 >
                 {RenderItemUser(item,i,tabIndex)}
               </Tooltip>)}
@@ -446,10 +505,23 @@ const Sop = ({ index }) => {
   return (
     <div className='g-sop'>
       <div className={collapse?"menu":"menu sm"}>
-        <i onClick={doCollapse}></i>
+        
         <div className="title">
-          <img src={icon_wechat} />
-          <span>企业微信账号({store.userList.length})</span>
+          <div className="item" onClick={doCollapse}>
+            <img src={icon_stow} />
+            <span>折叠</span>
+          </div>
+          <div className="item">
+            <Switch checkedChildren="接待开" unCheckedChildren="接待关" checked={store.conf.robot} onChange={(e)=>doRefreshProcList(e)} style={{width:'70px'}} />
+            {/*<span>接待</span>*/}
+          </div>
+          <div className="item" onClick={doOpenNotify} >
+            <img src={icon_robot} />
+            <span >机器人</span>
+          </div>
+          
+          
+          
         </div>
         {store.userList.map((item,i)=>
           <div className={(selWeUsr===i)?"item sel":"item"} key={i} onClick={()=>doSelWeUsr(i)}>
@@ -463,13 +535,7 @@ const Sop = ({ index }) => {
         )}
       </div>
       <div className="main">
-        <header>
-          <li>开启接待</li>
-          <li><Switch checked={store.conf.robot} onChange={(e)=>doRefreshProcList(e)}  /></li>
-          <li>|</li>
-          <li>开启机器人</li>
-          <li onClick={doOpenNotify}><img src={icon_edit} /></li>
-        </header>
+        
         <div className="wrap">
           <div className="chat-lt">
             <div className="tab">
@@ -529,7 +595,7 @@ const Sop = ({ index }) => {
                                   <Tooltip 
                                     position='left' 
                                     content={msgContent(list)}
-                                    trigger='click' 
+                                    trigger='mouseover' 
                                     closeEvent='mouseleave'
                                     enterable={true}
                                     timeout={300}
@@ -572,7 +638,7 @@ const Sop = ({ index }) => {
                       </div>
                       <div className="sp"></div>
 
-
+                      {(selTab === 2) && 
                       <div className="menu-item">
                         <input 
                           type="checkbox" 
@@ -580,7 +646,7 @@ const Sop = ({ index }) => {
                           onChange={doSetBot}
                           />
                         <label> 临时关闭该机器人</label>
-                      </div>
+                      </div>}
 
                       {(selTab === 0) && 
                         <div className="menu-item" onClick={()=>store.finishProc()}>
@@ -609,6 +675,8 @@ const Sop = ({ index }) => {
           </div>
         </div>
       </div>
+
+      <RobotSetting open={showRobet} closeFn={setShowRobet} store={store}/>
 
     </div>
   );

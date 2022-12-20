@@ -1,6 +1,6 @@
 import { toJS } from 'mobx'
 import { MSG,RenderMsgDetail,updateLastMsg,initMsg,initLink,initApp } from './msg'
-import { formatTime,clone,scrollToBottom,fileToBlob,getUniqueListBy,findItem } from '@/utils/common'
+import { formatTime,clone,scrollToBottom,fileToBlob,getUniqueListBy,findItem,notify,log } from '@/utils/common'
 import { initUnRead,sortListS } from '@/utils/procData';
 
 const signalR = require("@microsoft/signalr");
@@ -85,7 +85,7 @@ const addUsrToList=(list,msg, lastMsg)=> {
     item.isOnTop = item.isOnTop?0:1
     item.MarkAsUnread = item.MarkAsUnread?0:1
     item.lastMsg = lastMsg
-    store.contList.push(item)
+    list.push(item)
   })
 }
 
@@ -98,12 +98,14 @@ export const procSynUsr=(msg)=>{
 
 // 新加人员到【处理中】列表
 export const procNewUsr=(msg)=>{
-  addUsrToList(store.contList,msg,msg?.data?.data?.lastMsg)
+  msg.LatestMsg = JSON.parse(msg.LatestMsg)
+  addUsrToList(store.procList,[msg],msg?.LatestMsg?.data?.content)
 }
 
 
 //【虚拟客户经理】上下线
 const procLogInOut=(msg,type)=>{
+  log('Login and logout')
   switch(type) {
     case LOGIN: 
       msg.map(o=>{
@@ -213,18 +215,28 @@ const initSysMsg=(msg,type)=>{
   return ret
 }
 
+// 处理虚拟客户经理下线
+export const weLogout=(msg)=>{
+  let uid = msg.data.user_id
+  store.userList.map((item,i)=>{
+    if (item.WxId === uid) {
+      store.userList.splice(i,1)
+      log('err logout')
+    }
+  })
+}
+
 
 // 处理聊天消息
 const procHisMsg = (msg)=>{
   let _msg
   let cid = msg?.data?.data?.conversation_id
-
-
   console.log('chat msg',msg)
   
   // 分类处理
   switch(msg.data.type) {
-    case MSG.iniGrp: break;                                 // 创建群
+    case MSG.logout: weLogout(msg);break; // 创建群
+    case MSG.iniGrp: notify('群聊创建成功',null,null,null);break; // 创建群
     case MSG.addUsr:_msg=initSysMsg(msg,0);break;           // 添加群成员
     case MSG.delUsr:_msg=initSysMsg(msg,1);break;           // 删除群成员
     case MSG.link:  _msg=initLink(msg,store.curUser);break; // 图文链接
@@ -266,6 +278,9 @@ const procHisMsg = (msg)=>{
   })
   store.unread = initUnRead(store.contList)
 } 
+
+
+
 
 
 

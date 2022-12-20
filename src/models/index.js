@@ -376,7 +376,7 @@ export class Index {
 
     // let params2 = { method: 'POST', body: JSON.stringify({ wxIdList: WxIds }) };
     // const n = await request(this.URL_CONTACT_UNREAD_NUM,params2);
-    log(z,'setting')
+    // log(z,'setting')
 
 
     procData(this.weList,s,t,u)
@@ -406,7 +406,7 @@ export class Index {
     initTransInfo(u,v,this)
 
 
-    // let s1 = s.filter(e=> e.ConversationId!=="R:wrAIhCKgAAE2A7ISwwVAqdnhnps9e8lg")
+    // let s1 = u.filter(e=> e.ConversationId!=="S:1688855187378464_7881302637932589")
     
     // console.log('ROOM_LIST',s)
     // console.log('ALL_LIST',t)

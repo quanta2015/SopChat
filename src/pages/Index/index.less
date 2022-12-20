@@ -5,17 +5,19 @@
   .menu {
     position: relative;
     background:#eee;
-    width: 230px;
+    width: 270px;
 
     &.sm {
       width: 80px;
-      &>.item>.info {
+      &>.title {
+        flex-direction: column;
+        height: 100px;
+      }
+      .item>span {
         display: none;
       }
-      &>.title>span {
-        display: none;
-      }
-      &>.item>i {
+
+      .item>.info {
         display: none;
       }
     }
@@ -24,13 +26,26 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 5px 10px;
-      background:#fff;
+      background:var(--clr-main);
       margin-bottom: 10px;
       height: var(--menu-height);
+      color: #fff;
 
-      span {
-        margin-left: 10px;
+      .item {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+
+        &>span {
+          margin-left: 5px;
+        }
+
+        img {
+          width: 24px;
+          height: 24px;
+        }
       }
     }
 
@@ -131,7 +146,6 @@
       display: flex;
       height: calc( 100% - 47px);
       background: #fff;
-      border-top: 2px solid #eee;
       background: #eee;
 
       .chat-lt {
@@ -145,16 +159,23 @@
         .tab {
           display: flex;
           justify-content: space-around;
+          background: #EABDBA;
+          color: 000;
+          height: var(--menu-height);
+          min-height: var(--menu-height);
 
           span {
             position: relative;
             padding: 10px 0;
             text-align: center;
             cursor: pointer;
+            border-top: 4px solid transparent;
+            border-bottom: 4px solid transparent;
+            box-sizing: border-box;
 
             &.sel {
-              color: var(--clr-main);
-              border-bottom: 4px solid var(--clr-main);
+              // color: #965555;
+              border-bottom: 4px solid #F78E8E;
             }
 
             &>.unread {
@@ -371,12 +392,14 @@
 
         .chat-hd {
           display: flex;
-          height: 58px;
           width: 100%;
-          line-height: 58px;
+          line-height: var(--menu-height);
           justify-content: space-between;
+          height: var(--menu-height);
+          background:#D7EBF4;
           padding: 0 10px;
-          border-bottom: 1px solid #eee;
+          color: #000;
+          font-weight: bold;
 
           .info {
             display: flex;
@@ -701,22 +724,7 @@
   transform: scale(.9);
 }
 
-.pop{
-  .item{
-    height: 35px;
-    line-height: 35px;
-    padding-left: 10px;
 
-    &+.item{
-      border-top:1px solid #eee ;
-    }
-  }
-
-  .dis{
-    color: #afafaf;
-    cursor: not-allowed;
-  }
-}
 
 .ant-notification-notice {
   padding: 15px 10px!important;
