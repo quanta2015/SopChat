@@ -34,7 +34,6 @@ export const Tooltip = ({
     const childRef = useRef()
     const tooltipRef = useRef();
     const [isVisible, setIsVisible] = useState(false);
-    const [hide, setHide] = useState(false);
 
     const setRef = (el) =>{
       childRef.current = el
@@ -106,7 +105,7 @@ export const Tooltip = ({
       {cloneElement(child,{ref:setRef})}
 
       {isVisible && createPortal(
-        <div ref={tooltipRef} className={hide?"tooltip hide":"tooltip"}>
+        <div ref={tooltipRef} className="tooltip">
           <div>{content}</div>
           <span></span>
         </div>,
