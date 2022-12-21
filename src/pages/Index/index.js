@@ -2,7 +2,7 @@ import React, { useState, useEffect,useCallback,useRef } from 'react';
 import cls from 'classnames';
 import { observer, inject, history,connect,userMobxStore } from 'umi';
 import { toJS } from 'mobx'
-import { Switch,Input,Tabs,message,notification,Button,Modal} from 'antd';
+import { Switch,Input,Tabs,message,notification,Button} from 'antd';
 import { formatTime,clone,scrollToBottom,fileToBlob,log,insertMsg,notify } from '@/utils/common'
 import { sortListS,sortListG } from '@/utils/procData';
 import { Tooltip } from '@/components/Tooltip';
@@ -344,21 +344,6 @@ const Sop = ({ index }) => {
 
   }
 
-  console.log(showRobet,'showRobet')
-
-  const robotModel = ()=>{
-    return (
-      <Modal title="Basic Modal" >
-        <p>Some contents...</p>
-        <p>Some contents...</p>
-        <p>Some contents...</p>
-      </Modal>
-    )
-  }
-
-  const doDetail =()=>{
-    console.log('aaa')
-  }
 
 
   // 置顶对话框
@@ -373,7 +358,11 @@ const Sop = ({ index }) => {
   )}
 
   // 聊天记录对话框
-  const list = [{content:'撤回',status:1},{content:'保存此小程序',status:0},{content:'转发',status:1}]
+  const list = [
+    // {content:'撤回',status:1},
+    // {content:'保存此小程序',status:0},
+    {content:'转发',status:1}
+  ]
   const msgContent = (list)=>{
     return (
       <div className='pop'>
@@ -447,7 +436,7 @@ const Sop = ({ index }) => {
     //   log(o.NickName)
     // })
 
-    console.log('his',toJS(store.chatHis))
+    // console.log('his',toJS(store.chatHis))
 
     return (
       <div className="contact">
@@ -511,13 +500,13 @@ const Sop = ({ index }) => {
             <img src={icon_stow} />
             <span>折叠</span>
           </div>
-          <div className="item">
-            <Switch checkedChildren="接待开" unCheckedChildren="接待关" checked={store.conf.robot} onChange={(e)=>doRefreshProcList(e)} style={{width:'70px'}} />
-            {/*<span>接待</span>*/}
-          </div>
           <div className="item" onClick={doOpenNotify} >
             <img src={icon_robot} />
             <span >机器人</span>
+          </div>
+          <div className="item">
+            <Switch checkedChildren="接待" unCheckedChildren="关闭" checked={store.conf.robot} onChange={(e)=>doRefreshProcList(e)} style={{width:'60px'}} />
+            {/*<span>接待</span>*/}
           </div>
           
           
@@ -588,20 +577,17 @@ const Sop = ({ index }) => {
                                 {item.Msg.data.sender_name || item.UserName} {item.Timestamp}
                               </div>
                               <div className="msg-wrap">
-                                {/*{(item.Send_Status === 0) && <div className="msg-status r"><img src={icon_load} /></div>}*/}
                                 {(item.Send_Status ===-1) && <div className="msg-status"  ><img src={icon_error} /></div>}
-                                
-                                {item?.WxId===item?.Msg?.data?.sender && 
-                                  <Tooltip 
-                                    position='left' 
-                                    content={msgContent(list)}
-                                    trigger='mouseover' 
-                                    closeEvent='mouseleave'
-                                    enterable={true}
-                                    timeout={300}
-                                    >
-                                    <i className='msg-menu'>···</i>
-                                  </Tooltip>} 
+                                <Tooltip 
+                                  position={(item?.WxId===item?.Msg?.data?.sender)?'left':'right' }
+                                  content={msgContent(list)}
+                                  trigger='mouseover' 
+                                  closeEvent='mouseleave'
+                                  enterable={true}
+                                  timeout={300}
+                                  >
+                                  <i className='msg-menu'>···</i>
+                                </Tooltip>
                                 {RenderMsgDetail(item.Msg)}
                               </div>
                               {(item.Send_Status === 0) && <i className="msg-status"> 发送中...</i>}

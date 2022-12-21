@@ -20,21 +20,40 @@ const RobotSetting = ({
   const [indeterminate, setIndeterminate] = useState(true);
   const [checkAll, setCheckAll] = useState(false);
 
+  useEffect(() => {
+    caluCheckStatus()
+  }, [store.userList]);
 
+  const caluCheckStatus = ()=>{
+    let len = store.userList.reduce((p,c) => p+c.IsBotOn,0) 
+    setIndeterminate( len!== store.userList.length && len !== 0 );
+    setCheckAll(len === 0)
+  }
 
   const onChangeAll = (e) => {
+    let list = []
     store.userList.map(item=>{
-      item.IsBotOn = e.target.checked ?1:0
+      item.IsBotOn = e.target.checked ?0:1
+      list.push(item.WxId)
     })
     setIndeterminate(false);
     setCheckAll(e.target.checked);
+
+    updateBotConf(list,e.target.checked)
   };
 
   const onChange = (item,i,e) => {
-    item.IsBotOn = e.target.checked ? 1:0
-    let len = store.userList.reduce((p,c) => p+c.IsBotOn,0) 
-    setIndeterminate(!!len && len < store.userList.length);
-    setCheckAll(len === store.userList.length);
+    item.IsBotOn = e.target.checked ? 0:1
+    caluCheckStatus()
+    updateBotConf([item.WxId],e.target.checked)
+  }
+
+  const updateBotConf =(list,checked)=>{
+    let params ={
+      wxid: list,
+      turnon: checked?'true':'false'
+    }
+    store.updateBotConf(params)
   }
     
   const doClose =(e)=>{
@@ -55,8 +74,8 @@ const RobotSetting = ({
             </div>
             {store.userList.map((item,i)=>
               <div className="row" key={i}>
-                <Checkbox onChange={(e)=>onChange(item,i,e)} checked={item.IsBotOn}>{item.UserName}</Checkbox>
-                <span>{item.IsBotOn?'打开':'关闭'}</span>
+                <Checkbox onChange={(e)=>onChange(item,i,e)} checked={!item.IsBotOn}>{item.UserName}</Checkbox>
+                <span>{!item.IsBotOn?'打开':'关闭'}</span>
               </div>
             )}
           </div>    

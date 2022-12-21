@@ -5,7 +5,7 @@
   border: 1px solid #e4e7ed;
   background-color: #fff;
   box-shadow: 0px 0px 12px rgba(0,0,0,.1);
-  border-radius: 15px;
+  border-radius: 10px;
   transition: .5s;
 
   &.hide {
@@ -39,19 +39,19 @@
     }
     &::after{
       position: absolute;
-    width: 50px;
-    height: 50px;
-    transform: translate(-0%, -50%);
-    content: "";
-    background-color: transparent;
+      width: 50px;
+      height: 50px;
+      transform: translate(-50%, -50%);
+      content: "";
+      background-color: transparent;
     }
   }
 
 
   .pop{
     .item{
-      height: 35px;
-      line-height: 35px;
+      height: 45px;
+      line-height: 45px;
       padding-left: 10px;
       cursor: pointer;
 
@@ -73,26 +73,26 @@
 
 
 .tooltip_bottom>span{
-    top: 0;
+  top: 0;
 }
 .tooltip_bottom>span::before{
-    transform: rotate(-135deg);
+  transform: rotate(-135deg);
 }
 
 .tooltip_left>span{
-    top: 50%;
-    left: 100%;
+  top: 50%;
+  left: 100%;
 }
 .tooltip_left>span::before{
-    transform: rotate(-45deg);
+  transform: rotate(-45deg);
 }
 
 .tooltip_right>span{
-    left: 0;
-    top: 50%;
+  left: 0;
+  top: 50%;
 }
 .tooltip_right>span::before{
-    transform: rotate(135deg);
+  transform: rotate(135deg);
 }
 
 

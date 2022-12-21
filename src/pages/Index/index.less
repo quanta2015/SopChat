@@ -11,14 +11,14 @@
       width: 80px;
       &>.title {
         flex-direction: column;
-        height: 100px;
-      }
-      .item>span {
-        display: none;
+        height: 110px;
+        justify-content: space-evenly;
       }
 
-      .item>.info {
-        display: none;
+      .item {
+        &>span,.info {
+          display: none;
+        }
       }
     }
 
@@ -481,14 +481,15 @@
 
                   .msg-menu{
                     margin: 3px 10px;
-                    padding: 0 5px;
-                    height: 20px;
-                    line-height: 15px;
+                    padding: 5px 12px;
+                    height: 24px;
+                    line-height: 8px;
                     cursor: pointer;
                     border: 1px solid #e4e7ed;
                     border-radius: 3px;
                     font-weight: bold;
-                    font-size: 24px;
+                    font-size: 20px;
+                    color: #999;
                   }
                 }
 
@@ -500,6 +501,7 @@
 
                     .msg-wrap {
                       justify-content: flex-end;
+                      flex-direction: row!important;
                     }
 
                     .msg-info {
@@ -555,8 +557,9 @@
 
                     .msg-wrap {
                       display: flex;
-                      // flex-direction: column;
+                      flex-direction: row-reverse;
                       position: relative;
+                      align-items: center;
 
                       &>.msg-status {
                         font-size: 12px;

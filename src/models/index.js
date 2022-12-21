@@ -97,6 +97,8 @@ export class Index {
   URL_CONTACT_TRANS_RETURN= `${HEAD_Z}/Transfer/TransferReturn`
   URL_CONTACT_TRANS_BACK  = `${HEAD_Z}/Transfer/TransferBack`
 
+  URL_CONFIG_UPDATE_BOT   = `${HEAD_Z}/Config/UpdateBotSetting`
+
 
 
   URL_UPLOAD              = `${HEAD_Z}/File/UploadFile`
@@ -116,6 +118,15 @@ export class Index {
   @action setTranList(e) { this.tranList = e }
   
 
+  // 退回转交
+  @action
+  async updateBotConf(data) {
+    let params = {
+      method: 'POST',
+      body: JSON.stringify(data) 
+    };
+    await request(this.URL_CONFIG_UPDATE_BOT, params)
+  }
   
 
   // 退回转交
