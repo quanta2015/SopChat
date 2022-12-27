@@ -82,7 +82,7 @@ const Sop = ({ index }) => {
 
   const doSelTab =(e)=>{
     setSelTab(e)
-    setSelWeUsr(-1)
+    // setSelWeUsr(-1)
     setShowChat(false)
     setShowSide(false)
   }
@@ -90,12 +90,14 @@ const Sop = ({ index }) => {
   // 选择企微对象
   const doSelWeUsr =(e)=>{
     let WxIds = []
-    if (e===selWeUsr) {
-      setSelWeUsr(-1)
-      store.userList.map((o,i)=>WxIds.push(o.WxId))
+    if (e===store.curWe) {
+      // setSelWeUsr(-1)
+      store.curWe = -1
+      store.userList.map((o,i)=>WxIds.push(o.wxId))
     }else{
-      setSelWeUsr(e)
-      WxIds.push(store.userList[e].WxId)
+      // setSelWeUsr(e)
+      store.curWe = e
+      WxIds.push(store.userList[e].wxId)
     }
 
     store.getDataList(WxIds).then((r) => {
@@ -140,9 +142,10 @@ const Sop = ({ index }) => {
 
     let _contList = toJS(store.contList)
     let _procList = toJS(store.procList)
+    let _roomList = toJS(store.roomList)
     sortListG(_contList)
     sortListG(_procList)
-    sortListS(s)
+    sortListS(_roomList)
     store.setContList(_contList)
     store.setProcList(_procList)
   }
@@ -341,7 +344,6 @@ const Sop = ({ index }) => {
     // weLogout(msg)
 
     setShowRobet(true)
-
   }
 
 
@@ -384,16 +386,16 @@ const Sop = ({ index }) => {
 
         <div className="item-logo">
           {(item.UnreadMsgCount>0) && <i className="uread">{item.UnreadMsgCount}</i> }
-          <img src={item?.OssAvatar} />
+          <img src={item?.ossAvatar} />
         </div>
         
 
         <div className="info">
           <div className="hd">
-            <span>{item?.UserName}</span>
-            {item?.IsDelete===0 && <span className="card">流失</span> }
-            {item?.CurrentReceiptionStatus === 0 && tabIndex === 2 && <span className="card">接待</span> }
-            <span>{formatTime(item?.LastChatTimestamp)}</span>
+            <span>{item?.userName}</span>
+            {item?.isDelete===0 && <span className="card">流失</span> }
+            {item?.currentReceiptionStatus === 0 && tabIndex === 2 && <span className="card">接待</span> }
+            <span>{formatTime(item?.lastChatTimestamp)}</span>
           </div>
           <div className="bd">
             <span>{item?.lastMsg}</span>
@@ -463,9 +465,9 @@ const Sop = ({ index }) => {
                 </div>
                 <div className="info">
                   <div className="hd">
-                    <span>{item?.NickName}</span>
-                    {(item?.IsExternal===1)&&<i>外部</i>}
-                    {(item?.IsManager===2)&&<i>群主</i>}
+                    <span>{item?.nickName}</span>
+                    {(item?.isExternal===1)&&<i>外部</i>}
+                    {(item?.isManager===2)&&<i>群主</i>}
                   </div>
                 </div>
               </div>
@@ -486,6 +488,33 @@ const Sop = ({ index }) => {
               </Tooltip>)}
             </React.Fragment>}
         </div>
+      </div>
+    )
+  }
+
+
+  // 渲染临时关闭机器人
+  const RenderRobConf = ()=>{
+    let WxId = store.curUser.WxId 
+    let robConf = store.userList.filter(e => e.WxId === WxId)[0].IsBotOn
+    let disabled = robConf?true:false
+    let checked
+
+    switch(selTab) {
+      case 0:
+      case 2: checked  = store.curUser.Markasantibot?false:true; break;
+      case 1: checked  = store.curUser.AntiBot?true:false; break;
+    }
+
+    return (
+      <div className="menu-item">
+        <input 
+          type="checkbox" 
+          checked={checked}
+          disabled={disabled}
+          onChange={doSetBot}
+          />
+        <label> 临时关闭该机器人</label>
       </div>
     )
   }
@@ -513,13 +542,13 @@ const Sop = ({ index }) => {
           
         </div>
         {store.userList.map((item,i)=>
-          <div className={(selWeUsr===i)?"item sel":"item"} key={i} onClick={()=>doSelWeUsr(i)}>
-            <img src={item.OssAvatar} />
+          <div className={(store.curWe===i)?"item sel":"item"} key={i} onClick={()=>doSelWeUsr(i)}>
+            <img src={item.ossAvatar} />
             <div className="info">
-              <label>{item.UserName}</label>
-              <span>{item.CorpName}</span>
+              <label>{item.userName}</label>
+              <span>{item.corpName}</span>
             </div>
-            {item.LoginType === 2 && <i className="login-type">RPA</i>}
+            {item.loginType === 2 && <i className="login-type">RPA</i>}
           </div>
         )}
       </div>
@@ -566,7 +595,7 @@ const Sop = ({ index }) => {
                     {store.chatHis.map((item,i)=>
                       <React.Fragment key={i}>
                         {(!item?.sys) &&
-                        <div className={(item?.WxId===item?.Msg?.data?.sender)?"msg rec":"msg my"} >
+                        <div className={(item?.wxId===item?.msg?.data?.sender)?"msg rec":"msg my"} >
                           <div className="msg-line">
 
                             <div className="avatar">
@@ -574,12 +603,12 @@ const Sop = ({ index }) => {
                             </div>
                             <div className="msg-detail">
                               <div className="msg-info">
-                                {item.Msg.data.sender_name || item.UserName} {item.Timestamp}
+                                {item.msg.data.sender_name || item.userName} {item.timestamp}
                               </div>
                               <div className="msg-wrap">
                                 {(item.Send_Status ===-1) && <div className="msg-status"  ><img src={icon_error} /></div>}
                                 <Tooltip 
-                                  position={(item?.WxId===item?.Msg?.data?.sender)?'left':'right' }
+                                  position={(item?.wxId===item?.msg?.data?.sender)?'left':'right' }
                                   content={msgContent(list)}
                                   trigger='mouseover' 
                                   closeEvent='mouseleave'
@@ -588,7 +617,7 @@ const Sop = ({ index }) => {
                                   >
                                   <i className='msg-menu'>···</i>
                                 </Tooltip>
-                                {RenderMsgDetail(item.Msg)}
+                                {RenderMsgDetail(item.msg)}
                               </div>
                               {(item.Send_Status === 0) && <i className="msg-status"> 发送中...</i>}
                             </div> 
@@ -624,15 +653,7 @@ const Sop = ({ index }) => {
                       </div>
                       <div className="sp"></div>
 
-                      {(selTab === 2) && 
-                      <div className="menu-item">
-                        <input 
-                          type="checkbox" 
-                          checked={store.curUser.Markasantibot === 0?true:false}
-                          onChange={doSetBot}
-                          />
-                        <label> 临时关闭该机器人</label>
-                      </div>}
+                      {RenderRobConf()}
 
                       {(selTab === 0) && 
                         <div className="menu-item" onClick={()=>store.finishProc()}>

@@ -158,7 +158,7 @@ export const RenderMsgDetail = (msg)=>{
     // case MSG.delUsr:return RenderRoomInfo(msg.data,1);
 
     default: 
-      console.log(toJS(msg))
+      // console.log(toJS(msg))
       console.log('不支持的消息')
   }
 }

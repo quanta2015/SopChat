@@ -71,13 +71,7 @@ export function formatTime(dateStr) {
     m = date.getMinutes(),
     s = date.getSeconds();
   d = timeNow - publishTime;
-  //小于10的在前面补0
-  // if (M < 10) {
-  //   M = "0" + M;
-  // }
-  // if (D < 10) {
-  //   D = "0" + D;
-  // }
+  
   if (H < 10) {
     H = "0" + H;
   }

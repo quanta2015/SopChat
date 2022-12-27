@@ -5,7 +5,7 @@ import { log } from '@/utils/common'
 // 将时间格式化为相对格式
 const formatMsg =(list)=>{
   list.map((item,i)=>{
-    let msg = JSON.parse(item?.LatestMsg)
+    let msg = (item?.latestMsg!=="")?JSON.parse(item?.latestMsg):""
 
     switch(msg?.type) {
       case MSG.txt:  item.lastMsg = msg?.data?.content;break;
@@ -16,6 +16,7 @@ const formatMsg =(list)=>{
       case MSG.audio: item.lastMsg = "【音频】";break;
       case MSG.link: item.lastMsg = `【链接】${msg.data.title}`;break;
       case MSG.app:  item.lastMsg = `【小程序】${msg.data.title}`;break;
+      default: item.lastMsg = ""
     }
   })
 }
@@ -32,7 +33,7 @@ export const initUnRead =(list,count=0)=>{
 export const sortListG = (list)=>{
   list.sort((a,b) => {
     return a.isOnTop ==  b.isOnTop?
-    b.msg?.send_time - a.msg?.send_time:
+    b.LastChatTimestamp - a.LastChatTimestamp:
     a.isOnTop - b.isOnTop
   })
 }
@@ -48,10 +49,10 @@ const formatInfo =(weList,list)=>{
   list.map((o,i)=>{
     o.map((p,j)=>{
       weList.map(item =>{
-        if (p.WxId===item.WxId) {
-          p.WeUserName = item.UserName
-          p.CorpName = item.CorpName
-          p.WeAvatar = item.OssAvatar
+        if (p.wxId===item.wxId) {
+          p.WeUserName = item.userName
+          p.CorpName = item.corpName
+          p.WeAvatar = item.ossAvatar
         }
       })
     })

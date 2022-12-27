@@ -1,4 +1,4 @@
-
+import _ from 'lodash';
 import { message } from 'antd';
 
 export async function request(url, opt = {}) {
@@ -22,7 +22,41 @@ export async function request(url, opt = {}) {
           reject(data);
           break;
         default: 
+          // data.data = _.mapKeys(data.data, (v,k) => _.snakeCase(k))
+          // console.log(data)
           resolve(data); 
+      }
+    });
+  })
+}
+
+
+export async function requestS(url, opt = {}) {
+  return new Promise((resolve, reject) => {
+    return fetch(url, {
+      headers: {
+        Accept: "application/json",
+        Authorization: window.token,
+        "Content-Type": "application/json;charset=UTF-8",
+      },
+      ...opt,
+    })
+    .then(async(response) => {
+      const string = await response.text();
+      return string === "" ? {} : JSON.parse(string)
+    })
+    .then((data) => {
+      switch(data.code) {
+        case 401: 
+          message.error(data.msg);
+          reject(data);
+          break;
+        default: 
+          // data = data.data.dataSource
+          // data.map((e,i)=> {
+          //   data[i] = _.mapKeys(e, (v,k) => k.toLowerCase())
+          // })
+          resolve(data.data); 
       }
     });
   })
@@ -43,6 +77,7 @@ export async function upload(url, file) {
           reject(data);
           break;
         default: 
+
           resolve(data); 
       }
     });

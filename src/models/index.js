@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 import { observable, action,toJS } from 'mobx';
 import { message,notification }  from 'antd';
-import { request,upload }  from '@/services/req';
+import { request,upload,requestS }  from '@/services/req';
 import { procData,initUnRead } from '@/utils/procData';
 import { clone }    from '@/utils/common';
 import { stringify } from 'qs';
@@ -18,14 +18,7 @@ import iconAvatar from '@/imgs/icon-avatar.png'
 const HEAD_Z = `https://pt-prod.lbian.cn`
 const HEAD_S = `https://rhyy.pre.suosishequ.com/gateway/group/web/internalGroupManager/zm`
 const HEAD_T = `https://front.sit.suosihulian.com/gateway/crm/mobile`
-
-
-
-const Z = {
-  tran_n: 0,
-  tran_b: 1,
-  tran_t: 2,
-}
+const HEAD_M = `https://rhyy.pre.suosishequ.com/gateway/crm/mobile/comchat`
 
 
 const initTransInfo =(tList,vList,that)=>{
@@ -41,11 +34,8 @@ const initTransInfo =(tList,vList,that)=>{
 }
 
 
-
-
-
-
 export class Index {
+  @observable curWe   = -1;
   @observable curUser = null;
   @observable unread  = 0;
   @observable chatHis = [];
@@ -57,25 +47,25 @@ export class Index {
   @observable tranList = [];
   @observable user = {};
   @observable conf = { robot:false, rid: null };
+  @observable userPageNo = 1;
+  @observable userPageTo = null;
 
 
-  weList = []
-  // user   = {
-  //   "realName": "李建彬",
-  //   "orgName": "杭州所思互连科技有限公司",
-  //   "corpId": "ww3eaf4f90528f7c0e",
-  //   "userId": "1522203551195275350",
-  //   "orgId": "3301001000005"
-  // }
-  
+  URL_ONLINE_WX_USR_LIST  = `${HEAD_M}/onlineManagerList`
+  URL_CONTACT_ALL_LIST    = `${HEAD_M}/customerPage`
+  URL_ROOM_CONTACT_LIST   = `${HEAD_M}/groupList`
+  URL_CONTACT_TRANS_LIST  = `${HEAD_M}/transferCustomerList`
+  URL_CONTACT_UNREAD_NUM  = `${HEAD_M}/unreadNum`
 
 
-
-  URL_ONLINE_WX_USR_LIST  = `${HEAD_Z}/WxUser/OnlineWxUserList`
-  URL_ROOM_CONTACT_LIST   = `${HEAD_Z}/Room/RoomContactList`
+  // URL_CONTACT_USR_LIST    = `${HEAD_M}/transferCustomerList`
+  // URL_ONLINE_WX_USR_LIST  = `${HEAD_Z}/WxUser/OnlineWxUserList`
+  // URL_ROOM_CONTACT_LIST   = `${HEAD_Z}/Room/RoomContactList`
   // URL_ROOM_MEMBER_LIST    = `${HEAD_Z}/Room/RoomMemberList`
+  // URL_CONTACT_ALL_LIST    = `${HEAD_Z}/Contact/AllContactListWithstatus`
+  // URL_CONTACT_TRANS_LIST  = `${HEAD_Z}/Transfer/List`
+  // URL_CONTACT_UNREAD_NUM  = `${HEAD_T}/comchat/unreadNum`
   URL_CONTACT_USR_LIST    = `${HEAD_Z}/Contact/GetUserContactList`
-  URL_CONTACT_ALL_LIST    = `${HEAD_Z}/Contact/AllContactListWithstatus`
   URL_CONTACT_RELATION    = `${HEAD_Z}/Contact/GetContactRelation`
   URL_CONTACT_SET_TOP     = `${HEAD_Z}/Contact/ConactTopRequest`
   URL_CONTACT_CANCEL_TOP  = `${HEAD_Z}/Contact/CancelContactTopRequest`
@@ -83,22 +73,17 @@ export class Index {
   URL_CONTACT_UPDATE_CST  = `${HEAD_Z}/Contact/UpdateConvsationStatus`
   URL_CONTACT_CONF_LOAD   = `${HEAD_Z}/Contact/GetUserRecSetting`
   URL_CONTACT_CONF_SAVE   = `${HEAD_Z}/Contact/SaveUserRecSetting`
-
-
-  URL_ROOM_MEMBER_LIST    = `${HEAD_S}/findMemberList?chatId=`
-  URL_CONTACT_UNREAD_NUM  = `${HEAD_T}/comchat/unreadNum`
-  
-
-  URL_CHAT_HISTORY_LIST   = `${HEAD_Z}/ChatHistory/ChatHistorys`
-  URL_CHAT_HISTORY_SEARCH = `${HEAD_Z}/ChatHistory/SearchChatHistorys`
-
-
-  URL_CONTACT_TRANS_LIST  = `${HEAD_Z}/Transfer/List`
   URL_CONTACT_TRANS_RETURN= `${HEAD_Z}/Transfer/TransferReturn`
   URL_CONTACT_TRANS_BACK  = `${HEAD_Z}/Transfer/TransferBack`
 
-  URL_CONFIG_UPDATE_BOT   = `${HEAD_Z}/Config/UpdateBotSetting`
+  URL_ROOM_MEMBER_LIST    = `${HEAD_S}/findMemberList?chatId=`
+  
+  URL_CHAT_HISTORY_LIST   = `${HEAD_M}/chatHistoryPage`
+  // URL_CHAT_HISTORY_LIST   = `${HEAD_Z}/ChatHistory/ChatHistorys`
+  URL_CHAT_HISTORY_SEARCH = `${HEAD_Z}/ChatHistory/SearchChatHistorys`
 
+  
+  URL_CONFIG_UPDATE_BOT   = `${HEAD_Z}/Config/UpdateBotSetting`
 
 
   URL_UPLOAD              = `${HEAD_Z}/File/UploadFile`
@@ -255,73 +240,86 @@ export class Index {
   // 获取聊天详情列表
   @action
   async getChatInfo(type,item) {
-    let params1 = {
-      method: 'POST',
-      body: JSON.stringify({
-        WxId: item.WxId,
-        pageIndex: 1,
-        chatId: item?.chatId,
-        ContactUserId:item?.ContactUserId,
-        ConversationId:item?.ConversationId,
-        ConversationIds: [item?.ConversationId],
-        Type: 0,
-        pageSize: 100,
-      }) 
-    };
-    let params2 = {
-      method: 'POST',
-      body: JSON.stringify({
-        WxId: item.WxId,
-        conversationId: [item?.ConversationId],
-        status: item.CurrentReceiptionStatus,
+    console.log('item',toJS(item))
+    let param =(e)=> { 
+      return { 
+        method: 'POST',
+        body: JSON.stringify({...e}) 
+      }
+    }
+    let paramsS1 = param({
+      search: {
+        conversationId:item?.conversationId,
+        wxId: item.wxId,
+      },
+      pageNo: 0,
+      pageSize: 100,
+    })
+    let paramsS2 = param({
+      WxId: item.wxId,
+      chatId: item?.chatId,
+      ContactUserId:item?.contactUserId,
+      ConversationId:item?.conversationId,
+      ConversationIds: [item?.conversationId],
+      Type: 0,
+      pageIndex: 1,
+      pageSize: 100,
+    })
+    let paramsS3 = param({
+      WxId: item.wxId,
+        conversationId: [item?.conversationId],
+        status: item.currentReceiptionStatus,
         changeStatus: 0,
         orgId: this.user.orgId,
         userId: this.user.userId,
-      }) 
-    };
-    let r = await request(this.URL_CHAT_HISTORY_LIST, params1)
-    let s = await request(this.URL_CONTACT_RELATION, params1)
-    let t = await request(this.URL_CONTACT_UPDATE_CST, params2)
+    })
 
+
+    let r = await request(this.URL_CHAT_HISTORY_LIST, paramsS1)
+    let s = await request(this.URL_CONTACT_RELATION, paramsS2)
+    let t = await request(this.URL_CONTACT_UPDATE_CST, paramsS3)
+
+    let {current,pageSize,total} = r.data.pagination
+    s.more = ((current+1)*pageSize<total)?true:false
+    r = r.data.dataSource
+    console.log('rrr',r)
     // 用户选中时将小红点清零
     this.curUser.MarkAsUnread = 1
     this.curUser.UnreadMsgCount = 0
-    this.unread = initUnRead(this.contList)
-
-
+    // this.unread = initUnRead(this.contList)
 
     
     // 是否有更多消息
-    s.more = (r.length=== 100)? true:false
+    // s.more = (r.length=== 100)? true:false
 
     // 格式化聊天顺序和时间
     r.reverse().map((item,i)=>{
-      item.Timestamp = formatTime(item.Timestamp)
-      item.Msg = JSON.parse(item.Msg)
+      item.Timestamp = formatTime(item?.Timestamp)
+      item.msg = JSON.parse(item?.msg)
     })
 
     // 群聊要过滤消息内容 添加聊天头像
     if (type===MSG.group) {
       let t = await request(`${this.URL_ROOM_MEMBER_LIST}${item.chatId}`, { method: 'GET' });
       t = t.data.dataSource
-      
+      console.log('ttt',t)
       r.map(o=>{
         t.map(p=>{
-          if (o.Msg.data.sender === p.id) {
+          if (o.msg.data.sender === p.id) {
             o.WeAvatar = p.OssAvatar 
           }else{
             o.WeAvatar = iconAvatar
           }
         })
-        if ((o.Msg.type === 11072)||(o.Msg.type === 11073)) {
-          let userList = o.Msg?.data?.member_list.map(e=>e.name).join('","')
+        if ((o.msg.type === 11072)||(o.msg.type === 11073)) {
+          let userList = o.msg?.data?.member_list.map(e=>e.name).join('","')
           o.sys = 1
-          o.inf = (o.Msg.type === 11072)?`"${userList}"加入群聊`:`你已将"${userList}"移出群聊`
+          o.inf = (o.msg.type === 11072)?`"${userList}"加入群聊`:`你已将"${userList}"移出群聊`
         }
       })
     }else{
       // 私聊设置聊天头像
-      r.map(o=>o.WeAvatar = (o.WxId===o.Msg.data.sender)?item.WeAvatar:item.Avatar)
+      r.map(o=>o.WeAvatar = (o.wxId===o.msg.data.sender)?item.WeAvatar:item.ossAvatar)
     }
 
 
@@ -334,25 +332,52 @@ export class Index {
   // 获取客户、群聊、处理客户列表
   @action
   async getDataList(data) {
-    let params = { 
-      method: 'POST',
-      body: JSON.stringify({
-        WxIds: data,
-        pageIndex:1,
-        pageSize: 100,
-        LastTimestamp: 1,
-        status: 0,
-        orgId: this.user.orgId,
-        userId: this.user.userId,
-      }) 
-    };
+    // let params = { 
+    //   method: 'POST',
+    //   body: JSON.stringify({
+    //     WxIds: data,
+    //     pageIndex:1,
+    //     pageSize: 100,
+    //     LastTimestamp: 1,
+    //     status: 0,
+    //     orgId: this.user.orgId,
+    //     userId: this.user.userId,
+    //   }) 
+    // };
 
-    const s = await request(this.URL_ROOM_CONTACT_LIST,params);
-    const t = await request(this.URL_CONTACT_ALL_LIST, params);
-    const u = await request(this.URL_CONTACT_USR_LIST, params);
-    procData(this.weList,s,t,u)
+    // let s = await request(this.URL_ROOM_CONTACT_LIST,params);
+    // let t = await request(this.URL_CONTACT_ALL_LIST, params);
+    // let u = await request(this.URL_CONTACT_USR_LIST, params);
+    let param =(e)=> { 
+      return { 
+        method: 'POST',
+        body: JSON.stringify({...e}) 
+      }
+    }
+    let paramsS1 = param({
+      search: { wxIdList: data },
+      pageSize: 10,
+      pageNo: 0,
+    })
 
-    console.log(s,t,u)
+    let paramsS2 = param({
+      search: { wxIdList: data, status: 0 }
+    })
+    let paramsS3 = param({ wxIdList: data})
+
+
+    let t = await requestS(this.URL_CONTACT_ALL_LIST,paramsS1);
+    let u = await requestS(this.URL_CONTACT_ALL_LIST,paramsS2);
+    let s = await requestS(this.URL_ROOM_CONTACT_LIST,paramsS3);
+    t = t.dataSource
+    s = s.dataSource
+    u = u.dataSource
+
+    // console.log('data',data)
+
+    procData(this.userList,s,t,u)
+
+    // console.log(s,t,u)
     return { room:s, cont:t, proc: u}
   }
 
@@ -361,11 +386,12 @@ export class Index {
   @action
   async getOnlineWxUserList() {
     let WxIds = []
-    let r = await request(this.URL_ONLINE_WX_USR_LIST,{ method: 'POST', });
+    let r = await requestS(this.URL_ONLINE_WX_USR_LIST)
+    r = r.dataSource
+    this.setUserList(r)
     console.log('URL_ONLINE_WX_USR_LIST',r)
-
-    this.weList = clone(r)
-    r.map((o,i)=>WxIds.push(o.WxId))
+    
+    r.map((o,i)=>WxIds.push(o.wxId))
     let params = { 
       method: 'POST',
       body: JSON.stringify({
@@ -379,20 +405,42 @@ export class Index {
       }) 
     };
 
-    const z = await request(this.URL_CONTACT_CONF_LOAD,params);
-    const s = await request(this.URL_ROOM_CONTACT_LIST,params);
-    const t = await request(this.URL_CONTACT_ALL_LIST,params);
-    const u = await request(this.URL_CONTACT_USR_LIST,params);
-    const v = await request(this.URL_CONTACT_TRANS_LIST,params);
+    let param =(e)=> { 
+      return { 
+        method: 'POST',
+        body: JSON.stringify({...e}) 
+      }
+    }
+    let paramsS1 = param({
+      search: { wxIdList: WxIds },
+      pageSize: 10,
+      pageNo: 0,
+    })
 
-    // let params2 = { method: 'POST', body: JSON.stringify({ wxIdList: WxIds }) };
-    // const n = await request(this.URL_CONTACT_UNREAD_NUM,params2);
-    // log(z,'setting')
+    let paramsS2 = param({
+      search: { wxIdList: WxIds, status: 0 }
+    })
+    let paramsS3 = param({ wxIdList: WxIds})
 
 
-    procData(this.weList,s,t,u)
+    let t = await requestS(this.URL_CONTACT_ALL_LIST,paramsS1);
+    let u = await requestS(this.URL_CONTACT_ALL_LIST,paramsS2);
+    let s = await requestS(this.URL_ROOM_CONTACT_LIST,paramsS3);
+    let v = await requestS(this.URL_CONTACT_TRANS_LIST);
+    let z = await request(this.URL_CONTACT_CONF_LOAD,params);
+    let n = await request(this.URL_CONTACT_UNREAD_NUM,paramsS3);
+    
+    this.userPageNo = t.pagination.current
+    this.userPageTo = t.pagination.total
+    t = t.dataSource
+    s = s.dataSource
+    u = u.dataSource
+    v = v.dataSource
+    n = n.dataSource
+
+
+    procData(this.userList,s,t,u)
     this.unread = initUnRead(t)
-
 
     // All 计算转交标记
     v.map((o,j)=>{
@@ -415,21 +463,19 @@ export class Index {
 
     initTransInfo(t,v,this)
     initTransInfo(u,v,this)
-
-
-    // let s1 = u.filter(e=> e.ConversationId!=="S:1688855187378464_7881302637932589")
     
     // console.log('ROOM_LIST',s)
     // console.log('ALL_LIST',t)
     // console.log('USR_LIST',u)
     // console.log('TRAN_LIST',v)
+    // console.log('UNREAD',n)
 
     
     this.conf = {
       robot: z.turnon===1?true:false,
       rid: z.id
     }
-    this.setUserList(r)
+    
     this.setProcList(u)
     this.setRoomList(s)
     this.setContList(t)
@@ -443,7 +489,7 @@ export class Index {
   @action
   async refreshProcList(e) {
     let WxIds = []
-    this.weList.map(o=>WxIds.push(o.WxId))
+    this.userList.map(o=>WxIds.push(o.wxId))
 
     let params = { 
       method: 'POST',
@@ -461,7 +507,7 @@ export class Index {
     }
     const u = await request(this.URL_CONTACT_USR_LIST,params)
     const z = await request(this.URL_CONTACT_CONF_SAVE,params)
-    procData(this.weList,[],[],u)
+    procData(this.userList,[],[],u)
 
     this.conf.robot = e
     this.setProcList(u)
